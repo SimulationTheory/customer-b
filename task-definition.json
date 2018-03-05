@@ -1,0 +1,29 @@
+{
+  "family": "outage-$ENV",
+  "taskRoleArn": "$TASK_ROLE_ARN",
+  "containerDefinitions": [
+    {
+      "name": "outage",
+      "image": "$ECR_HOSTNAME/outage:$IMAGE_TAG",
+      "memory": $MEMORY,
+      "cpu": 0,
+      "portMappings": [
+        {
+          "hostPort": 0,
+          "protocol": "tcp",
+          "containerPort": 5000
+        }
+      ],
+      "environment": [
+        {
+          "name": "ASPNETCORE_ENVIRONMENT",
+          "value": "$ASPNETCORE_ENVIRONMENT"
+        },
+        {
+          "name": "GIT_HASH",
+          "value": "$GIT_HASH"
+        }
+      ]
+    }
+  ]
+}

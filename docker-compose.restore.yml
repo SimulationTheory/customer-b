@@ -1,0 +1,11 @@
+version: '2.3'
+
+services:
+  customer-restore:
+    image: customer-restore
+    build:
+      context: .
+      dockerfile: Dockerfile.restore
+    volumes:
+      - ~/.config/NuGet/NuGet.Config:/root/.config/NuGet/NuGet.Config
+      - ./packages:/app/packages

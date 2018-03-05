@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.0</TargetFramework>
+        <AssemblyName>app</AssemblyName>
+        <DebugType>Full</DebugType>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <DocumentationFile></DocumentationFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Compile Remove="V1\Clients\**" />
+      <Content Remove="V1\Clients\**" />
+      <EmbeddedResource Remove="V1\Clients\**" />
+      <None Remove="V1\Clients\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.5" />
+        <PackageReference Include="PSE.CertificateInstaller" Version="0.0.9" />
+        <PackageReference Include="PSE.WebAPI.Core" Version="0.0.40" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Update="localConfiguration.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="V1\Models\" />
+      <Folder Include="V1\Response\" />
+    </ItemGroup>
+</Project>

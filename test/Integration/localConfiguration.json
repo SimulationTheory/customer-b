@@ -1,0 +1,30 @@
+﻿{
+  "CassandraSettings": {
+    "Hosts": [
+      {
+        "HostName": "10.128.42-204",
+        "IpAddress": "10.128.42.204"
+      },
+      {
+        "HostName": "10.128.42-114",
+        "IpAddress": "10.128.42.114"
+      },
+      {
+        "IpAddress": "10.128.45.50"
+      }
+    ],
+    "Port": 9042,
+    "ClusterUser": "cassandra_dev",
+    "ClusterPassword": "Electric-Camel-76",
+    "ConsistencyLevel": "Quorum",
+    "UseClusterCredentials": true,
+    "UseSSL": true,
+    "UseQueryOptions": true,
+    "MaxConnectionsPerHost": 1000
+  },
+  "RedisOptions": {
+    "Configuration": "rediscache.iuy6pw.ng.0001.usw2.cache.amazonaws.com",
+    "InstanceName": null
+  },
+  "LoadBalancerUrl": "http://internal-ci-dev-alb-962991584.us-west-2.elb.amazonaws.com"
+}

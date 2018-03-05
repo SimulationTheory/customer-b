@@ -1,0 +1,35 @@
+version: '2.3'
+
+services:
+  customer:
+    image: customer
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ~/.aws/credentials:/root/.aws/credentials
+    ports:
+      - "5000:5000"
+    healthcheck:
+      test: curl --fail -s http://localhost:5000/healthcheck || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    environment:
+      - AWS_PROFILE=AWSDevUser
+      - ASPNETCORE_ENVIRONMENT=Dev
+      - GIT_HASH=Docker_Compose
+  customer-test:
+    image: customer-test
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    volumes:
+      - ~/.aws/credentials:/root/.aws/credentials
+    depends_on:
+      customer:
+        condition: service_healthy
+    environment:
+      - AWS_PROFILE=AWSDevUser
+      - ASPNETCORE_ENVIRONMENT=Dev
+      - GIT_HASH=Docker_Compose

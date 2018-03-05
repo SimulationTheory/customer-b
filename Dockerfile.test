@@ -1,0 +1,6 @@
+FROM microsoft/aspnetcore-build:2.0 AS build-env
+WORKDIR /app
+COPY . ./
+RUN dotnet publish -c Release -o out --packages ./packages
+EXPOSE 5000
+ENTRYPOINT dotnet test test/Unit/PSE.Customer.Tests.Unit.csproj --configuration release --no-restore && dotnet test test/Integration/PSE.Customer.Tests.Integration.csproj --configuration release  --no-restore
