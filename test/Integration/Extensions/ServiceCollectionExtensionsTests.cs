@@ -32,19 +32,6 @@ namespace PSE.Customer.Extensions.Tests.Integration
                 //Waiting until certificates are installed
                 Thread.Sleep(5000);
             }
-
-            [TestMethod]
-            public void AddRepositories_Test()
-            {
-                // init vars
-                var services = new ServiceCollection();
-                var logger = CoreHelper.GetLogger<Startup>();
-                var loggerFactory = new LoggerFactory();
-                services.AddSingleton<ILoggerFactory>(loggerFactory);
-
-                // test target month
-                services.AddRepositories(logger);
-            }
         }
     }
 }

@@ -97,96 +97,17 @@ namespace PSE.Customer.Tests.Integration
         public class Constructor
         {
 
-            /// <summary>
-            /// Tests the Startup(logger, env) constructor. Golden path
-            /// </summary>
-            [TestMethod]
-            public void Startup_Test()
-            {
-                // init vars
-                var env = GetHostingEnvironment(EnvironmentName.Development);
-                var logger = TestHelper.GetLogger<Startup>();
-
-                // test target constructor
-                var result = new Startup(logger, env);
-
-                // assertions
-                Assert.IsNotNull(result.Configuration);
-                Assert.IsNotNull(result.Configuration.GetSection("AppSettings"));
-            }
-
-            /// <summary>
-            /// Tests the Startup(logger, env) constructor. Golden path
-            /// </summary>
-            [TestMethod]
-            public void Startup_Production_Test()
-            {
-                // init vars
-                var env = GetHostingEnvironment(EnvironmentName.Production);
-                var logger = TestHelper.GetLogger<Startup>();
-
-                // test target constructor
-                var result = new Startup(logger, env);
-
-                // assertions
-                Assert.IsNotNull(result.Configuration);
-            }
         }
 
         [TestClass]
         public class Configure
         {
 
-            /// <summary>
-            /// Tests the Configure() method to confirm the expected services are registered.
-            /// </summary>
-            [TestMethod]
-            public void Configure_Test()
-            {
-                // init vars
-                var app = GetApplicationBuilder();
-                var env = GetHostingEnvironment(EnvironmentName.Development);
-                var loggerFactory = new LoggerFactory();
-                var provider = GetApiVersionDescriptionProvider();
-                var target = GetStartup();
-
-                // test target method
-                target.Configure(app, env, loggerFactory, provider);
-            }
         }
 
         [TestClass]
         public class ConfigureServices
         {
-
-            /// <summary>
-            /// Tests the ConfigureServices() method to confirm the expected services are registered.
-            /// </summary>
-            [TestMethod]
-            public void ConfigureServices_E2E_Test()
-            {
-                // init vars
-                //var connection = TestHelper.GetWebConfiguration().CassandraSettings.CreateCluster(null);
-                var services = new ServiceCollection();
-                services.AddSingleton<ILogger>(CoreHelper.GetLogger<Startup>());
-                services.AddSingleton(TestHelper.GetSessionFacade());
-                services.AddSingleton(CoreHelper.GetLogger<ContractAccountRepository>());
-                services.AddSingleton(CoreHelper.GetLogger<CustomerLogic>());
-                var target = GetStartup();
-
-                var loggerFactory = new LoggerFactory();
-                services.AddSingleton<ILoggerFactory>(loggerFactory);
-
-                // test target method
-                target.ConfigureServices(services);
-
-                // assertions
-                var provider = services.BuildServiceProvider();
-                Assert.IsNotNull(provider.GetService<IEntity<ContractAccountEntity>>());
-                Assert.IsNotNull(provider.GetService<IEntity<ContractAccountByBusinessPartnerView>>());
-                Assert.IsNotNull(provider.GetService<IContractAccountRepository>());
-                Assert.IsNotNull(provider.GetService<ICustomerLogic>());
-            }
         }
     }
 }
