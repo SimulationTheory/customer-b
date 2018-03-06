@@ -1,10 +1,10 @@
 {
-  "family": "outage-$ENV",
+  "family": "customer-$ENV",
   "taskRoleArn": "$TASK_ROLE_ARN",
   "containerDefinitions": [
     {
-      "name": "outage",
-      "image": "$ECR_HOSTNAME/outage:$IMAGE_TAG",
+      "name": "customer",
+      "image": "$ECR_HOSTNAME/customer:$IMAGE_TAG",
       "memory": $MEMORY,
       "cpu": 0,
       "portMappings": [
