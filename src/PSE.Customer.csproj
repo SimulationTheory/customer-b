@@ -32,9 +32,4 @@
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
     </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="V1\Models\" />
-      <Folder Include="V1\Response\" />
-    </ItemGroup>
 </Project>
