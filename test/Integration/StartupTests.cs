@@ -13,15 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using PSE.Cassandra.Core.Session.Interfaces;
-using PSE.Customer.V1.Logic;
-using PSE.Customer.V1.Logic.Interfaces;
-using PSE.Customer.V1.Repositories;
-using PSE.Customer.V1.Repositories.Entities;
-using PSE.Customer.V1.Repositories.Interfaces;
-using PSE.Customer.V1.Repositories.Views;
 using PSE.Customer.Tests.Integration.TestObjects;
-using PSE.Test.Core;
 
 namespace PSE.Customer.Tests.Integration
 {
@@ -84,10 +76,10 @@ namespace PSE.Customer.Tests.Integration
 
         private static Startup GetStartup()
         {
-            var logger = TestHelper.GetLogger<Startup>();
+            //var logger = TestHelper.GetLogger<Startup>();
             var env = GetHostingEnvironment(EnvironmentName.Development);
 
-            return new Startup(logger, env);
+            return new Startup(null, env);
         }
 
         #endregion Test Helper Methods

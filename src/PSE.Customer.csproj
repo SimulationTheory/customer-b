@@ -12,9 +12,21 @@
 
     <ItemGroup>
       <Compile Remove="V1\Clients\**" />
+      <Compile Remove="V1\Repositories\Entities\**" />
+      <Compile Remove="V1\Repositories\Interfaces\**" />
+      <Compile Remove="V1\Repositories\Views\**" />
       <Content Remove="V1\Clients\**" />
+      <Content Remove="V1\Repositories\Entities\**" />
+      <Content Remove="V1\Repositories\Interfaces\**" />
+      <Content Remove="V1\Repositories\Views\**" />
       <EmbeddedResource Remove="V1\Clients\**" />
+      <EmbeddedResource Remove="V1\Repositories\Entities\**" />
+      <EmbeddedResource Remove="V1\Repositories\Interfaces\**" />
+      <EmbeddedResource Remove="V1\Repositories\Views\**" />
       <None Remove="V1\Clients\**" />
+      <None Remove="V1\Repositories\Entities\**" />
+      <None Remove="V1\Repositories\Interfaces\**" />
+      <None Remove="V1\Repositories\Views\**" />
     </ItemGroup>
 
     <ItemGroup>

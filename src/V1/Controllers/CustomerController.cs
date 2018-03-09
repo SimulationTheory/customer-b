@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PSE.Customer.Configuration;
 using PSE.Customer.V1.Models;
+using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.WebAPI.Core.Service;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,9 @@ using System.Threading.Tasks;
 
 namespace PSE.Customer.V1.Controllers
 {
+    /// <summary>
+    /// Customer Controller
+    /// </summary>
     [ApiVersion("1.0")]
     [Produces("application/json")]
     [Route("v{version:apiVersion}/customer/")]
@@ -33,8 +37,21 @@ namespace PSE.Customer.V1.Controllers
             _config = (appSettings ?? throw new ArgumentNullException(nameof(appSettings))).Value;
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        }        
+        }
 
+        /// <summary>
+        /// Lookup Customer by given customer name & account number
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        /// GET /lookup
+        /// {
+        /// "nameonbill":"test user",
+        /// "contractaccountnumber": "200909090900"
+        /// }
+        /// </remarks>
+        /// <param name="customer"></param>
+        /// <returns>returns LookupCustomerResponse</returns>
         [ProducesResponseType(typeof(LookupCustomerResponse), 200)]
         [HttpGet("lookup")]
         [AllowAnonymous]        
@@ -47,19 +64,24 @@ namespace PSE.Customer.V1.Controllers
             return result;
         }
 
-        [ProducesResponseType(typeof(IEnumerable<SecurityQuestion>), 200)]
+        [ProducesResponseType(typeof(IEnumerable<string>), 200)]
         [HttpGet("security-questions")]
         [AllowAnonymous]
         public async Task<IActionResult> GetSecurityQuestions()
         {
-            IActionResult result = Ok(new[] { new SecurityQuestion {Id = "1", Question="What is your quest?" },
-                new SecurityQuestion {Id = "2", Question="What is your pet name?" },
-                new SecurityQuestion {Id = "3", Question="What is your mother maiden name?" },
+            IActionResult result = Ok(new[] {
+                "What is your quest?",
+                "What is your pet name?",
+                "What is your mother maiden name?"
             });
 
             return result;
         }       
 
+        /// <summary>
+        /// Gets Customer Profile by loggedIn user
+        /// </summary>
+        /// <returns>returns CustomerProfile information</returns>
         [ProducesResponseType(typeof(CustomerProfile), 200)]
         [HttpGet("profile")]
         public async Task<IActionResult> GetCustomerProfile()
@@ -69,12 +91,8 @@ namespace PSE.Customer.V1.Controllers
                 new CustomerProfile
                 {
                     EmailAddress = "test@pse.com",
-                    CustomerCredentials = new CustomerCredentials()
-                    {
-                        UserName = "myPseUser",
-                        Password = string.Empty //never populate password on return of the object
-                    },
-                    MailingAddress = new Address
+                    UserName = "myPseUser",
+                    MailingAddress = new AddressDefinedType
                     {
                         AddressLine1 = "350 110th Ave NE",
                         AddressLine2 = string.Empty,
@@ -85,9 +103,9 @@ namespace PSE.Customer.V1.Controllers
                     },
                     Phones = new List<Phone>()
                 {
-                    new Phone {Type=PhoneType.Cell, Number="4251234567"},
-                    new Phone {Type=PhoneType.Home, Number="5251234567"},
-                    new Phone {Type=PhoneType.Work, Number="6251234567", Extension="1234"}
+                    new Phone {Type = PhoneType.Cell, Number="4251234567"},
+                    new Phone {Type= PhoneType.Home, Number="5251234567"},
+                    new Phone {Type= PhoneType.Work, Number="6251234567", Extension="1234"}
                 },
                     PrimaryPhone = PhoneType.Cell
                 });
@@ -115,7 +133,7 @@ namespace PSE.Customer.V1.Controllers
 
         [ProducesResponseType(typeof(OkResult), 200)]
         [HttpPut("mailing-address")]
-        public async Task<IActionResult> SaveMailingAddress(Address address)
+        public async Task<IActionResult> SaveMailingAddress(AddressDefinedType address)
         {
             //This is an authorized call
             //Get BPId from claims to update mailing address

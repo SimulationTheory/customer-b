@@ -5,11 +5,7 @@ using PSE.Cassandra.Core.Extensions;
 using PSE.Customer.Configuration.Keyspaces;
 using PSE.Customer.V1.Logic;
 using PSE.Customer.V1.Logic.Interfaces;
-using PSE.Customer.V1.Repositories;
 using PSE.Customer.V1.Repositories.DefinedTypes;
-using PSE.Customer.V1.Repositories.Entities;
-using PSE.Customer.V1.Repositories.Interfaces;
-using PSE.Customer.V1.Repositories.Views;
 using PSE.WebAPI.Core.Startup;
 
 namespace PSE.Customer.Extensions
@@ -32,11 +28,8 @@ namespace PSE.Customer.Extensions
             var config = services.GetCoreOptions().Configuration;
             services.AddCassandraConfiguration(config.CassandraSettings, services.GetLoggerFactory());
             services.AddCassandraMapping<MicroservicesKeyspace, AddressDefinedType>();
-            services.AddCassandraEntity<MicroservicesKeyspace, ContractAccountEntity>();
-            services.AddCassandraEntity<MicroservicesKeyspace, ContractAccountByBusinessPartnerView>();
 
             // Setup repos and logic
-            services.AddTransient<IContractAccountRepository, ContractAccountRepository>();
             services.AddTransient<ICustomerLogic, CustomerLogic>();
         }
 
