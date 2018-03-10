@@ -90,8 +90,7 @@ namespace PSE.Customer.V1.Controllers
             IActionResult result = Ok(
                 new CustomerProfile
                 {
-                    EmailAddress = "test@pse.com",
-                    UserName = "myPseUser",
+                    EmailAddress = "test@pse.com",                    
                     MailingAddress = new AddressDefinedType
                     {
                         AddressLine1 = "350 110th Ave NE",

@@ -11,9 +11,8 @@ namespace PSE.Customer.V1.Models
         public string IsPva { get; set; }
         public string EmailAddress { get; set; }        
         public AddressDefinedType MailingAddress { get; set; }        
-        public IEnumerable<Phone> Phones { get; set; }
-        public string UserName { get; set; }
         [JsonConverter(typeof(StringEnumConverter))]
-        public PhoneType PrimaryPhone { get; set; }        
+        public IEnumerable<Phone> Phones { get; set; }
+        public PhoneType PrimaryPhone { get; set; }
     }
 }

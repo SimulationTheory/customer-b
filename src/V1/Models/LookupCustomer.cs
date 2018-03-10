@@ -7,6 +7,7 @@ namespace PSE.Customer.V1.Models
     {
         [Required]
         public string NameOnBill { get; set; }
+        [Required]
         public string ContractAccountNumber { get; set; }        
         public string TaxId { get; set; }
 

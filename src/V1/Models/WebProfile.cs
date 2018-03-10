@@ -11,7 +11,5 @@ namespace PSE.Customer.V1.Models
         public IEnumerable<SecurityQuestionResponse> SecurityQuestionResponses { get;set;}        
         public CustomerCredentials CustomerCredentials { get; set; }
         public Phone Phone { get; set; }
-        [Required]
-        public bool TermsAndConditions { get; set; } 
     }
 }
