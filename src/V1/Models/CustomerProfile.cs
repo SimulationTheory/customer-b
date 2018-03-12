@@ -8,6 +8,7 @@ namespace PSE.Customer.V1.Models
     public class CustomerProfile
     {        
         public string CustomerName { get; set; }
+        public string OrganizationName { get; set; }
         public string IsPva { get; set; }
         public string EmailAddress { get; set; }        
         public AddressDefinedType MailingAddress { get; set; }        

@@ -58,25 +58,11 @@ namespace PSE.Customer.V1.Controllers
         public async Task<IActionResult> LookupCustomer(LookupCustomer customer)
         {
             IActionResult result = Ok(
-                new LookupCustomerResponse { BPId = "1002323", Type="Residential", HasWebAccount = false}
+                new LookupCustomerResponse { BPId = "1002323", HasWebAccount = false}
             );
 
             return result;
-        }
-
-        [ProducesResponseType(typeof(IEnumerable<string>), 200)]
-        [HttpGet("security-questions")]
-        [AllowAnonymous]
-        public async Task<IActionResult> GetSecurityQuestions()
-        {
-            IActionResult result = Ok(new[] {
-                "What is your quest?",
-                "What is your pet name?",
-                "What is your mother maiden name?"
-            });
-
-            return result;
-        }       
+        }            
 
         /// <summary>
         /// Gets Customer Profile by loggedIn user
