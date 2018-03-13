@@ -41,6 +41,8 @@ namespace PSE.Customer
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             env = env ?? throw new ArgumentNullException(nameof(env));
 
+            _logger.LogInformation("Starting the account microservice.");
+
             try
             {
                 var builder = new ConfigurationBuilder()
@@ -51,7 +53,9 @@ namespace PSE.Customer
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
+                _logger.LogCritical(ex, "An exception occurred during Startup initialization.");
+
+                throw;
             }
         }
 
