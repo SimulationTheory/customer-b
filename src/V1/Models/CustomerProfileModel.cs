@@ -5,15 +5,15 @@ using System.Collections.Generic;
 
 namespace PSE.Customer.V1.Models
 {
-    public class CustomerProfile
+    public class CustomerProfileModel
     {        
         public string CustomerName { get; set; }
         public string OrganizationName { get; set; }
         public string IsPva { get; set; }
         public string EmailAddress { get; set; }        
-        public AddressDefinedType MailingAddress { get; set; }        
-        [JsonConverter(typeof(StringEnumConverter))]
+        public AddressDefinedType MailingAddress { get; set; }
         public IEnumerable<Phone> Phones { get; set; }
-        public PhoneType PrimaryPhone { get; set; }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public PhoneType? PrimaryPhone { get; set; }
     }
 }

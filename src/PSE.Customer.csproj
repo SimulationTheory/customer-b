@@ -12,27 +12,19 @@
 
     <ItemGroup>
       <Compile Remove="V1\Clients\**" />
-      <Compile Remove="V1\Repositories\Entities\**" />
-      <Compile Remove="V1\Repositories\Interfaces\**" />
       <Compile Remove="V1\Repositories\Views\**" />
       <Content Remove="V1\Clients\**" />
-      <Content Remove="V1\Repositories\Entities\**" />
-      <Content Remove="V1\Repositories\Interfaces\**" />
       <Content Remove="V1\Repositories\Views\**" />
       <EmbeddedResource Remove="V1\Clients\**" />
-      <EmbeddedResource Remove="V1\Repositories\Entities\**" />
-      <EmbeddedResource Remove="V1\Repositories\Interfaces\**" />
       <EmbeddedResource Remove="V1\Repositories\Views\**" />
       <None Remove="V1\Clients\**" />
-      <None Remove="V1\Repositories\Entities\**" />
-      <None Remove="V1\Repositories\Interfaces\**" />
       <None Remove="V1\Repositories\Views\**" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.5" />
-        <PackageReference Include="PSE.CertificateInstaller" Version="0.0.9" />
-        <PackageReference Include="PSE.WebAPI.Core" Version="0.0.40" />
+        <PackageReference Include="AutoMapper" Version="6.2.2" />
+        <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.6" />
+        <PackageReference Include="PSE.WebAPI.Core" Version="0.0.41" />
     </ItemGroup>
 
     <ItemGroup>

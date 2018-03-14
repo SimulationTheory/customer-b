@@ -1,14 +1,19 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PSE.Customer.Configuration;
+using PSE.Customer.V1.Logic.Interfaces;
 using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
+using PSE.Customer.V1.Response;
+using PSE.WebAPI.Core.Exceptions;
 using PSE.WebAPI.Core.Service;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -25,6 +30,7 @@ namespace PSE.Customer.V1.Controllers
         private readonly AppSettings _config;
         private readonly IDistributedCache _cache;
         private readonly ILogger<CustomerController> _logger;
+        private readonly ICustomerLogic _customerLogic;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CustomerController"/> class.
@@ -32,11 +38,16 @@ namespace PSE.Customer.V1.Controllers
         /// <param name="appSettings"></param>
         /// <param name="cache"></param>
         /// <param name="logger"></param>
-        public CustomerController(IOptions<AppSettings> appSettings, IDistributedCache cache, ILogger<CustomerController> logger)
+        public CustomerController(
+            IOptions<AppSettings> appSettings,
+            IDistributedCache cache, 
+            ILogger<CustomerController> logger,
+            ICustomerLogic customerLogic)
         {
             _config = (appSettings ?? throw new ArgumentNullException(nameof(appSettings))).Value;
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _customerLogic = customerLogic ?? throw new ArgumentNullException(nameof(customerLogic));
         }
 
         /// <summary>
@@ -68,34 +79,33 @@ namespace PSE.Customer.V1.Controllers
         /// Gets Customer Profile by loggedIn user
         /// </summary>
         /// <returns>returns CustomerProfile information</returns>
-        [ProducesResponseType(typeof(CustomerProfile), 200)]
+        [ProducesResponseType(typeof(CustomerProfileModel), 200)]
         [HttpGet("profile")]
         public async Task<IActionResult> GetCustomerProfile()
         {
-            //get BPId from jwttoken to get customer profile
-            IActionResult result = Ok(
-                new CustomerProfile
-                {
-                    EmailAddress = "test@pse.com",                    
-                    MailingAddress = new AddressDefinedType
-                    {
-                        AddressLine1 = "350 110th Ave NE",
-                        AddressLine2 = string.Empty,
-                        City = "Bellevue",
-                        State = "WA",
-                        Country = "USA",
-                        PostalCode = "98004-1223"
-                    },
-                    Phones = new List<Phone>()
-                {
-                    new Phone {Type = PhoneType.Cell, Number="4251234567"},
-                    new Phone {Type= PhoneType.Home, Number="5251234567"},
-                    new Phone {Type= PhoneType.Work, Number="6251234567", Extension="1234"}
-                },
-                    PrimaryPhone = PhoneType.Cell
-                });
+            IActionResult result = null;
+
+            var bp = User.Claims.First(x => x.Type.Equals("custom:bp")).Value;
+
+            long.TryParse(bp, out var bpId);
+
+            try
+            {
+                var customerProfile = await _customerLogic.GetCustomerProfileAsync(bpId);
+
+                var model = Mapper.Map<GetCustomerProfileResponse>(customerProfile);
+
+                result = Ok(model);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+
+                result = e.ToActionResult();
+            }
 
             return result;
+            
         }
 
         [ProducesResponseType(typeof(OkResult), 200)]

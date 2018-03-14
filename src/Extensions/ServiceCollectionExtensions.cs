@@ -5,7 +5,12 @@ using PSE.Cassandra.Core.Extensions;
 using PSE.Customer.Configuration.Keyspaces;
 using PSE.Customer.V1.Logic;
 using PSE.Customer.V1.Logic.Interfaces;
+using PSE.Customer.V1.Models;
+using PSE.Customer.V1.Repositories;
 using PSE.Customer.V1.Repositories.DefinedTypes;
+using PSE.Customer.V1.Repositories.Entities;
+using PSE.Customer.V1.Repositories.Interfaces;
+using PSE.Customer.V1.Response;
 using PSE.WebAPI.Core.Startup;
 
 namespace PSE.Customer.Extensions
@@ -28,9 +33,20 @@ namespace PSE.Customer.Extensions
             var config = services.GetCoreOptions().Configuration;
             services.AddCassandraConfiguration(config.CassandraSettings, services.GetLoggerFactory());
             services.AddCassandraMapping<MicroservicesKeyspace, AddressDefinedType>();
+            services.AddCassandraMapping<MicroservicesKeyspace, PhoneDefinedType>();
+            services.AddCassandraEntity<MicroservicesKeyspace, CustomerEntity>();
+            services.AddCassandraEntity<MicroservicesKeyspace, CustomerContactEntity>();
 
             // Setup repos and logic
-            services.AddTransient<ICustomerLogic, CustomerLogic>();
+            services.AddTransient<ICustomerRepository, CustomerRepository>();
+            services.AddTransient<ICustomerLogic, CustomerLogic>(); 
+            
+            //Mapping Logic
+
+            AutoMapper.Mapper.Initialize(cfg =>
+            {
+                cfg.CreateMap<GetCustomerProfileResponse, CustomerProfileModel>();
+            });
         }
 
 
