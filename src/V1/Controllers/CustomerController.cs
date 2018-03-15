@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using PSE.Exceptions.Core;
 
 namespace PSE.Customer.V1.Controllers
 {
@@ -35,9 +36,10 @@ namespace PSE.Customer.V1.Controllers
         /// <summary>
         /// Initializes a new instance of the <see cref="CustomerController"/> class.
         /// </summary>
-        /// <param name="appSettings"></param>
-        /// <param name="cache"></param>
-        /// <param name="logger"></param>
+        /// <param name="appSettings">application config information</param>
+        /// <param name="cache">memory cache (currently not used)</param>
+        /// <param name="logger">used for logging</param>
+        /// <param name="customerLogic">contains logic for customer controller</param>
         public CustomerController(
             IOptions<AppSettings> appSettings,
             IDistributedCache cache, 
@@ -99,7 +101,7 @@ namespace PSE.Customer.V1.Controllers
             }
 
             return result;
-        }            
+        }
 
         /// <summary>
         /// Gets Customer Profile by loggedIn user
@@ -107,19 +109,14 @@ namespace PSE.Customer.V1.Controllers
         /// <returns>returns CustomerProfile information</returns>
         [ProducesResponseType(typeof(CustomerProfileModel), 200)]
         [HttpGet("profile")]
-        public async Task<IActionResult> GetCustomerProfile()
+        public async Task<IActionResult> GetCustomerProfileAsync()
         {
-            IActionResult result = null;
-
-            var bp = User.Claims.First(x => x.Type.Equals("custom:bp")).Value;
-
-            if(!long.TryParse(bp, out var bpId))
-            {
-                throw new Exception($"{bp} should be Long data type");
-            }
+            _logger.LogInformation("GetCustomerProfileAsync()");
+            IActionResult result;
 
             try
             {
+                var bpId = GetBpIdFromClaims();
                 var customerProfile = await _customerLogic.GetCustomerProfileAsync(bpId);
 
                 var model = Mapper.Map<GetCustomerProfileResponse>(customerProfile);
@@ -134,7 +131,6 @@ namespace PSE.Customer.V1.Controllers
             }
 
             return result;
-            
         }
 
         [ProducesResponseType(typeof(OkResult), 200)]
@@ -157,11 +153,29 @@ namespace PSE.Customer.V1.Controllers
 
         [ProducesResponseType(typeof(OkResult), 200)]
         [HttpPut("mailing-address")]
-        public async Task<IActionResult> SaveMailingAddress(AddressDefinedType address)
+        public async Task<IActionResult> PutSaveMailingAddressAsync(AddressDefinedType address)
         {
-            //This is an authorized call
-            //Get BPId from claims to update mailing address
-            IActionResult result = Ok();
+            _logger.LogInformation($"PutSaveMailingAddressAsync({nameof(address)}: {address})");
+            IActionResult result;
+
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var bpId = GetBpIdFromClaims();
+                await _customerLogic.PutSaveMailingAddressAsync(address, bpId);
+                result = Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+
+                result = e.ToActionResult();
+            }
+
             return result;
         }
 
@@ -183,6 +197,25 @@ namespace PSE.Customer.V1.Controllers
             //Get BPId from claims to update phone numbers
             IActionResult result = Ok();
             return result;
+        }
+
+        /// <summary>
+        /// Gets the Business Partner ID (bpId) from an authenticated users claims
+        /// </summary>
+        /// <returns>bpId as a long if it can be parsed, otherwise a null</returns>
+        private long GetBpIdFromClaims()
+        {
+            _logger.LogInformation("LoadBpIdFromClaims()");
+            _logger.LogDebug($"Claims: {User?.Claims}");
+            var bp = User?.Claims?.FirstOrDefault(x => x.Type.Equals("custom:bp"))?.Value;
+
+            // TODO:  How should this be handled?  Return a BadRequest()?  If so, maybe at the base controller level?
+            if (!long.TryParse(bp, out var bpId))
+            {
+                throw new InvalidRequestException($"{bp} should be Long data type");
+            }
+
+            return bpId;
         }
     }
 }

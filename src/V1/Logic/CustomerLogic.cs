@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
@@ -10,9 +11,9 @@ using PSE.Customer.V1.Logic.Interfaces;
 using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories;
 using PSE.Customer.V1.Repositories.Entities;
+using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Repositories.Interfaces;
 using PSE.WebAPI.Core.Configuration.Interfaces;
-using RestSharp;
 
 namespace PSE.Customer.V1.Logic
 {
@@ -61,7 +62,6 @@ namespace PSE.Customer.V1.Logic
             _customerRepository = customerRepository;
             _authenticationApi = authenticationApi;
         }
-
 
         /// <summary>
         /// Gets bp ID & acct status while validating acct ID & fullName.
@@ -127,7 +127,7 @@ namespace PSE.Customer.V1.Logic
         /// <summary>
         ///Returns CustomerProfileModel based customer and customer contact information retrieved from Cassandra
         /// </summary>
-        /// <param name="contractAccountId"></param>
+        /// <param name="bpId">Business partner ID</param>
         /// <returns>Task<CustomerProfileModel></returns>
         public async Task<CustomerProfileModel> GetCustomerProfileAsync(long bpId)
         {
@@ -146,6 +146,20 @@ namespace PSE.Customer.V1.Logic
             customerContact.AddToModel(model);
 
             return model;
+        }
+
+        /// <summary>
+        /// Saves the mailing address at the BP level
+        /// </summary>
+        /// <param name="address">Fill mailing address</param>
+        /// <param name="bpId">Business partner ID</param>
+        /// <returns>Status code of async respository call</returns>
+        public Task<HttpStatusCode> PutSaveMailingAddressAsync(AddressDefinedType address, long bpId)
+        {
+            _logger.LogInformation($"PutSaveMailingAddressAsync({nameof(address)}: {address}," +
+                                   $"{nameof(bpId)}: {bpId})");
+            // TODO: What is the return type?
+            throw new NotImplementedException();
         }
     }
 }
