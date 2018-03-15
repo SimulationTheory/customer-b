@@ -7,5 +7,6 @@ namespace PSE.Customer.V1.Repositories.Interfaces
     {
         Task<CustomerEntity> GetCustomerAsync(long bpId);
         Task<CustomerContactEntity> GetCustomerContactAsync(long bpId);
+        Task<CustomerEntity> GetCustomerByBusinessPartnerId(long businessPartnerId);
     }
 }

@@ -61,16 +61,42 @@ namespace PSE.Customer.V1.Controllers
         /// "contractaccountnumber": "200909090900"
         /// }
         /// </remarks>
-        /// <param name="customer"></param>
+        /// <param name="lookupCustomerRequest"></param>
         /// <returns>returns LookupCustomerResponse</returns>
         [ProducesResponseType(typeof(LookupCustomerResponse), 200)]
         [HttpGet("lookup")]
         [AllowAnonymous]        
-        public async Task<IActionResult> LookupCustomer(LookupCustomer customer)
+        public async Task<IActionResult> LookupCustomer(LookupCustomerRequest lookupCustomerRequest)
         {
-            IActionResult result = Ok(
-                new LookupCustomerResponse { BPId = "1002323", HasWebAccount = false}
-            );
+            //IActionResult result = Ok(
+            //    new LookupCustomerResponse { BPId = "1002323", HasWebAccount = false}
+            //);
+            IActionResult result = null;
+            try
+            {
+                LookupCustomerModel lookupCustomerModel = await _customerLogic.LookupCustomer(lookupCustomerRequest);
+                // If the cassandra call fails w/o raising an error it means that the contractAccountId wasn't found
+                if (lookupCustomerModel != null)
+                {
+                    var response = new LookupCustomerResponse()
+                    {
+                        BPId = lookupCustomerModel.BPId.ToString(),
+                        HasWebAccount = lookupCustomerModel.HasWebAccount,
+                    };
+
+                    result = Ok(response);
+                }
+                else
+                {
+                    result = NotFound();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Unable to lookup customer", ex.Message);
+
+                result = ex.ToActionResult();
+            }
 
             return result;
         }            

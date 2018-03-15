@@ -3,11 +3,11 @@ using System.ComponentModel.DataAnnotations;
 
 namespace PSE.Customer.V1.Models
 {
-    public class LookupCustomer
+    public class LookupCustomerRequest
     {
         [Required]
         public string NameOnBill { get; set; }
         [Required]
-        public string ContractAccountNumber { get; set; }
+        public long ContractAccountNumber { get; set; }
     }
 }

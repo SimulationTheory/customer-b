@@ -25,6 +25,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PSE.Customer.Tests.Unit", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PSE.Customer.Tests.Integration", "test\Integration\PSE.Customer.Tests.Integration.csproj", "{BD536EEA-72A3-41B8-A4A1-DA6768DD0342}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_libs", "_libs", "{17E27309-3AE2-4FEE-A56E-8A47F2FB1404}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PSE.MCFClient.Core", "PSE.MCFClient.Core\PSE.MCFClient.Core.csproj", "{3C2A356A-C8D2-474B-9C50-63057D7568AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,9 +47,16 @@ Global
 		{BD536EEA-72A3-41B8-A4A1-DA6768DD0342}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BD536EEA-72A3-41B8-A4A1-DA6768DD0342}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BD536EEA-72A3-41B8-A4A1-DA6768DD0342}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C2A356A-C8D2-474B-9C50-63057D7568AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C2A356A-C8D2-474B-9C50-63057D7568AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C2A356A-C8D2-474B-9C50-63057D7568AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C2A356A-C8D2-474B-9C50-63057D7568AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3C2A356A-C8D2-474B-9C50-63057D7568AA} = {17E27309-3AE2-4FEE-A56E-8A47F2FB1404}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CD6A6303-0028-41CC-96C9-F36113F93653}

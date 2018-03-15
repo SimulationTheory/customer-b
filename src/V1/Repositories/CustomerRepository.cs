@@ -45,7 +45,7 @@ namespace PSE.Customer.V1.Repositories
         {
             var customerDetails = _customer.Table;
 
-            var customer = customerDetails.Where(x => x.BpId == bpId).FirstOrDefaultAsync();
+            var customer = customerDetails.Where(x => x.BusinessPartnerId == bpId).FirstOrDefaultAsync();
 
             return await customer;
         }
@@ -62,6 +62,18 @@ namespace PSE.Customer.V1.Repositories
             var customerContact = customerContactDetails.Where(x => x.BpId == bpId).FirstOrDefaultAsync();
 
             return await customerContact;
+        }
+
+        /// <summary>
+        /// Gets the customer by business partner identifier.
+        /// </summary>
+        /// <param name="businessPartnerId">The business partner identifier.</param>
+        /// <returns></returns>
+        public async Task<CustomerEntity> GetCustomerByBusinessPartnerId(long businessPartnerId)
+        {
+            var customerTable = _customer.Table;
+            var customerEntity = await customerTable.Where(x => x.BusinessPartnerId == businessPartnerId).FirstOrDefaultAsync();
+            return customerEntity;
         }
     }
 }

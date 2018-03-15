@@ -8,7 +8,7 @@ namespace PSE.Customer.V1.Repositories.Entities
     {
         [PartitionKey]
         [Column("bp_id")]
-        public long BpId { get; set; }
+        public long BusinessPartnerId { get; set; }
         [Column("employer_name")]
         public string EmployerName { get; set; }
         [Column("first_name")]

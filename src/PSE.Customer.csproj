@@ -11,13 +11,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Compile Remove="V1\Clients\**" />
       <Compile Remove="V1\Repositories\Views\**" />
-      <Content Remove="V1\Clients\**" />
       <Content Remove="V1\Repositories\Views\**" />
-      <EmbeddedResource Remove="V1\Clients\**" />
       <EmbeddedResource Remove="V1\Repositories\Views\**" />
-      <None Remove="V1\Clients\**" />
       <None Remove="V1\Repositories\Views\**" />
     </ItemGroup>
 
@@ -25,6 +21,8 @@
         <PackageReference Include="AutoMapper" Version="6.2.2" />
         <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.6" />
         <PackageReference Include="PSE.WebAPI.Core" Version="0.0.41" />
+        <PackageReference Include="PSE.CertificateInstaller" Version="0.0.9" />
+        <PackageReference Include="RestSharp" Version="106.2.1" />
     </ItemGroup>
 
     <ItemGroup>
@@ -35,5 +33,9 @@
       <Content Update="localConfiguration.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="V1\Clients\Authentication\Models\Request\" />
     </ItemGroup>
 </Project>

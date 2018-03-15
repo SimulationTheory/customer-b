@@ -106,6 +106,7 @@ namespace PSE.Customer
             ConfigurePSEWebAPI(services);
             services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
             services.AddRepositories(_logger);
+            services.AddClientProxies();
         }
     }
 }

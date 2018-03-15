@@ -7,7 +7,7 @@ namespace PSE.Customer.V1.Models
     {
         [Required]
         public string BPId { get; set; }
-        public LookupCustomer Customer { get; set; }        
+        public LookupCustomerRequest Customer { get; set; }        
         public IEnumerable<SecurityQuestionResponse> SecurityQuestionResponses { get;set;}        
         public CustomerCredentials CustomerCredentials { get; set; }
         public Phone Phone { get; set; }
