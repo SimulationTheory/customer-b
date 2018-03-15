@@ -37,10 +37,10 @@ namespace PSE.Customer.V1.Repositories
         }
 
         /// <summary>
-        /// 
+        ///  Get a given customer based on the bpId
         /// </summary>
         /// <param name="bpId"></param>
-        /// <returns></returns>
+        /// <returns>Task<CustomerEntity></returns>
         public async Task<CustomerEntity> GetCustomerAsync(long bpId)
         {
             var customerDetails = _customer.Table;
@@ -51,10 +51,10 @@ namespace PSE.Customer.V1.Repositories
         }
 
         /// <summary>
-        /// 
+        /// Get a given customer contact based on the bpId
         /// </summary>
         /// <param name="bpId"></param>
-        /// <returns></returns>
+        /// <returns>Task<CustomerContactEntity></returns>
         public async Task<CustomerContactEntity> GetCustomerContactAsync(long bpId)
         {
             var customerContactDetails = _customerContact.Table;

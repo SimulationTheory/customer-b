@@ -16,10 +16,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\PSE.Customer.csproj" />
+    <ProjectReference Include="..\Integration\PSE.Customer.Tests.Integration.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="V1\Controllers\" />
     <Folder Include="V1\Logic\" />
     <Folder Include="V1\Repositories\" />
   </ItemGroup>

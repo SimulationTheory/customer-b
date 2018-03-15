@@ -87,7 +87,10 @@ namespace PSE.Customer.V1.Controllers
 
             var bp = User.Claims.First(x => x.Type.Equals("custom:bp")).Value;
 
-            long.TryParse(bp, out var bpId);
+            if(!long.TryParse(bp, out var bpId))
+            {
+                throw new Exception($"{bp} should be Long data type");
+            }
 
             try
             {

@@ -9,7 +9,7 @@ namespace PSE.Customer.V1.Models
     {        
         public string CustomerName { get; set; }
         public string OrganizationName { get; set; }
-        public string IsPva { get; set; }
+        public bool IsPva { get; set; }
         public string EmailAddress { get; set; }        
         public AddressDefinedType MailingAddress { get; set; }
         public IEnumerable<Phone> Phones { get; set; }

@@ -10,6 +10,11 @@ namespace PSE.Customer.V1.Logic
 {
     public static  class CustomerExtensions
     {
+        /// <summary>
+        /// Maps some ofthe CustomerEntity fields to CustomerProfileModel object
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns>CustomerProfileModel</returns>
         public static CustomerProfileModel ToModel(this CustomerEntity source)
         {
             if (source == null)
@@ -21,12 +26,17 @@ namespace PSE.Customer.V1.Logic
             {
                 CustomerName = source.FullName ?? source.FirstName + " " + source.LastName,
                 OrganizationName = source.EmployerName,
-                IsPva = source.PvaIndicator.ToString(),
+                IsPva = source.PvaIndicator,
             };
 
             return model;
         }
 
+        /// <summary>
+        /// Augment the CustomerProfileModel object with some of the CustomerContactEntity fields
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="model"></param>
         public static void AddToModel(this CustomerContactEntity source, CustomerProfileModel model)
         {
             if (source == null)

@@ -21,6 +21,15 @@ namespace PSE.Customer.V1.Logic
         private readonly ICoreOptions _options;
         private readonly ICustomerRepository _customerRepository;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CustomerLogic"/> class.
+        /// </summary>
+        /// <param name="redisCache"></param>
+        /// <param name="localCache"></param>
+        /// <param name="appSettings"></param>
+        /// <param name="logger"></param>
+        /// <param name="options"></param>
+        /// <param name="customerRepository"></param>
         public CustomerLogic(
             IDistributedCache redisCache, 
             IMemoryCache localCache, IOptions<AppSettings> appSettings, 
@@ -37,10 +46,10 @@ namespace PSE.Customer.V1.Logic
         }
 
         /// <summary>
-        /// 
+        ///Returns CustomerProfileModel based customer and customer contact information retrieved from Cassandra
         /// </summary>
         /// <param name="contractAccountId"></param>
-        /// <returns></returns>
+        /// <returns>Task<CustomerProfileModel></returns>
         public async Task<CustomerProfileModel> GetCustomerProfileAsync(long bpId)
         {
             var getCustomer = _customerRepository.GetCustomerAsync(bpId);
