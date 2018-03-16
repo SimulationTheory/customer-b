@@ -81,7 +81,7 @@ namespace PSE.Customer.Extensions
         /// </summary>
         /// <param name="services">The services.</param>
         /// <returns></returns>
-        public static ILoggerFactory GetLoggerFactory(this IServiceCollection services)
+        private static ILoggerFactory GetLoggerFactory(this IServiceCollection services)
         {
             var provider = services.BuildServiceProvider();
 

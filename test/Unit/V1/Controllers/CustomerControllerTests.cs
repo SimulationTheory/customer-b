@@ -36,15 +36,22 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             _cacheMock = new Mock<IDistributedCache>();
         }
 
-        [TestMethod]
-        public async Task GetCustomerProfile_Test()
+
+        [ClassInitialize]
+        public static void ClassInitialize(TestContext context)
         {
-            //Arrange
 
             AutoMapper.Mapper.Initialize(cfg =>
             {
                 cfg.CreateMap<GetCustomerProfileResponse, CustomerProfileModel>();
             });
+        }
+
+
+        [TestMethod]
+        public async Task GetCustomerProfile_Test()
+        {
+            //Arrange
 
             _customerLogicMock.Setup(dlm => dlm.GetCustomerProfileAsync(It.IsAny<long>()))
                 .Returns(() =>
@@ -77,6 +84,46 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             response.Phones.ToList().Count().ShouldBeGreaterThan(0);
             response.Phones.First().Type.ToString().ShouldBe(response.PrimaryPhone.ToString());
         }
+
+
+        [TestMethod]
+        public async Task GetCustomerProfile_NullPhone_Test()
+        {
+            //Arrange
+
+            _customerLogicMock.Setup(dlm => dlm.GetCustomerProfileAsync(It.IsAny<long>()))
+                .Returns(() =>
+                {
+                    var customerProfile = GetCustomerProfile();
+                    customerProfile.Phones = null;
+                    return Task.FromResult(customerProfile);
+                });
+
+            var target = new CustomerController(_appSettingsMock.Object, _cacheMock.Object, _loggerMock.Object, _customerLogicMock.Object);
+
+            target.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                    {
+                       new Claim("custom:bp", "1001907289")
+                    }, "someAuthTypeName"))
+                }
+            };
+
+            //Act
+            var actual = await target.GetCustomerProfileAsync();
+
+            //Assert
+            actual.ShouldNotBeNull();
+            actual.ShouldBeOfType<OkObjectResult>();
+            var response = ((OkObjectResult)actual).Value as GetCustomerProfileResponse;
+            response.ShouldNotBeNull();
+            response.Phones.ToList().Count().ShouldBe(0);
+        }
+
+
 
         [TestMethod]
         public async Task GetCustomerProfile_InvalidDtaTypeThrowsException_Test()
