@@ -60,8 +60,8 @@ namespace PSE.Customer.V1.Logic
 ;            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _options = options ?? throw new ArgumentNullException(nameof(options));
             _bpByContractAccountRepository = bpByContractAccountRepository ?? throw new ArgumentNullException(nameof(bpByContractAccountRepository));
-            _customerRepository = customerRepository;
-            _authenticationApi = authenticationApi;
+            _customerRepository = customerRepository ?? throw new ArgumentNullException(nameof(customerRepository)); 
+            _authenticationApi = authenticationApi ?? throw new ArgumentNullException(nameof(authenticationApi)); 
         }
 
 

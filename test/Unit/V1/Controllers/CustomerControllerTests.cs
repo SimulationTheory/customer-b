@@ -10,6 +10,7 @@ using PSE.Customer.V1.Controllers;
 using PSE.Customer.V1.Logic.Interfaces;
 using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
+using PSE.Customer.V1.Repositories.Entities;
 using PSE.Customer.V1.Response;
 using Shouldly;
 using System;
@@ -123,8 +124,6 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             response.Phones.ToList().Count().ShouldBe(0);
         }
 
-
-
         [TestMethod]
         public async Task GetCustomerProfile_InvalidDtaTypeThrowsException_Test()
         {
@@ -164,6 +163,77 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
                 ex.Message.ShouldBe(expectedExceptionMessage);
             }
         }
+
+        #region LookupCustomer Tests
+        [TestMethod]
+        public async Task LookupCustomer_Test()
+        {
+            //Arrange
+            const long bpId = 123456789;
+            const long acctId = 123456789012;
+            const bool hasWebAccount = true;
+            const string testFullName = "JON SMITH";
+
+            var lookupCustomerRequest = new LookupCustomerRequest
+            {
+                ContractAccountNumber = acctId,
+                NameOnBill = testFullName,
+            };
+
+            _customerLogicMock.Setup(clm => clm.LookupCustomer(It.IsAny<LookupCustomerRequest>()))
+                .Returns((LookupCustomerRequest request) =>
+                {
+                    var lookupCustomerModel = new LookupCustomerModel
+                    {
+                        BPId = bpId,
+                        HasWebAccount = hasWebAccount,
+                    };
+
+                    return Task.FromResult(lookupCustomerModel);
+                });
+
+            var target = new CustomerController(_appSettingsMock.Object, _cacheMock.Object, _loggerMock.Object, _customerLogicMock.Object);
+
+            //Act
+            var actual = await target.LookupCustomer(lookupCustomerRequest);
+
+            //Assert
+            actual.ShouldNotBeNull();
+            actual.ShouldBeOfType<OkObjectResult>();
+            var response = ((OkObjectResult)actual).Value as LookupCustomerResponse;
+            response.ShouldNotBeNull();
+            response.BPId.ShouldBe(bpId.ToString());
+            response.HasWebAccount.ShouldBe(hasWebAccount);
+        }
+
+        [TestMethod]
+        public async Task LookupCustomer_Bad_AcctId_Test()
+        {
+            //Arrange
+            const long acctId = 123456789012;
+            const string testFullName = "JON SMITH";
+
+            var lookupCustomerRequest = new LookupCustomerRequest
+            {
+                ContractAccountNumber = acctId,
+                NameOnBill = testFullName,
+            };
+
+            _customerLogicMock
+                .Setup(clm => clm.LookupCustomer(It.IsAny<LookupCustomerRequest>()))
+                .Returns(Task.FromResult<LookupCustomerModel>(null));
+
+            var target = new CustomerController(_appSettingsMock.Object, _cacheMock.Object, _loggerMock.Object, _customerLogicMock.Object);
+
+            //Act
+            var actual = await target.LookupCustomer(lookupCustomerRequest);
+
+            //Assert
+            actual.ShouldNotBeNull();
+            actual.ShouldBeOfType<NotFoundResult>();
+        }
+
+        #endregion
 
         #region Private Methods
         private static CustomerProfileModel GetCustomerProfile()

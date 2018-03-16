@@ -36,6 +36,7 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
         private Mock<ICustomerRepository> mockCustomerRepository;
         private Mock<IAuthenticationApi> mockAuthenticationApi;
 
+        #region Helper Methods
         [TestInitialize]
         public void TestInitialize()
         {
@@ -51,11 +52,7 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
             this.mockAuthenticationApi = this.mockRepository.Create<IAuthenticationApi>();
         }
 
-        [TestCleanup]
-        public void TestCleanup()
-        {
-            this.mockRepository.VerifyAll();
-        }
+        #endregion
 
         #region Constructor Tests
 
@@ -156,7 +153,6 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
         }
 
         [TestMethod]
-        [Ignore]
         public void Constructor_CustomerRepositoryIsNull_ExceptionThrown()
         {
             // Arrange
@@ -169,11 +165,10 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
             // Assert
             logic.ShouldBeNull();
             action.ShouldThrow<ArgumentNullException>().
-                ParamName.ShouldBe("CustomerRepository");
+                ParamName.ShouldBe("customerRepository");
         }
 
         [TestMethod]
-        [Ignore]
         public void Constructor_AuthenticationApiIsNull_ExceptionThrown()
         {
             // Arrange
@@ -186,15 +181,19 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
             // Assert
             logic.ShouldBeNull();
             action.ShouldThrow<ArgumentNullException>().
-                ParamName.ShouldBe("AuthenticationApi");
+                ParamName.ShouldBe("authenticationApi");
         }
 
         #endregion
 
+        #region LookupCustomer Tests
+
         [TestMethod]
-        public void LookupCustomer_Returns_LookupCustomerResponse_Given_Valid_Request()
+        public async Task LookupCustomer_Returns_LookupCustomerResponse_Given_Valid_Request()
         {
             const string testFullName = "JON SMITH";
+            const long bp_Id = 123456789;
+            const long acctId = 123456789012;
 
             // Arrange
             IRestResponse<AccountExistsResponse> restResponse = new RestResponse<AccountExistsResponse>
@@ -210,7 +209,7 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
                 {
                     var bbcarEntity = new BPByContractAccountEntity
                     {
-                        BusinessPartner_Id = 123456789,
+                        BusinessPartner_Id = bp_Id,
                     };
 
                     return Task.FromResult(bbcarEntity);
@@ -232,20 +231,131 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
 
             var lookupCustomerRequest = new LookupCustomerRequest
             {
-                ContractAccountNumber = 123456789012,
+                ContractAccountNumber = acctId,
                 NameOnBill = testFullName,
             };
 
             // Act
             CustomerLogic customerLogic = this.CreateCustomerLogic();
 
-            var lookupCustomerModel = customerLogic.LookupCustomer(lookupCustomerRequest);
+            var actual = await customerLogic.LookupCustomer(lookupCustomerRequest);
 
 
             // Assert
-
+            actual.ShouldNotBeNull();
+            actual.ShouldBeOfType<LookupCustomerModel>();
+            actual.BPId.ShouldBe(bp_Id);
+            actual.HasWebAccount.ShouldBeTrue();
         }
 
+        [TestMethod]
+        public async Task LookupCustomer_Returns_Null_On_Bad_AcccountId()
+        {
+            const string testFullName = "JON SMITH";
+            const long acctId = 123456789012;
+
+            // Arrange
+            IRestResponse<AccountExistsResponse> restResponse = new RestResponse<AccountExistsResponse>
+            {
+                Data = new AccountExistsResponse
+                {
+                    Exists = true,
+                }
+            };
+
+            mockBPByContractAccountRepository
+                .Setup(bbcar => bbcar.GetBpByContractAccountId(It.IsAny<long>()))
+                .Returns(Task.FromResult<BPByContractAccountEntity>(null));
+
+            mockCustomerRepository.Setup(cr => cr.GetCustomerByBusinessPartnerId(It.IsAny<long>()))
+                .Returns((long bpId) =>
+                {
+                    var customerEntity = new CustomerEntity
+                    {
+                        FullName = testFullName,
+                    };
+
+                    return Task.FromResult(customerEntity);
+                });
+
+            mockAuthenticationApi.Setup(cr => cr.GetAccountExists(It.IsAny<long>()))
+                .Returns(Task.FromResult(restResponse));
+
+            var lookupCustomerRequest = new LookupCustomerRequest
+            {
+                ContractAccountNumber = acctId,
+                NameOnBill = testFullName,
+            };
+
+            // Act
+            CustomerLogic customerLogic = this.CreateCustomerLogic();
+
+            var actual = await customerLogic.LookupCustomer(lookupCustomerRequest);
+
+            // Assert
+            actual.ShouldBeNull();
+        }
+
+        [TestMethod]
+        public async Task LookupCustomer_Returns_Null_On_Bad_Name()
+        {
+            const string testFullName = "JON SMITH";
+            const long bp_Id = 123456789;
+            const long acctId = 123456789012;
+
+            // Arrange
+            IRestResponse<AccountExistsResponse> restResponse = new RestResponse<AccountExistsResponse>
+            {
+                Data = new AccountExistsResponse
+                {
+                    Exists = true,
+                }
+            };
+
+            mockBPByContractAccountRepository.Setup(bbcar => bbcar.GetBpByContractAccountId(It.IsAny<long>()))
+                .Returns((long caId) =>
+                {
+                    var bbcarEntity = new BPByContractAccountEntity
+                    {
+                        BusinessPartner_Id = bp_Id,
+                    };
+
+                    return Task.FromResult(bbcarEntity);
+                });
+
+            mockCustomerRepository.Setup(cr => cr.GetCustomerByBusinessPartnerId(It.IsAny<long>()))
+                .Returns((long bpId) =>
+                {
+                    var customerEntity = new CustomerEntity
+                    {
+                        FullName = testFullName,
+                    };
+
+                    return Task.FromResult(customerEntity);
+                });
+
+            mockAuthenticationApi.Setup(cr => cr.GetAccountExists(It.IsAny<long>()))
+                .Returns(Task.FromResult(restResponse));
+
+            var lookupCustomerRequest = new LookupCustomerRequest
+            {
+                ContractAccountNumber = acctId,
+                NameOnBill = "A BAD TEST NAME",
+            };
+
+            // Act
+            CustomerLogic customerLogic = this.CreateCustomerLogic();
+
+            var actual = await customerLogic.LookupCustomer(lookupCustomerRequest);
+
+
+            // Assert
+            actual.ShouldBeNull();
+        }
+
+        #endregion
+
+        #region Private Methods
         private CustomerLogic CreateCustomerLogic()
         {
             return new CustomerLogic(
@@ -258,5 +368,6 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
                 this.mockCustomerRepository?.Object,
                 this.mockAuthenticationApi?.Object);
         }
+        #endregion
     }
 }
