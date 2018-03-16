@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using PSE.Customer.Configuration;
 using PSE.Customer.V1.Logic.Interfaces;
 using PSE.Customer.V1.Models;
@@ -70,10 +71,9 @@ namespace PSE.Customer.V1.Controllers
         [AllowAnonymous]        
         public async Task<IActionResult> LookupCustomer(LookupCustomerRequest lookupCustomerRequest)
         {
-            //IActionResult result = Ok(
-            //    new LookupCustomerResponse { BPId = "1002323", HasWebAccount = false}
-            //);
             IActionResult result = null;
+            _logger.LogInformation($"LookupCustomer({nameof(lookupCustomerRequest)}: {JsonConvert.SerializeObject(lookupCustomerRequest, Formatting.Indented)})");
+
             try
             {
                 LookupCustomerModel lookupCustomerModel = await _customerLogic.LookupCustomer(lookupCustomerRequest);
@@ -85,6 +85,7 @@ namespace PSE.Customer.V1.Controllers
                         BPId = lookupCustomerModel.BPId.ToString(),
                         HasWebAccount = lookupCustomerModel.HasWebAccount,
                     };
+                    _logger.LogInformation("LookupCustomer: " + JsonConvert.SerializeObject(response, Formatting.Indented));
 
                     result = Ok(response);
                 }
@@ -136,7 +137,7 @@ namespace PSE.Customer.V1.Controllers
         [ProducesResponseType(typeof(OkResult), 200)]
         [HttpPost("profile")]
         [AllowAnonymous]
-        public async Task<IActionResult> CreateWebProfile(WebProfile webProfile)
+        public async Task<IActionResult> CreateWebProfile([FromBody] WebProfile webProfile)
         {
             //check validations for username, password, email, phonenumber
             //if any fails, respond with error codes.
@@ -153,7 +154,7 @@ namespace PSE.Customer.V1.Controllers
 
         [ProducesResponseType(typeof(OkResult), 200)]
         [HttpPut("mailing-address")]
-        public async Task<IActionResult> PutSaveMailingAddressAsync(AddressDefinedType address)
+        public async Task<IActionResult> PutSaveMailingAddressAsync([FromBody] AddressDefinedType address)
         {
             _logger.LogInformation($"PutSaveMailingAddressAsync({nameof(address)}: {address})");
             IActionResult result;

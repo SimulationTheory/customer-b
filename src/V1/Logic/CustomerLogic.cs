@@ -14,6 +14,7 @@ using PSE.Customer.V1.Repositories.Entities;
 using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Repositories.Interfaces;
 using PSE.WebAPI.Core.Configuration.Interfaces;
+using RestSharp;
 
 namespace PSE.Customer.V1.Logic
 {
@@ -57,11 +58,12 @@ namespace PSE.Customer.V1.Logic
             _localCache = localCache ?? throw new ArgumentNullException(nameof(localCache));
             _appSettings = appSettings ?? throw new ArgumentNullException(nameof(appSettings));
 ;            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _options = options;
-            _bpByContractAccountRepository = bpByContractAccountRepository;
+            _options = options ?? throw new ArgumentNullException(nameof(options));
+            _bpByContractAccountRepository = bpByContractAccountRepository ?? throw new ArgumentNullException(nameof(bpByContractAccountRepository));
             _customerRepository = customerRepository;
             _authenticationApi = authenticationApi;
         }
+
 
         /// <summary>
         /// Gets bp ID & acct status while validating acct ID & fullName.
