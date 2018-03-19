@@ -68,7 +68,7 @@ namespace PSE.Customer.V1.Controllers
         /// <returns>returns LookupCustomerResponse</returns>
         [ProducesResponseType(typeof(LookupCustomerResponse), 200)]
         [HttpGet("lookup")]
-        [AllowAnonymous]        
+        [AllowAnonymous]
         public async Task<IActionResult> LookupCustomer(LookupCustomerRequest lookupCustomerRequest)
         {
             IActionResult result = null;
@@ -182,7 +182,7 @@ namespace PSE.Customer.V1.Controllers
 
         [ProducesResponseType(typeof(OkResult), 200)]
         [HttpPut("email-address")]
-        public async Task<IActionResult> SaveEmailAddress(string emailAddress)
+        public async Task<IActionResult> PutSaveEmailAddressAsync(string emailAddress)
         {
             //This is an authorized call
             //Get BPId from claims to update email address
@@ -192,7 +192,7 @@ namespace PSE.Customer.V1.Controllers
 
         [ProducesResponseType(typeof(OkResult), 200)]
         [HttpPut("phones")]
-        public async Task<IActionResult> SavePhoneNumbers(List<Phone> phones)
+        public async Task<IActionResult> PutSavePhoneNumbersAsync(List<Phone> phones)
         {
             //This is an authorized call
             //Get BPId from claims to update phone numbers

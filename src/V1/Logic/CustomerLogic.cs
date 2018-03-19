@@ -14,7 +14,6 @@ using PSE.Customer.V1.Repositories.Entities;
 using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Repositories.Interfaces;
 using PSE.WebAPI.Core.Configuration.Interfaces;
-using RestSharp;
 
 namespace PSE.Customer.V1.Logic
 {
@@ -63,7 +62,6 @@ namespace PSE.Customer.V1.Logic
             _customerRepository = customerRepository ?? throw new ArgumentNullException(nameof(customerRepository)); 
             _authenticationApi = authenticationApi ?? throw new ArgumentNullException(nameof(authenticationApi)); 
         }
-
 
         /// <summary>
         /// Gets bp ID & acct status while validating acct ID & fullName.

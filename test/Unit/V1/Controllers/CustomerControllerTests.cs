@@ -10,12 +10,12 @@ using PSE.Customer.V1.Controllers;
 using PSE.Customer.V1.Logic.Interfaces;
 using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
-using PSE.Customer.V1.Repositories.Entities;
 using PSE.Customer.V1.Response;
 using Shouldly;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -24,55 +24,144 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
     [TestClass]
     public class CustomerControllerTests
     {
-        private readonly Mock<ICustomerLogic> _customerLogicMock;
-        private readonly Mock<IOptions<AppSettings>> _appSettingsMock;
-        private readonly Mock<IDistributedCache> _cacheMock;
-        private readonly Mock<ILogger<CustomerController>> _loggerMock;
+        private Mock<IOptions<AppSettings>> AppSettingsMock { get; set; }
+        private Mock<IDistributedCache> CacheMock { get; set; }
+        private Mock<ILogger<CustomerController>> LoggerMock { get; set; }
+        private Mock<ICustomerLogic> CustomerLogicMock { get; set; }
 
-        public CustomerControllerTests()
+        #region Helper Methods
+
+        private CustomerController GetController()
         {
-            _loggerMock = new Mock<ILogger<CustomerController>>();
-            _customerLogicMock = new Mock<ICustomerLogic>();
-            _appSettingsMock = new Mock<IOptions<AppSettings>>();
-            _cacheMock = new Mock<IDistributedCache>();
+            return new CustomerController(AppSettingsMock?.Object, CacheMock?.Object, LoggerMock?.Object,
+                CustomerLogicMock?.Object);
         }
 
+        private static void ArrangeUserClaims(ControllerBase target, IEnumerable<Claim> claims)
+        {
+            target.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(claims, "someAuthTypeName"))
+                }
+            };
+        }
+
+        [TestInitialize]
+        public void TestInitialize()
+        {
+            AppSettingsMock = new Mock<IOptions<AppSettings>>();
+            CacheMock = new Mock<IDistributedCache>();
+            LoggerMock = new Mock<ILogger<CustomerController>>();
+            CustomerLogicMock = new Mock<ICustomerLogic>();
+        }
+
+        #endregion
 
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
-
-            AutoMapper.Mapper.Initialize(cfg =>
+            try
             {
-                cfg.CreateMap<GetCustomerProfileResponse, CustomerProfileModel>();
-            });
+                AutoMapper.Mapper.Initialize(cfg =>
+                {
+                    cfg.CreateMap<GetCustomerProfileResponse, CustomerProfileModel>();
+                });
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
 
+        #region Constructor Tests
+
+        [TestMethod]
+        public void Constructor_AppSettingsIsNull_ExceptionThrown()
+        {
+            // Arrange
+            AppSettingsMock = null;
+            CustomerController controller = null;
+
+            // Act
+            Action action = () => controller = GetController();
+
+            // Assert
+            controller.ShouldBeNull();
+            action.ShouldThrow<ArgumentNullException>().
+                ParamName.ShouldBe("appSettings");
+        }
+
+        [TestMethod]
+        public void Constructor_CacheIsNull_ExceptionThrown()
+        {
+            // Arrange
+            CacheMock = null;
+            CustomerController controller = null;
+
+            // Act
+            Action action = () => controller = GetController();
+
+            // Assert
+            controller.ShouldBeNull();
+            action.ShouldThrow<ArgumentNullException>().
+                ParamName.ShouldBe("cache");
+        }
+
+        [TestMethod]
+        public void Constructor_LoggerIsNull_ExceptionThrown()
+        {
+            // Arrange
+            LoggerMock = null;
+            CustomerController controller = null;
+
+            // Act
+            Action action = () => controller = GetController();
+
+            // Assert
+            controller.ShouldBeNull();
+            action.ShouldThrow<ArgumentNullException>().
+                ParamName.ShouldBe("logger");
+        }
+
+        [TestMethod]
+        public void Constructor_CustomerLogicIsNull_ExceptionThrown()
+        {
+            // Arrange
+            CustomerLogicMock = null;
+            CustomerController controller = null;
+
+            // Act
+            Action action = () => controller = GetController();
+
+            // Assert
+            controller.ShouldBeNull();
+            action.ShouldThrow<ArgumentNullException>().
+                ParamName.ShouldBe("customerLogic");
+        }
+
+        #endregion
+
+        #region GetCustomerProfileAsync Tests
 
         [TestMethod]
         public async Task GetCustomerProfile_Test()
         {
             //Arrange
 
-            _customerLogicMock.Setup(dlm => dlm.GetCustomerProfileAsync(It.IsAny<long>()))
+            CustomerLogicMock.Setup(dlm => dlm.GetCustomerProfileAsync(It.IsAny<long>()))
                 .Returns(() =>
                 {
                     var customerProfile = GetCustomerProfile();
                     return Task.FromResult(customerProfile);
                 });
-           
-            var target = new CustomerController(_appSettingsMock.Object, _cacheMock.Object, _loggerMock.Object, _customerLogicMock.Object);
 
-            target.ControllerContext = new ControllerContext
+            var target = GetController();
+            ArrangeUserClaims(target, new[]
             {
-                HttpContext = new DefaultHttpContext
-                {
-                    User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
-                    {
-                       new Claim("custom:bp", "1001907289")
-                    }, "someAuthTypeName"))
-                }
-            };
+                new Claim("custom:bp", "1001907289")
+            });
 
             //Act
             var actual = await target.GetCustomerProfileAsync();
@@ -82,17 +171,15 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             actual.ShouldBeOfType<OkObjectResult>();
             var response = ((OkObjectResult)actual).Value as GetCustomerProfileResponse;
             response.ShouldNotBeNull();
-            response.Phones.ToList().Count().ShouldBeGreaterThan(0);
+            response.Phones.ToList().Count.ShouldBeGreaterThan(0);
             response.Phones.First().Type.ToString().ShouldBe(response.PrimaryPhone.ToString());
         }
-
 
         [TestMethod]
         public async Task GetCustomerProfile_NullPhone_Test()
         {
             //Arrange
-
-            _customerLogicMock.Setup(dlm => dlm.GetCustomerProfileAsync(It.IsAny<long>()))
+            CustomerLogicMock.Setup(dlm => dlm.GetCustomerProfileAsync(It.IsAny<long>()))
                 .Returns(() =>
                 {
                     var customerProfile = GetCustomerProfile();
@@ -100,18 +187,11 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
                     return Task.FromResult(customerProfile);
                 });
 
-            var target = new CustomerController(_appSettingsMock.Object, _cacheMock.Object, _loggerMock.Object, _customerLogicMock.Object);
-
-            target.ControllerContext = new ControllerContext
+            var target = GetController();
+            ArrangeUserClaims(target, new[]
             {
-                HttpContext = new DefaultHttpContext
-                {
-                    User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
-                    {
-                       new Claim("custom:bp", "1001907289")
-                    }, "someAuthTypeName"))
-                }
-            };
+                new Claim("custom:bp", "1001907289")
+            });
 
             //Act
             var actual = await target.GetCustomerProfileAsync();
@@ -121,50 +201,32 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             actual.ShouldBeOfType<OkObjectResult>();
             var response = ((OkObjectResult)actual).Value as GetCustomerProfileResponse;
             response.ShouldNotBeNull();
-            response.Phones.ToList().Count().ShouldBe(0);
+            response.Phones.ToList().Count.ShouldBe(0);
         }
 
         [TestMethod]
-        public async Task GetCustomerProfile_InvalidDtaTypeThrowsException_Test()
+        public async Task GetCustomerProfile_InvalidDataType_Returns500InternalServerError()
         {
             //Arrange
-
-            string expectedExceptionMessage = "abc should be Long data type";
-
-            _customerLogicMock.Setup(dlm => dlm.GetCustomerProfileAsync(It.IsAny<long>()))
-                .Returns(() =>
-                {
-                    var customerProfile = GetCustomerProfile();
-                    return Task.FromResult(customerProfile);
-                });
-
-            var target = new CustomerController(_appSettingsMock.Object, _cacheMock.Object, _loggerMock.Object, _customerLogicMock.Object);
-
-            target.ControllerContext = new ControllerContext
+            var target = GetController();
+            ArrangeUserClaims(target, new[]
             {
-                HttpContext = new DefaultHttpContext
-                {
-                    User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
-                    {
-                       new Claim("custom:bp", "abc")
-                    }, "someAuthTypeName"))
-                }
-            };
+                new Claim("custom:bp", "abc")
+            });
 
-            try
-            {
-                //Act
-                var actual = await target.GetCustomerProfileAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-                //Assert
-                ex.Message.ShouldBe(expectedExceptionMessage);
-            }
+            // Act
+            var results = await target.GetCustomerProfileAsync();
+
+            // Assert
+            results.ShouldBeOfType<StatusCodeResult>();
+            var returnCode = (StatusCodeResult)results;
+            returnCode.StatusCode.ShouldBe(StatusCodes.Status500InternalServerError);
         }
 
+        #endregion
+
         #region LookupCustomer Tests
+
         [TestMethod]
         public async Task LookupCustomer_Test()
         {
@@ -180,7 +242,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
                 NameOnBill = testFullName,
             };
 
-            _customerLogicMock.Setup(clm => clm.LookupCustomer(It.IsAny<LookupCustomerRequest>()))
+            CustomerLogicMock.Setup(clm => clm.LookupCustomer(It.IsAny<LookupCustomerRequest>()))
                 .Returns((LookupCustomerRequest request) =>
                 {
                     var lookupCustomerModel = new LookupCustomerModel
@@ -192,7 +254,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
                     return Task.FromResult(lookupCustomerModel);
                 });
 
-            var target = new CustomerController(_appSettingsMock.Object, _cacheMock.Object, _loggerMock.Object, _customerLogicMock.Object);
+            var target = GetController();
 
             //Act
             var actual = await target.LookupCustomer(lookupCustomerRequest);
@@ -219,11 +281,11 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
                 NameOnBill = testFullName,
             };
 
-            _customerLogicMock
+            CustomerLogicMock
                 .Setup(clm => clm.LookupCustomer(It.IsAny<LookupCustomerRequest>()))
                 .Returns(Task.FromResult<LookupCustomerModel>(null));
 
-            var target = new CustomerController(_appSettingsMock.Object, _cacheMock.Object, _loggerMock.Object, _customerLogicMock.Object);
+            var target = GetController();
 
             //Act
             var actual = await target.LookupCustomer(lookupCustomerRequest);
@@ -235,7 +297,99 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
 
         #endregion
 
+        #region PutSaveMailingAddressAsync Tests
+
+        [TestMethod]
+        public async Task PutSaveMailingAddressAsync_ValidAddressAndClaim_ReturnsOk()
+        {
+            // Arrange
+            var address = new AddressDefinedType
+            {
+                AddressLine1 = "The White House",
+                AddressLine2 = "1600 Pennsylvania Avenue NW",
+                City = "Washington",
+                Country = "USA",
+                PostalCode = "20500"
+            };
+            CustomerLogicMock.Setup(logic => logic.PutSaveMailingAddressAsync(It.IsAny<AddressDefinedType>(), It.IsAny<long>()))
+                .Returns(() => Task.FromResult(HttpStatusCode.OK));
+            var controller = GetController();
+            ArrangeUserClaims(controller, new[]
+            {
+                new Claim("custom:bp", "1001907289")
+            });
+
+            // Act
+            var results = await controller.PutSaveMailingAddressAsync(address);
+
+            // Assert
+            results.ShouldBeOfType<OkResult>();
+        }
+
+        [TestMethod]
+        public async Task PutSaveMailingAddressAsync_InvalidAddress_ReturnsOk()
+        {
+            // Arrange
+            var address = new AddressDefinedType();
+            var controller = GetController();
+            controller.ViewData.Model = address;
+            controller.ViewData.ModelState.AddModelError("AddressLine1", "AddressLine1 is required");
+
+            // Act
+            var results = await controller.PutSaveMailingAddressAsync(address);
+
+            // Assert
+            results.ShouldBeOfType<BadRequestObjectResult>();
+            var badRequest = (BadRequestObjectResult)results;
+            badRequest.StatusCode.ShouldNotBeNull();
+            badRequest.StatusCode.Value.ShouldBe(StatusCodes.Status400BadRequest);
+        }
+
+        [TestMethod]
+        public async Task PutSaveMailingAddressAsync_PutFails_Returns500InternalServerError()
+        {
+            // Arrange
+            var address = new AddressDefinedType
+            {
+                AddressLine1 = "Bruce Wayne",
+                AddressLine2 = "1007 Mountain Drive",
+                City = "Gotham",
+                Country = "USA",
+                PostalCode = "10001"
+            };
+            CustomerLogicMock.Setup(logic => logic.PutSaveMailingAddressAsync(It.IsAny<AddressDefinedType>(), It.IsAny<long>()))
+                .Throws(new ApplicationException("Batman is not available"));
+            var controller = GetController();
+            ArrangeUserClaims(controller, new[]
+            {
+                new Claim("custom:bp", "1001907289")
+            });
+
+            // Act
+            var results = await controller.PutSaveMailingAddressAsync(address);
+
+            // Assert
+            results.ShouldBeOfType<StatusCodeResult>();
+            var returnCode = (StatusCodeResult) results;
+            returnCode.StatusCode.ShouldBe(StatusCodes.Status500InternalServerError);
+        }
+
+        #endregion
+
+        #region PutSaveEmailAddressAsync Tests
+
+        // TBD
+
+        #endregion
+
+        #region PutSavePhoneNumbersAsync Tests
+
+        // TBD
+
+        #endregion
+
         #region Private Methods
+
         private static CustomerProfileModel GetCustomerProfile()
         {
             return new CustomerProfileModel
@@ -250,7 +404,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
                     Country = "USA",
                     PostalCode = "98004-1223"
                 },
-                Phones = new List<Phone>()
+                Phones = new List<Phone>
                 {
                     new Phone {Type = PhoneType.Cell, Number="4251234567"},
                     new Phone {Type= PhoneType.Home, Number="5251234567"},
@@ -259,6 +413,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
                 PrimaryPhone = PhoneType.Cell
             };
         }
+
         #endregion
     }
 
