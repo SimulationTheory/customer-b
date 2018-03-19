@@ -152,11 +152,16 @@ namespace PSE.Customer.V1.Controllers
             return new OkResult();
         }
 
+        /// <summary>
+        /// Updates postal mail address for logged in user
+        /// </summary>
+        /// <param name="address">Populated address to write to database</param>
+        /// <returns>200 if successful, 400 if address is not valid, 500 if exception</returns>
         [ProducesResponseType(typeof(OkResult), 200)]
         [HttpPut("mailing-address")]
-        public async Task<IActionResult> PutSaveMailingAddressAsync([FromBody] AddressDefinedType address)
+        public async Task<IActionResult> PutMailingAddressAsync([FromBody] AddressDefinedType address)
         {
-            _logger.LogInformation($"PutSaveMailingAddressAsync({nameof(address)}: {address})");
+            _logger.LogInformation($"PutMailingAddressAsync({nameof(address)}: {address})");
             IActionResult result;
 
             try
@@ -167,7 +172,7 @@ namespace PSE.Customer.V1.Controllers
                 }
 
                 var bpId = GetBpIdFromClaims();
-                await _customerLogic.PutSaveMailingAddressAsync(address, bpId);
+                await _customerLogic.PutMailingAddressAsync(address, bpId);
                 result = Ok();
             }
             catch (Exception e)
@@ -180,23 +185,69 @@ namespace PSE.Customer.V1.Controllers
             return result;
         }
 
+        /// <summary>
+        /// Updates email address for logged in user
+        /// </summary>
+        /// <param name="emailAddress">Email address to write to database</param>
+        /// <returns>200 if successful, 400 if address is not valid, 500 if exception</returns>
         [ProducesResponseType(typeof(OkResult), 200)]
         [HttpPut("email-address")]
-        public async Task<IActionResult> PutSaveEmailAddressAsync(string emailAddress)
+        public async Task<IActionResult> PutEmailAddressAsync([FromBody] string emailAddress)
         {
-            //This is an authorized call
-            //Get BPId from claims to update email address
-            IActionResult result = Ok();
+            _logger.LogInformation($"PutMailingAddressAsync({nameof(emailAddress)}: {emailAddress})");
+            IActionResult result;
+
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var bpId = GetBpIdFromClaims();
+                await _customerLogic.PutEmailAddressAsync(emailAddress, bpId);
+                result = Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+
+                result = e.ToActionResult();
+            }
+
             return result;
         }
 
+        /// <summary>
+        /// Updates phone numbers for logged in user
+        /// </summary>
+        /// <param name="phones">Collection of phone numbers to write to database</param>
+        /// <returns>200 if successful, 400 if address is not valid, 500 if exception</returns>
         [ProducesResponseType(typeof(OkResult), 200)]
         [HttpPut("phones")]
-        public async Task<IActionResult> PutSavePhoneNumbersAsync(List<Phone> phones)
+        public async Task<IActionResult> PutPhoneNumbersAsync([FromBody] List<Phone> phones)
         {
-            //This is an authorized call
-            //Get BPId from claims to update phone numbers
-            IActionResult result = Ok();
+            _logger.LogInformation($"PutMailingAddressAsync({nameof(phones)}: {phones})");
+            IActionResult result;
+
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var bpId = GetBpIdFromClaims();
+                await _customerLogic.PutPhoneNumbersAsync(phones, bpId);
+                result = Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+
+                result = e.ToActionResult();
+            }
+
             return result;
         }
 

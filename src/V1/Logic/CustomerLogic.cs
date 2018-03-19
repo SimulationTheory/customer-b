@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
@@ -151,12 +152,41 @@ namespace PSE.Customer.V1.Logic
         /// <summary>
         /// Saves the mailing address at the BP level
         /// </summary>
-        /// <param name="address">Fill mailing address</param>
+        /// <param name="address">Full mailing address</param>
         /// <param name="bpId">Business partner ID</param>
         /// <returns>Status code of async respository call</returns>
-        public Task<HttpStatusCode> PutSaveMailingAddressAsync(AddressDefinedType address, long bpId)
+        public Task<HttpStatusCode> PutMailingAddressAsync(AddressDefinedType address, long bpId)
         {
-            _logger.LogInformation($"PutSaveMailingAddressAsync({nameof(address)}: {address}," +
+            _logger.LogInformation($"PutMailingAddressAsync({nameof(address)}: {address}," +
+                                   $"{nameof(bpId)}: {bpId})");
+            // TODO: What is the return type?
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Saves the email address at the BP level
+        /// </summary>
+        /// <param name="emailAddress">Customer email address</param>
+        /// <param name="bpId">Business partner ID</param>
+        /// <returns>Status code of async respository call</returns>
+        public Task<HttpStatusCode> PutEmailAddressAsync(string emailAddress, long bpId)
+        {
+            _logger.LogInformation($"PutEmailAddressAsync({nameof(emailAddress)}: {emailAddress}," +
+                                   $"{nameof(bpId)}: {bpId})");
+            // TODO: What is the return type?
+            throw new NotImplementedException();
+        }
+
+
+        /// <summary>
+        /// Saves the phone numbers at the BP level
+        /// </summary>
+        /// <param name="phones">Customer's phones</param>
+        /// <param name="bpId">Business partner ID</param>
+        /// <returns>Status code of async respository call</returns>
+        public Task<HttpStatusCode> PutPhoneNumbersAsync(List<Phone> phones, long bpId)
+        {
+            _logger.LogInformation($"PutEmailAddressAsync({nameof(phones)}: {phones}," +
                                    $"{nameof(bpId)}: {bpId})");
             // TODO: What is the return type?
             throw new NotImplementedException();

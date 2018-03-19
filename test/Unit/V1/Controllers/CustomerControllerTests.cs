@@ -18,6 +18,7 @@ using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using PSE.Customer.Tests.Unit.TestObjects;
 
 namespace PSE.Customer.Tests.Unit.V1.Controllers
 {
@@ -37,15 +38,23 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
                 CustomerLogicMock?.Object);
         }
 
-        private static void ArrangeUserClaims(ControllerBase target, IEnumerable<Claim> claims)
+        private static void ArrangeUserClaims(ControllerBase controller, IEnumerable<Claim> claims)
         {
-            target.ControllerContext = new ControllerContext
+            controller.ControllerContext = new ControllerContext
             {
                 HttpContext = new DefaultHttpContext
                 {
                     User = new ClaimsPrincipal(new ClaimsIdentity(claims, "someAuthTypeName"))
                 }
             };
+        }
+
+        private static void ArrangeUserClaims(ControllerBase controller, TestUser user)
+        {
+            ArrangeUserClaims(controller, new[]
+            {
+                new Claim("custom:bp", user.BpNumber.ToString())
+            });
         }
 
         [TestInitialize]
@@ -62,17 +71,10 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
-            try
+            AutoMapper.Mapper.Initialize(cfg =>
             {
-                AutoMapper.Mapper.Initialize(cfg =>
-                {
-                    cfg.CreateMap<GetCustomerProfileResponse, CustomerProfileModel>();
-                });
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
+                cfg.CreateMap<GetCustomerProfileResponse, CustomerProfileModel>();
+            });
         }
 
         #region Constructor Tests
@@ -295,12 +297,40 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             actual.ShouldBeOfType<NotFoundResult>();
         }
 
+        [TestMethod]
+        public async Task LookupCustomer_UnhandledException_Returns500InternalServerError()
+        {
+            // Arrange
+            const long acctId = 123456789012;
+            const string testFullName = "JON SMITH";
+
+            var lookupCustomerRequest = new LookupCustomerRequest
+            {
+                ContractAccountNumber = acctId,
+                NameOnBill = testFullName,
+            };
+
+            CustomerLogicMock
+                .Setup(clm => clm.LookupCustomer(It.IsAny<LookupCustomerRequest>()))
+                .Throws(new ApplicationException("Customer lookup failed"));
+
+            var target = GetController();
+
+            //Act
+            var actual = await target.LookupCustomer(lookupCustomerRequest);
+
+            // Assert
+            actual.ShouldBeOfType<StatusCodeResult>();
+            var returnCode = (StatusCodeResult)actual;
+            returnCode.StatusCode.ShouldBe(StatusCodes.Status500InternalServerError);
+        }
+
         #endregion
 
-        #region PutSaveMailingAddressAsync Tests
+        #region PutMailingAddressAsync Tests
 
         [TestMethod]
-        public async Task PutSaveMailingAddressAsync_ValidAddressAndClaim_ReturnsOk()
+        public async Task PutMailingAddressAsync_ValidAddressAndClaim_ReturnsOk()
         {
             // Arrange
             var address = new AddressDefinedType
@@ -311,7 +341,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
                 Country = "USA",
                 PostalCode = "20500"
             };
-            CustomerLogicMock.Setup(logic => logic.PutSaveMailingAddressAsync(It.IsAny<AddressDefinedType>(), It.IsAny<long>()))
+            CustomerLogicMock.Setup(logic => logic.PutMailingAddressAsync(It.IsAny<AddressDefinedType>(), It.IsAny<long>()))
                 .Returns(() => Task.FromResult(HttpStatusCode.OK));
             var controller = GetController();
             ArrangeUserClaims(controller, new[]
@@ -320,14 +350,14 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             });
 
             // Act
-            var results = await controller.PutSaveMailingAddressAsync(address);
+            var results = await controller.PutMailingAddressAsync(address);
 
             // Assert
             results.ShouldBeOfType<OkResult>();
         }
 
         [TestMethod]
-        public async Task PutSaveMailingAddressAsync_InvalidAddress_ReturnsOk()
+        public async Task PutMailingAddressAsync_InvalidAddress_Returns400BadRequest()
         {
             // Arrange
             var address = new AddressDefinedType();
@@ -336,7 +366,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             controller.ViewData.ModelState.AddModelError("AddressLine1", "AddressLine1 is required");
 
             // Act
-            var results = await controller.PutSaveMailingAddressAsync(address);
+            var results = await controller.PutMailingAddressAsync(address);
 
             // Assert
             results.ShouldBeOfType<BadRequestObjectResult>();
@@ -346,7 +376,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         }
 
         [TestMethod]
-        public async Task PutSaveMailingAddressAsync_PutFails_Returns500InternalServerError()
+        public async Task PutMailingAddressAsync_UnhandledException_Returns500InternalServerError()
         {
             // Arrange
             var address = new AddressDefinedType
@@ -357,7 +387,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
                 Country = "USA",
                 PostalCode = "10001"
             };
-            CustomerLogicMock.Setup(logic => logic.PutSaveMailingAddressAsync(It.IsAny<AddressDefinedType>(), It.IsAny<long>()))
+            CustomerLogicMock.Setup(logic => logic.PutMailingAddressAsync(It.IsAny<AddressDefinedType>(), It.IsAny<long>()))
                 .Throws(new ApplicationException("Batman is not available"));
             var controller = GetController();
             ArrangeUserClaims(controller, new[]
@@ -366,7 +396,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             });
 
             // Act
-            var results = await controller.PutSaveMailingAddressAsync(address);
+            var results = await controller.PutMailingAddressAsync(address);
 
             // Assert
             results.ShouldBeOfType<StatusCodeResult>();
@@ -376,15 +406,121 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
 
         #endregion
 
-        #region PutSaveEmailAddressAsync Tests
+        #region PutEmailAddressAsync Tests
 
-        // TBD
+        [TestMethod]
+        public async Task PutEmailAddressAsync_ValidEmailAndClaim_ReturnsOk()
+        {
+            // Arrange
+            var user = TestHelper.PaDev1;
+            CustomerLogicMock.Setup(logic => logic.PutEmailAddressAsync(It.IsAny<string>(), It.IsAny<long>()))
+                .Returns(() => Task.FromResult(HttpStatusCode.OK));
+            var controller = GetController();
+            ArrangeUserClaims(controller, user);
+
+            // Act
+            var results = await controller.PutEmailAddressAsync(user.Email);
+
+            // Assert
+            results.ShouldBeOfType<OkResult>();
+        }
+
+        [TestMethod]
+        public async Task PutEmailAddressAsync_InvalidEmail_Returns400BadRequest()
+        {
+            // Arrange
+            var email = "test7 AT test DOT com";
+            var controller = GetController();
+            controller.ViewData.Model = email;
+            controller.ViewData.ModelState.AddModelError("Email", "Invalid email format");
+
+            // Act
+            var results = await controller.PutEmailAddressAsync(email);
+
+            // Assert
+            results.ShouldBeOfType<BadRequestObjectResult>();
+            var badRequest = (BadRequestObjectResult)results;
+            badRequest.StatusCode.ShouldNotBeNull();
+            badRequest.StatusCode.Value.ShouldBe(StatusCodes.Status400BadRequest);
+        }
+
+        [TestMethod]
+        public async Task PutEmailAddressAsync_UnhandledException_Returns500InternalServerError()
+        {
+            // Arrange
+            var user = TestHelper.PaDev1;
+            CustomerLogicMock.Setup(logic => logic.PutEmailAddressAsync(It.IsAny<string>(), It.IsAny<long>()))
+                .Throws(new ApplicationException("Failed to update record"));
+            var controller = GetController();
+            ArrangeUserClaims(controller, user);
+
+            // Act
+            var results = await controller.PutEmailAddressAsync(user.Email);
+
+            // Assert
+            results.ShouldBeOfType<StatusCodeResult>();
+            var returnCode = (StatusCodeResult)results;
+            returnCode.StatusCode.ShouldBe(StatusCodes.Status500InternalServerError);
+        }
 
         #endregion
 
-        #region PutSavePhoneNumbersAsync Tests
+        #region PutPhoneNumbersAsync Tests
 
-        // TBD
+        [TestMethod]
+        public async Task PutPhoneNumbersAsync_ValidPhoneNumbersAndClaim_ReturnsOk()
+        {
+            // Arrange
+            var user = TestHelper.PaDev1;
+            CustomerLogicMock.Setup(logic => logic.PutPhoneNumbersAsync(It.IsAny<List<Phone>>(), It.IsAny<long>()))
+                .Returns(() => Task.FromResult(HttpStatusCode.OK));
+            var controller = GetController();
+            ArrangeUserClaims(controller, user);
+
+            // Act
+            var results = await controller.PutPhoneNumbersAsync(user.Phones);
+
+            // Assert
+            results.ShouldBeOfType<OkResult>();
+        }
+
+        [TestMethod]
+        public async Task PutPhoneNumbersAsync_InvalidPhoneNumber_Returns400BadRequest()
+        {
+            // Arrange
+            var phones = new List<Phone> { new Phone { Type = PhoneType.Cell } };
+            var controller = GetController();
+            controller.ViewData.Model = phones;
+            controller.ViewData.ModelState.AddModelError("Number", "Number is required");
+
+            // Act
+            var results = await controller.PutPhoneNumbersAsync(phones);
+
+            // Assert
+            results.ShouldBeOfType<BadRequestObjectResult>();
+            var badRequest = (BadRequestObjectResult)results;
+            badRequest.StatusCode.ShouldNotBeNull();
+            badRequest.StatusCode.Value.ShouldBe(StatusCodes.Status400BadRequest);
+        }
+
+        [TestMethod]
+        public async Task PutPhoneNumbersAsync_UnhandledException_Returns500InternalServerError()
+        {
+            // Arrange
+            var user = TestHelper.PaDev1;
+            CustomerLogicMock.Setup(logic => logic.PutPhoneNumbersAsync(It.IsAny<List<Phone>>(), It.IsAny<long>()))
+                .Throws(new ApplicationException("Failed to update record"));
+            var controller = GetController();
+            ArrangeUserClaims(controller, user);
+
+            // Act
+            var results = await controller.PutPhoneNumbersAsync(user.Phones);
+
+            // Assert
+            results.ShouldBeOfType<StatusCodeResult>();
+            var returnCode = (StatusCodeResult)results;
+            returnCode.StatusCode.ShouldBe(StatusCodes.Status500InternalServerError);
+        }
 
         #endregion
 
@@ -416,5 +552,4 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
 
         #endregion
     }
-
 }
