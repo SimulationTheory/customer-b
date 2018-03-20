@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
-using PSE.MCFClient.Core.Models;
+using PSE.RestUtility.Core.Mcf;
 
-namespace PSE.MCFClient.Core.Interfaces
+namespace PSE.RestUtility.Core.Interfaces
 {
-    public interface IMcfResponse
+    public interface IMcfResult
     {
         [JsonProperty("__metadata")]
         McfMetadata Metadata { get; set; }

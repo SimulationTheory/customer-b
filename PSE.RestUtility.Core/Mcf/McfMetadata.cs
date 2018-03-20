@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace PSE.MCFClient.Core.Models
+namespace PSE.RestUtility.Core.Mcf
 {
     public class McfMetadata
     {

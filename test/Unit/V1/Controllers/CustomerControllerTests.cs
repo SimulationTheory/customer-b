@@ -71,10 +71,19 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
-            AutoMapper.Mapper.Initialize(cfg =>
+            try
             {
-                cfg.CreateMap<GetCustomerProfileResponse, CustomerProfileModel>();
-            });
+                // !!! JMC - TODO: This logic fails intermittently.  It should only be initialized once.
+                // No obvious solution.  Perhaps initializing elsewhere?  Maybe having an initialize and reset in using block?
+                AutoMapper.Mapper.Initialize(cfg =>
+                {
+                    cfg.CreateMap<GetCustomerProfileResponse, CustomerProfileModel>();
+                });
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
 
         #region Constructor Tests
@@ -220,8 +229,8 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             var results = await target.GetCustomerProfileAsync();
 
             // Assert
-            results.ShouldBeOfType<StatusCodeResult>();
-            var returnCode = (StatusCodeResult)results;
+            results.ShouldBeOfType<ContentResult>();
+            var returnCode = (ContentResult)results;
             returnCode.StatusCode.ShouldBe(StatusCodes.Status500InternalServerError);
         }
 
@@ -320,8 +329,8 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             var actual = await target.LookupCustomer(lookupCustomerRequest);
 
             // Assert
-            actual.ShouldBeOfType<StatusCodeResult>();
-            var returnCode = (StatusCodeResult)actual;
+            actual.ShouldBeOfType<ContentResult>();
+            var returnCode = (ContentResult)actual;
             returnCode.StatusCode.ShouldBe(StatusCodes.Status500InternalServerError);
         }
 
@@ -399,8 +408,8 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             var results = await controller.PutMailingAddressAsync(address);
 
             // Assert
-            results.ShouldBeOfType<StatusCodeResult>();
-            var returnCode = (StatusCodeResult) results;
+            results.ShouldBeOfType<ContentResult>();
+            var returnCode = (ContentResult) results;
             returnCode.StatusCode.ShouldBe(StatusCodes.Status500InternalServerError);
         }
 
@@ -458,8 +467,8 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             var results = await controller.PutEmailAddressAsync(user.Email);
 
             // Assert
-            results.ShouldBeOfType<StatusCodeResult>();
-            var returnCode = (StatusCodeResult)results;
+            results.ShouldBeOfType<ContentResult>();
+            var returnCode = (ContentResult)results;
             returnCode.StatusCode.ShouldBe(StatusCodes.Status500InternalServerError);
         }
 
@@ -517,8 +526,8 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             var results = await controller.PutPhoneNumbersAsync(user.Phones);
 
             // Assert
-            results.ShouldBeOfType<StatusCodeResult>();
-            var returnCode = (StatusCodeResult)results;
+            results.ShouldBeOfType<ContentResult>();
+            var returnCode = (ContentResult)results;
             returnCode.StatusCode.ShouldBe(StatusCodes.Status500InternalServerError);
         }
 

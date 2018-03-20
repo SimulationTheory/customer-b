@@ -2,7 +2,7 @@
 using System.Net;
 using Newtonsoft.Json;
 
-namespace PSE.MCFClient.Core.Models
+namespace PSE.RestUtility.Core.Models
 {
     public class TokenCookies
     {

@@ -47,10 +47,10 @@ namespace PSE.Customer.V1.Logic
         /// <param name="customerRepository">The customer repository.</param>
         /// <param name="authenticationApi">The authentication API.</param>
         public CustomerLogic(
-            IDistributedCache redisCache, 
-            IMemoryCache localCache, 
-            IOptions<AppSettings> appSettings, 
-            ILogger<CustomerLogic> logger, 
+            IDistributedCache redisCache,
+            IMemoryCache localCache,
+            IOptions<AppSettings> appSettings,
+            ILogger<CustomerLogic> logger,
             ICoreOptions options,
             IBPByContractAccountRepository bpByContractAccountRepository,
             ICustomerRepository customerRepository,
@@ -59,7 +59,7 @@ namespace PSE.Customer.V1.Logic
             _redisCache = redisCache ?? throw new ArgumentNullException(nameof(redisCache));
             _localCache = localCache ?? throw new ArgumentNullException(nameof(localCache));
             _appSettings = appSettings ?? throw new ArgumentNullException(nameof(appSettings));
-;            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _options = options ?? throw new ArgumentNullException(nameof(options));
             _bpByContractAccountRepository = bpByContractAccountRepository ?? throw new ArgumentNullException(nameof(bpByContractAccountRepository));
             _customerRepository = customerRepository ?? throw new ArgumentNullException(nameof(customerRepository)); 
@@ -108,7 +108,9 @@ namespace PSE.Customer.V1.Logic
                     }
                     catch (Exception e)
                     {
-                        _logger.LogError($"GetAccountExists API call failed for {nameof(customerEntity.BusinessPartnerId)}: {customerEntity.BusinessPartnerId}");
+                        _logger.LogError("GetAccountExists API call failed for " +
+                                         $"{nameof(customerEntity.BusinessPartnerId)}: {customerEntity.BusinessPartnerId}\n" +
+                                         $"{e.Message}");
                         throw;
                     }
                 }
@@ -120,7 +122,7 @@ namespace PSE.Customer.V1.Logic
             }
             else
             {
-                // Pass null model to indicat not found
+                // Pass null model to indicate not found
                 lookupCustomerModel = null;
             }
 
@@ -128,20 +130,18 @@ namespace PSE.Customer.V1.Logic
         }
 
         /// <summary>
-        ///Returns CustomerProfileModel based customer and customer contact information retrieved from Cassandra
+        /// Returns CustomerProfileModel based customer and customer contact information retrieved from Cassandra
         /// </summary>
         /// <param name="bpId">Business partner ID</param>
-        /// <returns>Task<CustomerProfileModel></returns>
+        /// <returns>Awaitable CustomerProfileModel result</returns>
         public async Task<CustomerProfileModel> GetCustomerProfileAsync(long bpId)
         {
             var getCustomer = _customerRepository.GetCustomerAsync(bpId);
-
             var getCustomerContact = _customerRepository.GetCustomerContactAsync(bpId);
 
             await Task.WhenAll(getCustomer, getCustomerContact);
 
             var customer = getCustomer.Result;
-
             var customerContact = getCustomerContact.Result;
 
             var model = customer.ToModel();
@@ -157,11 +157,10 @@ namespace PSE.Customer.V1.Logic
         /// <param name="address">Full mailing address</param>
         /// <param name="bpId">Business partner ID</param>
         /// <returns>Status code of async respository call</returns>
-        public Task<HttpStatusCode> PutMailingAddressAsync(AddressDefinedType address, long bpId)
+        public async Task PutMailingAddressAsync(AddressDefinedType address, long bpId)
         {
             _logger.LogInformation($"PutMailingAddressAsync({nameof(address)}: {address}," +
                                    $"{nameof(bpId)}: {bpId})");
-            // TODO: What is the return type?
             throw new NotImplementedException();
         }
 
@@ -171,14 +170,20 @@ namespace PSE.Customer.V1.Logic
         /// <param name="emailAddress">Customer email address</param>
         /// <param name="bpId">Business partner ID</param>
         /// <returns>Status code of async respository call</returns>
-        public Task<HttpStatusCode> PutEmailAddressAsync(string emailAddress, long bpId)
+        public async Task PutEmailAddressAsync(string emailAddress, long bpId)
         {
             _logger.LogInformation($"PutEmailAddressAsync({nameof(emailAddress)}: {emailAddress}," +
                                    $"{nameof(bpId)}: {bpId})");
-            // TODO: What is the return type?
-            throw new NotImplementedException();
-        }
 
+            // This returns an empty set and the IsFullyFetched property is true.
+            // There is apparently no way to determine if any rows were updated or not,
+            // so unless an exception occurs, NoContent will always be returned.
+            var response = await _customerRepository.UpdateCustomerEmailAddress(emailAddress, bpId);
+            if (response != null)
+            {
+                // TODO: Update using MCF too and return status of HTTP PUT
+            }
+        }
 
         /// <summary>
         /// Saves the phone numbers at the BP level
@@ -186,7 +191,7 @@ namespace PSE.Customer.V1.Logic
         /// <param name="phones">Customer's phones</param>
         /// <param name="bpId">Business partner ID</param>
         /// <returns>Status code of async respository call</returns>
-        public Task<HttpStatusCode> PutPhoneNumbersAsync(List<Phone> phones, long bpId)
+        public async Task PutPhoneNumbersAsync(List<Phone> phones, long bpId)
         {
             _logger.LogInformation($"PutEmailAddressAsync({nameof(phones)}: {phones}," +
                                    $"{nameof(bpId)}: {bpId})");

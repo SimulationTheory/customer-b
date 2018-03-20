@@ -101,8 +101,8 @@ namespace PSE.Customer.Tests.Unit.V1.Repositories
             {
                 // init vars
                 var session = new Mock<ISessionFacade<MicroservicesKeyspace>>().Object;
-                 var  customerEntity = new Mock<IEntity<CustomerEntity>>().Object;
-                const IEntity<CustomerContactEntity> customerContact = null;  
+                var customerEntity = new Mock<IEntity<CustomerEntity>>().Object;
+                const IEntity<CustomerContactEntity> customerContact = null;
                 var logger = CoreHelper.GetLogger<CustomerRepository>();
                 const string expectedParamName = nameof(customerContact);
 

@@ -2,11 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>0.0.1</Version>
+    <Authors>zasanch,zlnguye</Authors>
+    <PackageProjectUrl>http://awowttfap01v01:8080/tfs/WebAndMobile/Microservices/_backlogs</PackageProjectUrl>
+    <Company>Puget Sound Energy</Company>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.Services.Client" Version="5.8.3" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
     <PackageReference Include="PSE.Caching.Core" Version="0.0.3" />
     <PackageReference Include="RestSharp" Version="106.2.1" />

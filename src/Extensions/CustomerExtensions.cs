@@ -1,12 +1,11 @@
-﻿using PSE.Customer.Extensions;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Repositories.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
-namespace PSE.Customer.V1.Logic
+namespace PSE.Customer.Extensions
 {
     public static  class CustomerExtensions
     {
@@ -50,16 +49,20 @@ namespace PSE.Customer.V1.Logic
             }
 
             model.EmailAddress = source.Email;
+
             model.MailingAddress = source.MailingAddress;
 
-            var phones = GetPhones(source);
+            List<Phone> phones = GetPhones(source);
+
             model.Phones = phones;
+
             model.PrimaryPhone = (model.Phones.Any()) ? model.Phones.First().Type : model.PrimaryPhone;
+
         }
 
         private static List<Phone> GetPhones(CustomerContactEntity source)
         {
-            var phones = new List<Phone>();
+            List<Phone> phones = new List<Phone>();
 
             foreach (KeyValuePair<string, PhoneDefinedType> entry in source.Phones)
             {

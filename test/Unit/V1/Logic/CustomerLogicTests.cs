@@ -17,7 +17,12 @@ using PSE.WebAPI.Core.Configuration.Interfaces;
 using RestSharp;
 using Shouldly;
 using System;
+using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
+using Cassandra;
+using PSE.Customer.Tests.Unit.TestObjects;
+using PSE.Customer.V1.Repositories.DefinedTypes;
 
 namespace PSE.Customer.Tests.Unit.V1.Logic
 {
@@ -36,19 +41,33 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
         private Mock<IAuthenticationApi> mockAuthenticationApi;
 
         #region Helper Methods
+
+        private CustomerLogic CreateCustomerLogic()
+        {
+            return new CustomerLogic(
+                mockDistributedCache?.Object,
+                mockMemoryCache?.Object,
+                mockOptions?.Object,
+                mockLogger?.Object,
+                mockCoreOptions?.Object,
+                mockBPByContractAccountRepository?.Object,
+                mockCustomerRepository?.Object,
+                mockAuthenticationApi?.Object);
+        }
+
         [TestInitialize]
         public void TestInitialize()
         {
-            this.mockRepository = new MockRepository(MockBehavior.Strict);
+            mockRepository = new MockRepository(MockBehavior.Loose);
 
-            this.mockDistributedCache = this.mockRepository.Create<IDistributedCache>();
-            this.mockMemoryCache = this.mockRepository.Create<IMemoryCache>();
-            this.mockOptions = this.mockRepository.Create<IOptions<AppSettings>>();
-            this.mockLogger = this.mockRepository.Create<ILogger<CustomerLogic>>();
-            this.mockCoreOptions = this.mockRepository.Create<ICoreOptions>();
-            this.mockBPByContractAccountRepository = this.mockRepository.Create<IBPByContractAccountRepository>();
-            this.mockCustomerRepository = this.mockRepository.Create<ICustomerRepository>();
-            this.mockAuthenticationApi = this.mockRepository.Create<IAuthenticationApi>();
+            mockDistributedCache = mockRepository.Create<IDistributedCache>();
+            mockMemoryCache = mockRepository.Create<IMemoryCache>();
+            mockOptions = mockRepository.Create<IOptions<AppSettings>>();
+            mockLogger = mockRepository.Create<ILogger<CustomerLogic>>();
+            mockCoreOptions = mockRepository.Create<ICoreOptions>();
+            mockBPByContractAccountRepository = mockRepository.Create<IBPByContractAccountRepository>();
+            mockCustomerRepository = mockRepository.Create<ICustomerRepository>();
+            mockAuthenticationApi = mockRepository.Create<IAuthenticationApi>();
         }
 
         #endregion
@@ -235,7 +254,7 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
             };
 
             // Act
-            CustomerLogic customerLogic = this.CreateCustomerLogic();
+            CustomerLogic customerLogic = CreateCustomerLogic();
 
             var actual = await customerLogic.LookupCustomer(lookupCustomerRequest);
 
@@ -266,17 +285,6 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
                 .Setup(bbcar => bbcar.GetBpByContractAccountId(It.IsAny<long>()))
                 .Returns(Task.FromResult<BPByContractAccountEntity>(null));
 
-            mockCustomerRepository.Setup(cr => cr.GetCustomerByBusinessPartnerId(It.IsAny<long>()))
-                .Returns((long bpId) =>
-                {
-                    var customerEntity = new CustomerEntity
-                    {
-                        FullName = testFullName,
-                    };
-
-                    return Task.FromResult(customerEntity);
-                });
-
             mockAuthenticationApi.Setup(cr => cr.GetAccountExists(It.IsAny<long>()))
                 .Returns(Task.FromResult(restResponse));
 
@@ -287,7 +295,7 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
             };
 
             // Act
-            CustomerLogic customerLogic = this.CreateCustomerLogic();
+            CustomerLogic customerLogic = CreateCustomerLogic();
 
             var actual = await customerLogic.LookupCustomer(lookupCustomerRequest);
 
@@ -343,7 +351,7 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
             };
 
             // Act
-            CustomerLogic customerLogic = this.CreateCustomerLogic();
+            CustomerLogic customerLogic = CreateCustomerLogic();
 
             var actual = await customerLogic.LookupCustomer(lookupCustomerRequest);
 
@@ -354,19 +362,118 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
 
         #endregion
 
-        #region Private Methods
-        private CustomerLogic CreateCustomerLogic()
+        #region GetCustomerProfileAsync Tests
+
+        [TestMethod]
+        public async Task GetCustomerProfileAsync_ValidBpNumber_ReturnsCustomerProfile()
         {
-            return new CustomerLogic(
-                this.mockDistributedCache?.Object,
-                this.mockMemoryCache?.Object,
-                this.mockOptions?.Object,
-                this.mockLogger?.Object,
-                this.mockCoreOptions?.Object,
-                this.mockBPByContractAccountRepository?.Object,
-                this.mockCustomerRepository?.Object,
-                this.mockAuthenticationApi?.Object);
+            // Arrange
+            var user = TestHelper.PaDev1;
+            var logic = CreateCustomerLogic();
+
+            mockCustomerRepository.Setup(cr => cr.GetCustomerAsync(It.IsAny<long>()))
+                .Returns((long bpId) =>
+                {
+                    var customerEntity = new CustomerEntity
+                    {
+                        BusinessPartnerId = user.BpNumber,
+                        FullName = "JENNIFER L POWERS",
+                        FirstName = "JENNIFER",
+                        LastName = "POWERS"
+                    };
+                    return Task.FromResult(customerEntity);
+                });
+
+            mockCustomerRepository.Setup(cr => cr.GetCustomerContactAsync(It.IsAny<long>()))
+                .Returns((long bpId) =>
+                {
+                    var customerContactEntity = new CustomerContactEntity
+                    {
+                        Email = user.Email,
+                        MailingAddress = user.Address,
+                        Phones = new Dictionary<string, PhoneDefinedType>
+                        {
+                            {
+                                "cell", new PhoneDefinedType
+                                {
+                                    Number = user.Phones[0].Number,
+                                    Extension = user.Phones[0].Extension
+                                }
+                            },
+                            {
+                                "work", new PhoneDefinedType
+                                {
+                                    Number = user.Phones[1].Number,
+                                    Extension = user.Phones[1].Extension
+                                }
+                            }
+                        }
+                    };
+                    return Task.FromResult(customerContactEntity);
+                });
+
+            // Act
+            var response = await logic.GetCustomerProfileAsync(user.BpNumber);
+
+            // Assert
+            response.ShouldNotBeNull();
+            response.ShouldBeOfType<CustomerProfileModel>();
+            response.MailingAddress.AddressLine1.ShouldBe(user.Address.AddressLine1);
         }
+
+        #endregion
+
+        #region PutMailingAddressAsync Tests
+
+        [TestMethod]
+        public void PutMailingAddressAsync_ValidAddress_ThrowsNotImplementedException()
+        {
+            // Arrange
+            var user = TestHelper.PaDev1;
+            var logic = CreateCustomerLogic();
+
+            // Act
+            Func<Task> action = async () => { await logic.PutMailingAddressAsync(user.Address, user.BpNumber); };
+
+            // Assert
+            action.ShouldThrow<NotImplementedException>();
+        }
+
+        #endregion
+
+        #region PutEmailAddressAsync Tests
+
+        [TestMethod]
+        public async Task PutEmailAddressAsync_ValidAddress_EmailAddressUpdated()
+        {
+            // Arrange
+            var user = TestHelper.PaDev1;
+            var logic = CreateCustomerLogic();
+            mockCustomerRepository.Setup(x => x.UpdateCustomerEmailAddress(It.IsAny<string>(), It.IsAny<long>()))
+                .Returns(Task.FromResult(new RowSet()));
+
+            // Act
+            await logic.PutEmailAddressAsync(user.Email, user.BpNumber);
+        }
+
+        #endregion
+
+        #region PutPhoneNumbersAsync Tests
+
+        [TestMethod]
+        public void PutPhoneNumbersAsync_ValidAddress_ThrowsNotImplementedException()
+        {
+            // Arrange
+            var user = TestHelper.PaDev1;
+            var logic = CreateCustomerLogic();
+
+            // Act
+            Func<Task> action = async () => { await logic.PutPhoneNumbersAsync(user.Phones, user.BpNumber); };
+
+            // Assert
+            action.ShouldThrow<NotImplementedException>();
+        }
+
         #endregion
     }
 }

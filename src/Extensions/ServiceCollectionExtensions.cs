@@ -22,14 +22,12 @@ namespace PSE.Customer.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-
-
         /// <summary>
         /// Configures and registers the statement and contract account repositories.
         /// </summary>
         /// <param name="services">The services.</param>
         /// <param name="logger"></param>
-        public static void AddRepositories(this IServiceCollection services, ILogger logger)
+        public static IServiceCollection AddRepositories(this IServiceCollection services, ILogger logger)
         {
             services = services ?? throw new ArgumentNullException(nameof(services));
             logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -56,6 +54,8 @@ namespace PSE.Customer.Extensions
             {
                 cfg.CreateMap<GetCustomerProfileResponse, CustomerProfileModel>();
             });
+
+            return services;
         }
 
 
