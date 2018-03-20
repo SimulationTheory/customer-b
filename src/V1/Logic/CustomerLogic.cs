@@ -15,6 +15,8 @@ using PSE.Customer.V1.Repositories.Entities;
 using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Repositories.Interfaces;
 using PSE.WebAPI.Core.Configuration.Interfaces;
+using RestSharp;
+using Microsoft.AspNetCore.Mvc;
 
 namespace PSE.Customer.V1.Logic
 {
@@ -191,5 +193,81 @@ namespace PSE.Customer.V1.Logic
             // TODO: What is the return type?
             throw new NotImplementedException();
         }
+
+        /// <summary>
+        /// Creates profile
+        /// By signing up user in cognito and cassandra calling sign up API
+        /// Save security questions by calling the security Questions API
+        /// in eash step it will return approrate http status code
+        /// </summary>
+        /// <param name="webprofile"></param>
+        /// <returns></returns>
+        public async Task  CreateWebProfileAsync(WebProfile webprofile)
+        {
+            _logger.LogInformation($"CreateWebProfileAsync({nameof(webprofile)}: {webprofile}");
+
+            //Signs up customer in cognito and cassandra
+            var resp = await _authenticationApi.SignUpCustomer(webprofile);
+            if (resp.StatusCode != HttpStatusCode.OK)
+            {
+                var message = resp.Content;
+                _logger.LogError($"Unable to  sign up for user name {webprofile?.CustomerCredentials?.UserName} and Bp {webprofile.BPId} with error message from Auth sign up service {message}");
+                throw new Exception(message);
+            }
+            //save security questions
+            await SaveSecurityQuestions(webprofile, resp);
+        }
+
+        /// <summary>
+        /// Checks if the username exists by calling the Authentication service api
+        /// </summary>
+        /// <param name="userName"></param>
+        /// <returns></returns>
+        public async Task<bool> UserNameExists(string userName)
+        {
+            bool usernameExists = true;
+            // Check for web account in auth
+            var userNameExistsResponse = await _authenticationApi.GetUserNameExists(userName);
+            if (userNameExistsResponse?.Data?.Exists != null)
+            {
+                // Update return value
+                usernameExists = userNameExistsResponse.Data.Exists;
+            }
+            return usernameExists;
+        }
+
+        #region private methods
+        private async Task SaveSecurityQuestions(WebProfile webprofile, IRestResponse<OkResult> resp)
+        {
+            try
+            {
+                //gets JwtToken
+                var jwttoken = await _authenticationApi.GetJwtToken(webprofile?.CustomerCredentials?.UserName, webprofile?.CustomerCredentials?.Password);
+
+                //Save security questions one at at time    
+                if (jwttoken.StatusCode == HttpStatusCode.OK && !string.IsNullOrEmpty(jwttoken?.Data?.JwtAccessToken))
+                {
+                    var savesecurityQuestions = await _authenticationApi.SaveSecurityQuestions(webprofile, jwttoken.Data.JwtAccessToken);
+
+                    if (savesecurityQuestions.StatusCode != HttpStatusCode.Created)
+                    {
+                        //throw eception
+                        var message = resp.Content;
+                        _logger.LogError($"Security Questions can not be created for user name {webprofile?.CustomerCredentials?.UserName} and Bp {webprofile.BPId}");
+                        //throw new Exception(message);
+                    }
+                }
+                else
+                {
+                    var message = jwttoken.Content;
+                    _logger.LogError($"Unable to signin and get jwt token after sign up for user name {webprofile?.CustomerCredentials?.UserName} and Bp {webprofile.BPId} with error message from Auth sign in service {message}");
+                }
+            }
+            catch (Exception exp)
+            {
+                _logger.LogError("Saveing Security questions failed with unexpected error", exp);
+            }
+        }
+        #endregion
     }
 }

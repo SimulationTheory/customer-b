@@ -18,6 +18,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using PSE.Exceptions.Core;
+using System.Text.RegularExpressions;
 
 namespace PSE.Customer.V1.Controllers
 {
@@ -139,17 +140,66 @@ namespace PSE.Customer.V1.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> CreateWebProfile([FromBody] WebProfile webProfile)
         {
-            //check validations for username, password, email, phonenumber
-            //if any fails, respond with error codes.
-            //409 - conflict for user name
-            if (string.IsNullOrEmpty(webProfile?.CustomerCredentials?.Password))
-                return new BadRequestObjectResult(new ServiceError
-                {
-                    Code = (int)HttpStatusCode.BadRequest,
-                    Message = "Password doesn't met with requirements."
-                });
+          
+            IActionResult result;
+            try
+            {
+                _logger.LogInformation($"CreateWebProfile({nameof(webProfile)}: {JsonConvert.SerializeObject(webProfile, Formatting.Indented)})");
+                var validBp = long.TryParse(webProfile?.BPId, out var bpId);  
+                //Validate password,username, phone, email
+                ValidateCreateProfile(webProfile,validBp);
+                //make sure the account provider exists
+                var customermodel = _customerLogic.LookupCustomer(webProfile.Customer);
+                ///Check if username  exists
+                var usernameCheck = _customerLogic.UserNameExists(webProfile.CustomerCredentials.UserName);
+                await Task.WhenAll(customermodel, usernameCheck);
 
-            return new OkResult();
+                var lookupCustomerModel = customermodel.Result;
+                var userExist = usernameCheck.Result;
+
+                if (userExist)
+                {
+                    //409 - conflict for user name exist
+                    return new BadRequestObjectResult(new ServiceError
+                    {
+                        Code = (int)HttpStatusCode.Conflict,
+                        Message = $"The username {webProfile.CustomerCredentials.UserName} exists"
+                    });
+                }
+
+                if (lookupCustomerModel == null)
+                {
+                    return new BadRequestObjectResult(new ServiceError
+                    {
+                        Code = (int)HttpStatusCode.BadRequest,
+                        Message = "The Customer was not found"
+                    });
+                }
+            
+                //make sure the Bp provided and the account match
+                if (lookupCustomerModel != null && bpId != lookupCustomerModel.BPId)
+                {
+                    return new BadRequestObjectResult(new ServiceError
+                    {
+                        Code = (int)HttpStatusCode.BadRequest,
+                        Message = "The Contract account provided didn't match the Business Partner"
+                    });
+                }
+                //Create profile and  save security questions
+                await _customerLogic.CreateWebProfileAsync(webProfile);
+
+                //TODO update Phone and email async when the underline services are implemented              
+                result = new OkResult();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+
+                result = e.ToActionResult();
+            }
+
+            
+            return result;
         }
 
         /// <summary>
@@ -251,6 +301,8 @@ namespace PSE.Customer.V1.Controllers
             return result;
         }
 
+
+        #region private methods
         /// <summary>
         /// Gets the Business Partner ID (bpId) from an authenticated users claims
         /// </summary>
@@ -269,5 +321,99 @@ namespace PSE.Customer.V1.Controllers
 
             return bpId;
         }
+
+
+        private IActionResult ValidateCreateProfile(WebProfile webProfile, bool validBp)
+        {
+
+            if (!validBp)
+            {
+                return new BadRequestObjectResult(new ServiceError
+                {
+                    Code = (int)HttpStatusCode.BadRequest,
+                    Message = "The Customer Business Partner is Invalid"
+                });
+
+            }
+
+            //check validations for username, password, email, phonenumber
+            //if any fails, respond with error codes.
+
+            if (string.IsNullOrEmpty(webProfile?.CustomerCredentials?.Password))
+                return new BadRequestObjectResult(new ServiceError
+                {
+                    Code = (int)HttpStatusCode.BadRequest,
+                    Message = "User name doesn't met with requirements."
+                });
+
+            //Check password for Uppercase, lower case , special character and number more than 8 characters
+            //@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,}$"
+            if (Regex.Match(webProfile?.CustomerCredentials?.Password,
+                        @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,}$").Length == 0)
+            {
+                return new BadRequestObjectResult(new ServiceError
+                {
+                    Code = (int)HttpStatusCode.BadRequest,
+                    Message = "Password provided doesn't met with Format requirements."
+                });
+            }
+
+            if (string.IsNullOrEmpty(webProfile?.CustomerCredentials?.UserName))
+                return new BadRequestObjectResult(new ServiceError
+                {
+                    Code = (int)HttpStatusCode.BadRequest,
+                    Message = "Password doesn't met with requirements."
+                });
+
+            if (string.IsNullOrEmpty(webProfile?.Email))
+                return new BadRequestObjectResult(new ServiceError
+                {
+                    Code = (int)HttpStatusCode.BadRequest,
+                    Message = "Email provided doesn't met with requirements."
+                });
+
+            //Borrowed from the existing Interface web services
+            if (Regex.Match(webProfile?.Email,
+                        @"^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$").Length == 0)
+            {
+                return new BadRequestObjectResult(new ServiceError
+                {
+                    Code = (int)HttpStatusCode.BadRequest,
+                    Message = "Email provided doesn't met with Format requirements."
+                });
+            }
+
+            ValidatePhone(webProfile?.Phone);
+            return null;
+                
+
+            
+        }
+
+        private IActionResult ValidatePhone(Phone phone)
+        {
+            if (string.IsNullOrEmpty(phone?.Number))
+                return new BadRequestObjectResult(new ServiceError
+                {
+                    Code = (int)HttpStatusCode.BadRequest,
+                    Message = "Phone number provided doesn't met with requirements."
+                });
+
+            //Borrowed from the existing Interface web services
+            //\(?\d{3}\)?-? *\d{3}-? *-?\d{4}
+            if (Regex.Match(phone?.Number, @"^\(?\d{3}\)?-? *\d{3}-? *-?\d{4}$")
+                    .Length == 0)
+            {
+                return new BadRequestObjectResult(new ServiceError
+                {
+                    Code = (int)HttpStatusCode.BadRequest,
+                    Message = "Phone number provided doesn't met with Format requirements."
+                });
+            }
+            return null;
+        }
+        #endregion
+
+
     }
 }

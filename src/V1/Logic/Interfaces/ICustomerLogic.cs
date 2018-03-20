@@ -16,6 +16,9 @@ namespace PSE.Customer.V1.Logic.Interfaces
 
         Task<HttpStatusCode> PutEmailAddressAsync(string emailAddress, long bpId);
 
-        Task<HttpStatusCode> PutPhoneNumbersAsync(List<Phone> phones, long bpId);
+        Task<HttpStatusCode> PutPhoneNumbersAsync(List<Phone> phones, long bpId);       
+        Task CreateWebProfileAsync(WebProfile webprofile);
+
+        Task<bool> UserNameExists(string userBName);
     }
 }
