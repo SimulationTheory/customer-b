@@ -72,7 +72,7 @@ namespace PSE.Customer.V1.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> LookupCustomer(LookupCustomerRequest lookupCustomerRequest)
         {
-            IActionResult result = null;
+            IActionResult result;
             _logger.LogInformation($"LookupCustomer({nameof(lookupCustomerRequest)}: {JsonConvert.SerializeObject(lookupCustomerRequest, Formatting.Indented)})");
 
             try
@@ -177,7 +177,7 @@ namespace PSE.Customer.V1.Controllers
                 }
             
                 //make sure the Bp provided and the account match
-                if (lookupCustomerModel != null && bpId != lookupCustomerModel.BPId)
+                if (bpId != lookupCustomerModel.BPId)
                 {
                     return new BadRequestObjectResult(new ServiceError
                     {
@@ -254,6 +254,12 @@ namespace PSE.Customer.V1.Controllers
                     return BadRequest(ModelState);
                 }
 
+                result = ValidateEmailAddress(emailAddress);
+                if (result != null)
+                {
+                    return result;
+                }
+
                 var bpId = GetBpIdFromClaims();
                 await _customerLogic.PutEmailAddressAsync(emailAddress, bpId);
                 result = Ok();
@@ -301,8 +307,8 @@ namespace PSE.Customer.V1.Controllers
             return result;
         }
 
-
         #region private methods
+
         /// <summary>
         /// Gets the Business Partner ID (bpId) from an authenticated users claims
         /// </summary>
@@ -365,29 +371,13 @@ namespace PSE.Customer.V1.Controllers
                     Message = "Password doesn't met with requirements."
                 });
 
-            if (string.IsNullOrEmpty(webProfile?.Email))
-                return new BadRequestObjectResult(new ServiceError
-                {
-                    Code = (int)HttpStatusCode.BadRequest,
-                    Message = "Email provided doesn't met with requirements."
-                });
-
-            //Borrowed from the existing Interface web services
-            if (Regex.Match(webProfile?.Email,
-                        @"^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$").Length == 0)
+            var result = ValidateEmailAddress(webProfile.Email);
+            if (result != null)
             {
-                return new BadRequestObjectResult(new ServiceError
-                {
-                    Code = (int)HttpStatusCode.BadRequest,
-                    Message = "Email provided doesn't met with Format requirements."
-                });
+                return result;
             }
 
-            ValidatePhone(webProfile?.Phone);
-            return null;
-                
-
-            
+            return ValidatePhone(webProfile.Phone);
         }
 
         private IActionResult ValidatePhone(Phone phone)
@@ -412,8 +402,25 @@ namespace PSE.Customer.V1.Controllers
             }
             return null;
         }
+
+        private IActionResult ValidateEmailAddress(string emailAddress)
+        {
+            // Borrowed from the existing Interface web services
+            const string emalRegEx = @"^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$";
+
+            if (string.IsNullOrEmpty(emailAddress) ||
+                Regex.Match(emailAddress, emalRegEx).Length == 0)
+            {
+                return new BadRequestObjectResult(new ServiceError
+                {
+                    Code = (int) HttpStatusCode.BadRequest,
+                    Message = "Email provided doesn't met with requirements."
+                });
+            }
+
+            return null;
+        }
+
         #endregion
-
-
     }
 }

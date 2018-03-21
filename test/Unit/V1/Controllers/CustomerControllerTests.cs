@@ -435,13 +435,30 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         }
 
         [TestMethod]
-        public async Task PutEmailAddressAsync_InvalidEmail_Returns400BadRequest()
+        public async Task PutEmailAddressAsync_UnparsableEmail_Returns400BadRequest()
         {
             // Arrange
             var email = "test7 AT test DOT com";
             var controller = GetController();
             controller.ViewData.Model = email;
             controller.ViewData.ModelState.AddModelError("Email", "Invalid email format");
+
+            // Act
+            var results = await controller.PutEmailAddressAsync(email);
+
+            // Assert
+            results.ShouldBeOfType<BadRequestObjectResult>();
+            var badRequest = (BadRequestObjectResult)results;
+            badRequest.StatusCode.ShouldNotBeNull();
+            badRequest.StatusCode.Value.ShouldBe(StatusCodes.Status400BadRequest);
+        }
+
+        [TestMethod]
+        public async Task PutEmailAddressAsync_InvalidEmail_Returns400BadRequest()
+        {
+            // Arrange
+            var email = "test7 AT test DOT com";
+            var controller = GetController();
 
             // Act
             var results = await controller.PutEmailAddressAsync(email);
