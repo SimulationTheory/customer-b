@@ -150,7 +150,7 @@ namespace PSE.Customer.V1.Controllers
                 ValidateCreateProfile(webProfile,validBp);
                 //make sure the account provider exists
                 var customermodel = _customerLogic.LookupCustomer(webProfile.Customer);
-                ///Check if username  exists
+                //Check if username  exists
                 var usernameCheck = _customerLogic.UserNameExists(webProfile.CustomerCredentials.UserName);
                 await Task.WhenAll(customermodel, usernameCheck);
 

@@ -37,4 +37,8 @@
   <ItemGroup>
     <Folder Include="V1\Clients\Authentication\Models\Request\" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PSE.RestUtility.Core\PSE.RestUtility.Core.csproj" />
+  </ItemGroup>
 </Project>

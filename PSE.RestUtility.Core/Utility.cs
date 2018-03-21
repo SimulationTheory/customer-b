@@ -9,7 +9,7 @@ using StackExchange.Redis;
 
 namespace PSE.RestUtility.Core
 {
-    public class RestUtility : IRestUtility
+    public class Utility : IRestUtility
     {
         private readonly string _loadBalancerUrl;
         private readonly IDatabase _redis;
@@ -20,7 +20,7 @@ namespace PSE.RestUtility.Core
         /// <param name="loadBalancerUrl"></param>
         /// <param name="options"></param>
         /// <param name="db"></param>
-        public RestUtility(string loadBalancerUrl, RedisOptions options, int db = -1)
+        public Utility(string loadBalancerUrl, RedisOptions options, int db = -1)
         {
             _loadBalancerUrl = loadBalancerUrl;
             var connectionMultiplexer = ConnectionMultiplexer.Connect(options.Configuration);
