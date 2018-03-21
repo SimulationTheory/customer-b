@@ -426,17 +426,16 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
         #region PutMailingAddressAsync Tests
 
         [TestMethod]
-        public void PutMailingAddressAsync_ValidAddress_ThrowsNotImplementedException()
+        public async Task PutMailingAddressAsync_ValidAddress_MailingAddressUpdated()
         {
             // Arrange
             var user = TestHelper.PaDev1;
             var logic = CreateCustomerLogic();
+            mockCustomerRepository.Setup(x => x.UpdateCustomerMailingAddress(It.IsAny<AddressDefinedType>(), It.IsAny<long>()))
+                .Returns(Task.FromResult(new RowSet()));
 
             // Act
-            Func<Task> action = async () => { await logic.PutMailingAddressAsync(user.Address, user.BpNumber); };
-
-            // Assert
-            action.ShouldThrow<NotImplementedException>();
+            await logic.PutMailingAddressAsync(user.Address, user.BpNumber);
         }
 
         #endregion

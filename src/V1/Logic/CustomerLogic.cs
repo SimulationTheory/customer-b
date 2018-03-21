@@ -161,7 +161,15 @@ namespace PSE.Customer.V1.Logic
         {
             _logger.LogInformation($"PutMailingAddressAsync({nameof(address)}: {address}," +
                                    $"{nameof(bpId)}: {bpId})");
-            throw new NotImplementedException();
+
+            // This returns an empty set and the IsFullyFetched property is true.
+            // There is apparently no way to determine if any rows were updated or not,
+            // so unless an exception occurs, NoContent will always be returned.
+            var response = await _customerRepository.UpdateCustomerMailingAddress(address, bpId);
+            if (response != null)
+            {
+                // TODO: Update using MCF too and return status of HTTP PUT
+            }
         }
 
         /// <summary>

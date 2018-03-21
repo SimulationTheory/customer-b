@@ -86,7 +86,13 @@ namespace PSE.Customer.V1.Repositories
         /// <param name="bpId">bpID</param>
         public Task<RowSet> UpdateCustomerMailingAddress(AddressDefinedType address, long bpId)
         {
-            throw new NotImplementedException();
+            var session = _session.Session();
+            var statement = session.Prepare(
+                "UPDATE customer_contact " +
+                "SET mailing_address = ? " +
+                "WHERE bp_id = ?;");
+
+            return session.ExecuteAsync(statement.Bind(address, bpId));
         }
 
         /// <summary>

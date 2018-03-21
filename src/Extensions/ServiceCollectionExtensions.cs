@@ -76,17 +76,7 @@ namespace PSE.Customer.Extensions
 
             return services;
         }
-        /// <summary>
-        /// Gets the logger factory.
-        /// </summary>
-        /// <param name="services">The services.</param>
-        /// <returns></returns>
-        private static ILoggerFactory GetLoggerFactory(this IServiceCollection services)
-        {
-            var provider = services.BuildServiceProvider();
 
-            return provider.GetService<ILoggerFactory>();
-        }
         #endregion
     }
 }
