@@ -17,6 +17,10 @@ using PSE.Customer.V1.Repositories.Interfaces;
 using PSE.WebAPI.Core.Configuration.Interfaces;
 using RestSharp;
 using Microsoft.AspNetCore.Mvc;
+using PSE.Customer.V1.Clients.Mcf.Interfaces;
+using PSE.RestUtility.Core.Mcf;
+using System.Linq;
+using PSE.Customer.Extensions;
 
 namespace PSE.Customer.V1.Logic
 {
@@ -34,6 +38,7 @@ namespace PSE.Customer.V1.Logic
         private readonly IBPByContractAccountRepository _bpByContractAccountRepository;
         private readonly ICustomerRepository _customerRepository;
         private readonly IAuthenticationApi _authenticationApi;
+        private readonly IMcfClient _mcfClient;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CustomerLogic"/> class.
@@ -46,6 +51,7 @@ namespace PSE.Customer.V1.Logic
         /// <param name="bpByContractAccountRepository">The bp by contract account repository.</param>
         /// <param name="customerRepository">The customer repository.</param>
         /// <param name="authenticationApi">The authentication API.</param>
+        /// <param name="mcfClient"></param>
         public CustomerLogic(
             IDistributedCache redisCache,
             IMemoryCache localCache,
@@ -54,7 +60,8 @@ namespace PSE.Customer.V1.Logic
             ICoreOptions options,
             IBPByContractAccountRepository bpByContractAccountRepository,
             ICustomerRepository customerRepository,
-            IAuthenticationApi authenticationApi)
+            IAuthenticationApi authenticationApi,
+            IMcfClient mcfClient)
         {
             _redisCache = redisCache ?? throw new ArgumentNullException(nameof(redisCache));
             _localCache = localCache ?? throw new ArgumentNullException(nameof(localCache));
@@ -63,7 +70,8 @@ namespace PSE.Customer.V1.Logic
             _options = options ?? throw new ArgumentNullException(nameof(options));
             _bpByContractAccountRepository = bpByContractAccountRepository ?? throw new ArgumentNullException(nameof(bpByContractAccountRepository));
             _customerRepository = customerRepository ?? throw new ArgumentNullException(nameof(customerRepository)); 
-            _authenticationApi = authenticationApi ?? throw new ArgumentNullException(nameof(authenticationApi)); 
+            _authenticationApi = authenticationApi ?? throw new ArgumentNullException(nameof(authenticationApi));
+            _mcfClient = mcfClient ?? throw new ArgumentNullException(nameof(mcfClient));
         }
 
         /// <summary>
@@ -247,6 +255,38 @@ namespace PSE.Customer.V1.Logic
                 usernameExists = userNameExistsResponse.Data.Exists;
             }
             return usernameExists;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="bpId"></param>
+        /// <param name="isStandardOnly"></param>
+        /// <param name="jwt"></param>
+        /// <returns></returns>
+        public IEnumerable<AddressDefinedType> GetMailingAddressesAsync(long bpId, bool isStandardOnly, string jwt)
+        {
+            var mcfAddresses = new List<McfAddressinfo>();
+
+            var key = $"selfservice:BusinessPartner:{bpId}:Address";
+
+            var result = _mcfClient.GetMailingAddresses(jwt, bpId);
+
+            var results = (isStandardOnly ? result.D.Results?
+                                    .Where(x => x.AddressInfo.StandardFlag.Equals("x", StringComparison.OrdinalIgnoreCase))
+                                    : result.D.Results?
+                                    .Where(x => string.IsNullOrEmpty(x.AddressInfo.StandardFlag)))
+                                    .ToList();
+
+            results?.ForEach(x=> mcfAddresses.Add(x.AddressInfo));
+
+            var addresses = mcfAddresses.ToModels();
+
+            _redisCache.SetStringAsync(key, addresses.ToJson());
+
+
+            return addresses;
+
         }
 
         #region private methods

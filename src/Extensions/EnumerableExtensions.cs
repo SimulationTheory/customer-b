@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace PSE.Customer.Extensions
 {
+    /// <summary>
+    ///  Extends IEnumerable Interface
+    /// </summary>
     public static class EnumerableExtensions
     {
         /// <summary>

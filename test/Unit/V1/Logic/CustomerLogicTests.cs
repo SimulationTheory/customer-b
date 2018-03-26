@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using Cassandra;
 using PSE.Customer.Tests.Unit.TestObjects;
 using PSE.Customer.V1.Repositories.DefinedTypes;
+using PSE.Customer.V1.Clients.Mcf.Interfaces;
 
 namespace PSE.Customer.Tests.Unit.V1.Logic
 {
@@ -39,6 +40,7 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
         private Mock<IBPByContractAccountRepository> mockBPByContractAccountRepository;
         private Mock<ICustomerRepository> mockCustomerRepository;
         private Mock<IAuthenticationApi> mockAuthenticationApi;
+        private Mock<IMcfClient> mockMcfClient;
 
         #region Helper Methods
 
@@ -52,7 +54,8 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
                 mockCoreOptions?.Object,
                 mockBPByContractAccountRepository?.Object,
                 mockCustomerRepository?.Object,
-                mockAuthenticationApi?.Object);
+                mockAuthenticationApi?.Object,
+                mockMcfClient?.Object);
         }
 
         [TestInitialize]
@@ -68,6 +71,7 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
             mockBPByContractAccountRepository = mockRepository.Create<IBPByContractAccountRepository>();
             mockCustomerRepository = mockRepository.Create<ICustomerRepository>();
             mockAuthenticationApi = mockRepository.Create<IAuthenticationApi>();
+            mockMcfClient = mockRepository.Create<IMcfClient>();
         }
 
         #endregion

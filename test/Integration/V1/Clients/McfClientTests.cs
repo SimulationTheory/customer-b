@@ -167,6 +167,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         #region CreateBusinessPartnerEmail Tests
 
         [TestMethod]
+        [Ignore]
         public async Task CreateBusinessPartnerEmail_ValidUser_ContactInfoRetrieved()
         {
             // Arrange

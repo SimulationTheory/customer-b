@@ -2,12 +2,16 @@
 using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Repositories.Entities;
+using PSE.RestUtility.Core.Mcf;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace PSE.Customer.V1.Logic
 {
+    /// <summary>
+    /// Extends Customer class
+    /// </summary>
     public static  class CustomerExtensions
     {
         /// <summary>
@@ -55,6 +59,48 @@ namespace PSE.Customer.V1.Logic
             var phones = GetPhones(source);
             model.Phones = phones;
             model.PrimaryPhone = (model.Phones.Any()) ? model.Phones.First().Type : model.PrimaryPhone;
+        }
+
+        /// <summary>
+        /// Maps Mcf Fields To Cassabdra Fields
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static AddressDefinedType McfToCassandraModel(this McfAddressinfo source)
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+
+            var model = new AddressDefinedType
+            {
+                AddressLine1 = source.Street,
+                AddressLine2 = null,
+                City = source.City,
+                PostalCode = source.PostalCode,
+                State = source.Region,
+                Country = source.CountryName
+            };
+
+            return model;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static IEnumerable<AddressDefinedType> ToModels(this IEnumerable<McfAddressinfo> source)
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+
+            var models = source.ToArray().Select(x => x.McfToCassandraModel());
+
+            return models;
         }
 
         private static List<Phone> GetPhones(CustomerContactEntity source)

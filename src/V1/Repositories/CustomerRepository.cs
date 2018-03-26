@@ -13,6 +13,10 @@ using PSE.Customer.V1.Repositories.Interfaces;
 
 namespace PSE.Customer.V1.Repositories
 {
+    /// <summary>
+    /// Repository For Customer
+    /// </summary>
+    /// <seealso cref="PSE.Customer.V1.Repositories.Interfaces.ICustomerRepository" />
     public class CustomerRepository : ICustomerRepository
     {
         private readonly IEntity<CustomerEntity> _customer;
@@ -20,13 +24,23 @@ namespace PSE.Customer.V1.Repositories
         private readonly ILogger<CustomerRepository> _logger;
         private readonly ISessionFacade<MicroservicesKeyspace> _session;
 
+
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="CustomerRepository"/> class.
         /// </summary>
-        /// <param name="session"></param>
-        /// <param name="customer"></param>
-        /// <param name="customerContact"></param>
-        /// <param name="logger"></param>
+        /// <param name="session">The session.</param>
+        /// <param name="customer">The customer.</param>
+        /// <param name="customerContact">The customer contact.</param>
+        /// <param name="logger">The logger.</param>
+        /// <exception cref="ArgumentNullException">
+        /// session
+        /// or
+        /// customer
+        /// or
+        /// customerContact
+        /// or
+        /// logger
+        /// </exception>
         public CustomerRepository(
             ISessionFacade<MicroservicesKeyspace> session,
             IEntity<CustomerEntity> customer,

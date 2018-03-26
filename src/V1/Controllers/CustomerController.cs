@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using PSE.Exceptions.Core;
 using System.Text.RegularExpressions;
 using PSE.Customer.Extensions;
+using Microsoft.Extensions.Primitives;
 
 namespace PSE.Customer.V1.Controllers
 {
@@ -309,7 +310,58 @@ namespace PSE.Customer.V1.Controllers
             return result;
         }
 
-        #region private methods
+        /// <summary>
+        ///  Gets BP Level Address of the authenticated user and store it into Redis
+        /// </summary>
+        /// <param name="isStandardOnly"></param>
+        /// <returns></returns>
+        [ProducesResponseType(typeof(GetMailingAddressesResponse), 200)]
+        [HttpGet("mailing-address/{isStandardOnly}")]
+        public IActionResult GetMailingAddressesAsync(bool isStandardOnly)
+        {
+
+            _logger.LogInformation($"GetMailingAddressesAsync({nameof(isStandardOnly)}: {isStandardOnly})");
+
+            IActionResult result ;
+
+            try
+            {
+                if (HttpContext.Request.Headers.TryGetValue("Authorization", out StringValues jwt))
+                {
+                    var bpId = GetBpIdFromClaims();
+                    var customerAddresses = _customerLogic.GetMailingAddressesAsync(bpId, isStandardOnly,jwt);
+
+                    if (customerAddresses != null)
+                    {
+                        var response = new GetMailingAddressesResponse()
+                        {
+                            MailingAddress = customerAddresses
+                        };
+
+                        result = Ok(customerAddresses);
+                    }
+                    else
+                    {
+                        result = NotFound();
+                    }
+
+                }
+                else
+                {
+                    result = Unauthorized();
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+
+                result = e.ToActionResult();
+            }
+
+            return result;
+        }
+
+        #region Private methods
 
         /// <summary>
         /// Gets the Business Partner ID (bpId) from an authenticated users claims
@@ -329,7 +381,6 @@ namespace PSE.Customer.V1.Controllers
 
             return bpId;
         }
-
 
         private IActionResult ValidateCreateProfile(WebProfile webProfile, bool validBp)
         {
@@ -415,14 +466,13 @@ namespace PSE.Customer.V1.Controllers
             {
                 return new BadRequestObjectResult(new ServiceError
                 {
-                    Code = (int) HttpStatusCode.BadRequest,
+                    Code = (int)HttpStatusCode.BadRequest,
                     Message = "Email provided doesn't met with requirements."
                 });
             }
 
             return null;
         }
-
         #endregion
     }
 }

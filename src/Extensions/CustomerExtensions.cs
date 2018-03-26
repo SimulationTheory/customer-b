@@ -7,6 +7,9 @@ using PSE.Customer.V1.Repositories.Entities;
 
 namespace PSE.Customer.Extensions
 {
+    /// <summary>
+    /// Extends Customer class
+    /// </summary>
     public static  class CustomerExtensions
     {
         /// <summary>

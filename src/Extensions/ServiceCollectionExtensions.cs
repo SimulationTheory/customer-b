@@ -7,6 +7,8 @@ using PSE.Customer.V1.Clients.Authentication;
 using PSE.Customer.V1.Clients.Authentication.Interfaces;
 using PSE.Customer.V1.Clients.ClientProxy;
 using PSE.Customer.V1.Clients.ClientProxy.Interfaces;
+using PSE.Customer.V1.Clients.Mcf;
+using PSE.Customer.V1.Clients.Mcf.Interfaces;
 using PSE.Customer.V1.Logic;
 using PSE.Customer.V1.Logic.Interfaces;
 using PSE.Customer.V1.Models;
@@ -17,11 +19,12 @@ using PSE.Customer.V1.Repositories.Interfaces;
 using PSE.Customer.V1.Response;
 using PSE.WebAPI.Core.Startup;
 using System;
-using PSE.Customer.V1.Clients.Mcf;
-using PSE.Customer.V1.Clients.Mcf.Interfaces;
 
 namespace PSE.Customer.Extensions
 {
+    /// <summary>
+    /// Extends IServiceCollection interface
+    /// </summary>
     public static class ServiceCollectionExtensions
     {
         /// <summary>

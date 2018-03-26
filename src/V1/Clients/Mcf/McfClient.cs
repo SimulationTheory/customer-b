@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using PSE.Customer.Extensions;
@@ -241,6 +242,42 @@ namespace PSE.Customer.V1.Clients.Mcf
             {
                 _logger.LogError(e, e.Message);
                 throw;
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="jwt"></param>
+        /// <param name="contractAccountId"></param>
+        /// <returns></returns>
+        public McfResponsesWrapper<GetAccountAddressesResponse> GetMailingAddresses(string jwt, long contractAccountId)
+        {
+            McfResponsesWrapper<GetAccountAddressesResponse> response;
+
+            try
+            {
+                var config = _coreOptions.Configuration;
+                var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
+                var cookies = restUtility.GetMcfCookies(jwt).Result;
+
+                var restRequest = new RestRequest($"/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/Accounts('{contractAccountId}')/AccountAddresses?$format=json", Method.GET);
+                restRequest.AddCookies(cookies);
+                restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
+                restRequest.AddHeader("Accept", "application/json");
+
+                var client = restUtility.GetRestClient(config.McfEndpoint);
+                var restResponse = client.Execute(restRequest);
+
+                response = JsonConvert.DeserializeObject<McfResponsesWrapper<GetAccountAddressesResponse>>(restResponse.Content);
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                throw e;
             }
 
             return response;

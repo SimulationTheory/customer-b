@@ -1,6 +1,7 @@
 ﻿using PSE.Customer.V1.Clients.Mcf.Request;
 using PSE.Customer.V1.Clients.Mcf.Response;
 using PSE.RestUtility.Core.Mcf;
+using System.Collections.Generic;
 
 namespace PSE.Customer.V1.Clients.Mcf.Interfaces
 {
@@ -90,5 +91,12 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// <param name="contractAccountId">The contract account identifier.</param>
         /// <returns></returns>
         McfResponse<PaymentArrangementResponse> GetPaymentArrangement(string jwt, long contractAccountId);
+        /// <summary>
+        /// Gets the Mailing Addresses
+        /// </summary>
+        /// <param name="jwt"></param>
+        /// <param name="contractAccountId"></param>
+        /// <returns></returns>
+        McfResponsesWrapper<GetAccountAddressesResponse> GetMailingAddresses(string jwt, long contractAccountId);
     }
 }
