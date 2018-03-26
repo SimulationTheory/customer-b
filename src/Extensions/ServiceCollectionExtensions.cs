@@ -17,6 +17,8 @@ using PSE.Customer.V1.Repositories.Interfaces;
 using PSE.Customer.V1.Response;
 using PSE.WebAPI.Core.Startup;
 using System;
+using PSE.Customer.V1.Clients.Mcf;
+using PSE.Customer.V1.Clients.Mcf.Interfaces;
 
 namespace PSE.Customer.Extensions
 {
@@ -46,10 +48,9 @@ namespace PSE.Customer.Extensions
             // Setup repos and logic
             services.AddTransient<ICustomerRepository, CustomerRepository>();
             services.AddTransient<IBPByContractAccountRepository, BPByContractAccountRepository>();
-            services.AddTransient<ICustomerLogic, CustomerLogic>(); 
-            
-            //Mapping Logic
+            services.AddTransient<ICustomerLogic, CustomerLogic>();
 
+            // Mapping Logic
             AutoMapper.Mapper.Initialize(cfg =>
             {
                 cfg.CreateMap<GetCustomerProfileResponse, CustomerProfileModel>();
@@ -57,7 +58,6 @@ namespace PSE.Customer.Extensions
 
             return services;
         }
-
 
         #region Private Methods
 
@@ -73,6 +73,7 @@ namespace PSE.Customer.Extensions
             services.AddTransient<IApiUser, ApiUser>();
             services.AddTransient<IClientProxy, ClientProxy>();
             services.AddTransient<IAuthenticationApi, AuthenticationApi>();
+            services.AddTransient<IMcfClient, McfClient>();
 
             return services;
         }

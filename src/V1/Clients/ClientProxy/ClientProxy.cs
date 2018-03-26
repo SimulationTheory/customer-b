@@ -44,8 +44,6 @@ namespace PSE.Customer.V1.Clients.ClientProxy
                 }
                 else
                 {
-                    // If succressful, response.Data should an object of type T
-                    // Other information about the call (such as the http response status code) is also returned
                     taskCompletionSource.TrySetResult(response);
                 }
             });

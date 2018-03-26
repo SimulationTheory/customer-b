@@ -1,12 +1,9 @@
-﻿using Newtonsoft.Json;
-using PSE.RestUtility.Core.Json;
-
-namespace PSE.Customer.V1.Clients.Mcf.Request
+﻿namespace PSE.Customer.V1.Clients.Mcf.Request
 {
     /// <summary>
-    /// Creates a phone number at the account level (without a location)
+    /// Creates or updates an email address
     /// </summary>
-    public class CreateAddressIndependantPhoneRequest
+    public class CreateEmailRequest
     {
         /// <summary>
         /// Gets or sets the business partner identifier.
@@ -14,18 +11,15 @@ namespace PSE.Customer.V1.Clients.Mcf.Request
         /// <value>
         /// The business partner identifier.
         /// </value>
-        [JsonConverter(typeof(ToStringJsonConverter))]
-        [JsonProperty("AccountID")]
-        public long BusinessPartnerId { get; set; }
+        public string AccountID { get; set; }
 
         /// <summary>
-        /// Gets or sets the phone number.
+        /// Gets or sets the email.
         /// </summary>
         /// <value>
-        /// The phone number.
+        /// The email.
         /// </value>
-        [JsonProperty("PhoneNo")]
-        public string PhoneNumber { get; set; }
+        public string Email { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this instance is home.
@@ -33,8 +27,7 @@ namespace PSE.Customer.V1.Clients.Mcf.Request
         /// <value>
         ///   <c>true</c> if this instance is home; otherwise, <c>false</c>.
         /// </value>
-        [JsonProperty("HomeFlag")]
-        public bool IsHome { get; set; }
+        public bool HomeFlag { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this instance is standard.
@@ -42,7 +35,6 @@ namespace PSE.Customer.V1.Clients.Mcf.Request
         /// <value>
         ///   <c>true</c> if this instance is standard; otherwise, <c>false</c>.
         /// </value>
-        [JsonProperty("StandardFlag")]
-        public bool IsStandard { get; set; }
+        public bool StandardFlag { get; set; }
     }
 }

@@ -11,6 +11,7 @@ using PSE.Customer.Configuration.Keyspaces;
 using PSE.Customer.Extensions;
 using PSE.Customer.Tests.Integration.TestObjects;
 using PSE.Customer.V1.Clients.Authentication.Interfaces;
+using PSE.Customer.V1.Clients.Mcf.Interfaces;
 using PSE.Customer.V1.Controllers;
 using PSE.Customer.V1.Logic;
 using PSE.Customer.V1.Logic.Interfaces;
@@ -47,6 +48,7 @@ namespace PSE.Customer.Tests.Integration.Extensions
                 var services = TestHelper.GetServiceCollection();
                 var logger = CoreHelper.GetLogger<Startup>();
                 services.ConfigurePSEWebAPI(ServiceConfiguration.AppName);
+                AutoMapper.Mapper.Reset();
 
                 using (services.GetLoggerFactory())
                 {
@@ -83,6 +85,12 @@ namespace PSE.Customer.Tests.Integration.Extensions
                     // Controller
                     provider.GetService<ILogger<CustomerController>>().ShouldNotBeNull();
                     provider.GetService<ICustomerLogic>().ShouldNotBeNull();
+
+                    // Authentication client
+                    provider.GetService<IAuthenticationApi>().ShouldNotBeNull();
+
+                    // MCF client
+                    provider.GetService<IMcfClient>().ShouldNotBeNull();
                 }
             }
         }

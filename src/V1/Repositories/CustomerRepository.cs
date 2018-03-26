@@ -102,6 +102,9 @@ namespace PSE.Customer.V1.Repositories
         /// <param name="bpId">bpID</param>
         public Task<RowSet> UpdateCustomerEmailAddress(string emailAddress, long bpId)
         {
+            _logger.LogInformation($"UpdateCustomerEmailAddress({nameof(emailAddress)}: {emailAddress}," +
+                                   $"{nameof(bpId)}: {bpId})");
+
             var session = _session.Session();
             var statement = session.Prepare(
                 "UPDATE customer_contact " +

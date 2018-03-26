@@ -20,6 +20,7 @@ namespace PSE.Customer.Extensions.Tests.Unit
                 try
                 {
                     // test target method
+                    AutoMapper.Mapper.Reset();
                     ServiceCollectionExtensions.AddRepositories(services, logger);
 
                     Assert.Fail("The expected ArgumentNullException was not thrown.");

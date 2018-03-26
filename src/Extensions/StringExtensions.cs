@@ -1,10 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using Newtonsoft.Json;
 
 namespace PSE.Customer.Extensions
 {
+    /// <summary>
+    /// Extends string class
+    /// </summary>
     public static class StringExtensions
     {
         /// <summary>
@@ -24,5 +27,15 @@ namespace PSE.Customer.Extensions
             return default(T);
         }
 
+        /// <summary>
+        /// Helpler method to convert object to JSON (e.g. for logging objects)
+        /// </summary>
+        /// <param name="serializableObject">The serializable object.</param>
+        /// <param name="formatting">The formatting style (defaults to indented)</param>
+        /// <returns>The object formatted as a JSON string</returns>
+        public static string ToJson(this object serializableObject, Formatting formatting = Formatting.Indented)
+        {
+            return JsonConvert.SerializeObject(serializableObject, formatting);
+        }
     }
 }

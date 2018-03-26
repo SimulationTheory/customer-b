@@ -19,6 +19,7 @@ using System.Net;
 using System.Threading.Tasks;
 using PSE.Exceptions.Core;
 using System.Text.RegularExpressions;
+using PSE.Customer.Extensions;
 
 namespace PSE.Customer.V1.Controllers
 {
@@ -140,12 +141,11 @@ namespace PSE.Customer.V1.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> CreateWebProfile([FromBody] WebProfile webProfile)
         {
-          
             IActionResult result;
             try
             {
-                _logger.LogInformation($"CreateWebProfile({nameof(webProfile)}: {JsonConvert.SerializeObject(webProfile, Formatting.Indented)})");
-                var validBp = long.TryParse(webProfile?.BPId, out var bpId);  
+                _logger.LogInformation($"CreateWebProfile({nameof(webProfile)}: {webProfile.ToJson()})");
+                var validBp = long.TryParse(webProfile?.BPId, out var bpId);
                 //Validate password,username, phone, email
                 ValidateCreateProfile(webProfile,validBp);
                 //make sure the account provider exists
@@ -251,12 +251,14 @@ namespace PSE.Customer.V1.Controllers
             {
                 if (!ModelState.IsValid)
                 {
+                    _logger.LogInformation($"Model invalid: {emailAddress}");
                     return BadRequest(ModelState);
                 }
 
                 result = ValidateEmailAddress(emailAddress);
                 if (result != null)
                 {
+                    _logger.LogInformation($"Email address failed validation check: {emailAddress}.");
                     return result;
                 }
 

@@ -2,25 +2,29 @@
 using Newtonsoft.Json;
 using PSE.Customer.V1.Clients.Authentication.Interfaces;
 using PSE.Customer.V1.Clients.Authentication.Models.Response;
-using PSE.Customer.V1.Clients.ClientProxy.Interfaces;
 using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Request;
 using PSE.Customer.V1.Response;
 using PSE.WebAPI.Core.Configuration.Interfaces;
 using PSE.Customer.V1.Clients.Extensions;
 using RestSharp;
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
 namespace PSE.Customer.V1.Clients.Authentication
 {
+    /// <summary>
+    /// Makes calls to the Authentication endpoints
+    /// </summary>
     public class AuthenticationApi : ClientProxy.ClientProxy, IAuthenticationApi
     {
-        public AuthenticationApi(ICoreOptions coreOptions, IApiUser apiUser) : base(coreOptions)
+        /// <summary>
+        /// Constructor for DI
+        /// </summary>
+        /// <param name="coreOptions"></param>
+        public AuthenticationApi(ICoreOptions coreOptions) : base(coreOptions)
         {
-            _apiUser = apiUser ?? throw new ArgumentNullException(nameof(apiUser));
         }
 
         /// <summary>
@@ -34,7 +38,6 @@ namespace PSE.Customer.V1.Clients.Authentication
             var request = new RestRequest($"/v{API_VERSION}/authentication/mypse-account-exists/{bpId}");
             return ExecuteAsync<AccountExistsResponse>(request);
         }
-
 
         /// <summary>
         /// Calls Usrename exist API in Authentication
@@ -50,20 +53,31 @@ namespace PSE.Customer.V1.Clients.Authentication
         /// <summary>
         /// Calls the Signup Api in authentication repo to create users in Cognito as well as Cassandra
         /// </summary>
-        /// <param name="profileInfo"></param>
+        /// <param name="profileInfo">contains information needed to sign the customer up</param>
         /// <returns></returns>
-        public async Task<IRestResponse<OkResult>> SignUpCustomer(WebProfile profileInfo)
+        public Task<IRestResponse<OkResult>> SignUpCustomer(WebProfile profileInfo)
         {
-            var request = new RestRequest($"/v{API_VERSION}/authentication/signup", Method.POST);
-
-            var requestBody = new SignupRequest()
+            var signUpInfo = new SignupRequest
             {
                 BPId = profileInfo.BPId,
                 Username = profileInfo.CustomerCredentials.UserName,
                 Password = profileInfo.CustomerCredentials.Password,
                 Email = profileInfo.Email
             };
-            var body = JsonConvert.SerializeObject(requestBody);
+
+            return SignUpCustomer(signUpInfo);
+        }
+
+        /// <summary>
+        /// Calls the Signup Api in authentication repo to create users in Cognito as well as Cassandra
+        /// </summary>
+        /// <param name="signUpInfo">contains information needed to sign the customer up</param>
+        /// <returns></returns>
+        public async Task<IRestResponse<OkResult>> SignUpCustomer(SignupRequest signUpInfo)
+        {
+            var request = new RestRequest($"/v{API_VERSION}/authentication/signup", Method.POST);
+
+            var body = JsonConvert.SerializeObject(signUpInfo);
             request.AddParameter("application/json", body, ParameterType.RequestBody);
 
             var resp = await ExecuteAsync<OkResult>(request);
@@ -73,14 +87,14 @@ namespace PSE.Customer.V1.Clients.Authentication
         /// <summary>
         /// Calls the Signup Api in authentication repo to create users in Cognito as well as Cassandra
         /// </summary>
-        /// <param name="profileInfo"></param>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
         /// <returns></returns>
         public async Task<IRestResponse<SignInResponse>> GetJwtToken(string username, string password)
         {
-
             var request = new RestRequest($"/v{API_VERSION}/authentication/signin", Method.POST);
-           
-            var requestBody = new SignInRequest()
+
+            var requestBody = new SignInRequest
             {
                 Username = username,
                 Password = password,
@@ -93,21 +107,22 @@ namespace PSE.Customer.V1.Clients.Authentication
             return resp;
         }
 
+        /// <summary>
         /// Calls the Signup Api in authentication repo to save user selected security questions
         /// /authentication/security-question/user
-        /// 
         /// </summary>
         /// <param name="profileInfo"></param>
+        /// <param name="jwtToken"></param>
         /// <returns></returns>
         public async Task<IRestResponse<PostCreateUserSecurityQuestionsResponse>> SaveSecurityQuestions(WebProfile profileInfo, string jwtToken)
         {
 
             var request = new RestRequest("/v1.0/authentication/security-question/user", Method.POST);
             request.SetJwtAuthorization(jwtToken);
-            
+
             request.AddHeader("ContentType", "application/json");
             request.AddHeader("Accept", "application/json");
-            
+
             var req1 = new List<CreateUpdateUserSecurityQuestionModel>();
             profileInfo.SecurityQuestionResponses.ToList().ForEach(s => req1.Add(new CreateUpdateUserSecurityQuestionModel() { Sequence = s.Sequence, Question = s.Question, Answer = s.Answer }));
             var requestBody = new PostCreateUserSecurityQuestionsRequest()
@@ -118,8 +133,7 @@ namespace PSE.Customer.V1.Clients.Authentication
             request.AddParameter("application/json", body, ParameterType.RequestBody);
 
             var resp = await ExecuteAsync<PostCreateUserSecurityQuestionsResponse>(request);
-            return resp;         
-        }    
-
+            return resp;
+        }
     }
 }

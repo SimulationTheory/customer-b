@@ -37,9 +37,4 @@
     </Reference>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="V1\Controllers\" />
-    <Folder Include="V1\Logic\" />
-  </ItemGroup>
-
 </Project>

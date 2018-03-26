@@ -4,9 +4,13 @@ using PSE.RestUtility.Core.Json;
 namespace PSE.Customer.V1.Clients.Mcf.Request
 {
     /// <summary>
-    /// Creates a phone number at the account level (without a location)
+    /// Parameters for POSTing phone data
     /// </summary>
-    public class CreateAddressIndependantPhoneRequest
+    /// <remarks>
+    /// This class includes location data.  If both location dependent and independent phones can be posted successfully,
+    /// the other class goes away - otherwise this comment should be updated.
+    /// </remarks>
+    public class CreatePhoneRequest
     {
         /// <summary>
         /// Gets or sets the business partner identifier.

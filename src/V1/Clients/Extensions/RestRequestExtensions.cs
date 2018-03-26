@@ -1,5 +1,4 @@
-﻿using PSE.Customer.V1.Clients.ClientProxy.Interfaces;
-using RestSharp;
+﻿using RestSharp;
 
 namespace PSE.Customer.V1.Clients.Extensions
 {
