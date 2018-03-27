@@ -58,11 +58,8 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         [TestMethod]
         public void Constructor_JwtEncodedString_JwtTokenIsSet()
         {
-            // Arrange
-            var testUser = TestHelper.PaDev1;
-
             // Act
-            var apiUser = new ApiUser(testUser.JwtEncodedString);
+            var apiUser = new ApiUser(TestHelper.PaDev1JwtToken);
 
             // Assert
             apiUser.JwtEncodedString.ShouldBe(TestHelper.PaDev1JwtToken);
@@ -71,11 +68,8 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         [TestMethod]
         public void Constructor_JwtEncodedString_SecurityTokenIsSet()
         {
-            // Arrange
-            var testUser = TestHelper.PaDev1;
-
             // Act
-            var apiUser = new ApiUser(testUser.JwtEncodedString);
+            var apiUser = new ApiUser(TestHelper.PaDev1JwtToken);
 
             // Assert
             apiUser.SecurityToken.RawData.ShouldBe(TestHelper.PaDev1JwtToken);

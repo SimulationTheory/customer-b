@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using PSE.Customer.V1.Repositories.Entities;
+﻿using PSE.Customer.V1.Repositories.Entities;
 using System.Threading.Tasks;
 using Cassandra;
 using PSE.Customer.V1.Models;
@@ -18,18 +17,21 @@ namespace PSE.Customer.V1.Repositories.Interfaces
         /// <param name="bpId">The bp identifier.</param>
         /// <returns></returns>
         Task<CustomerEntity> GetCustomerAsync(long bpId);
+
         /// <summary>
         /// Gets the customer contact asynchronous.
         /// </summary>
         /// <param name="bpId">The bp identifier.</param>
         /// <returns></returns>
         Task<CustomerContactEntity> GetCustomerContactAsync(long bpId);
+
         /// <summary>
         /// Gets the customer by business partner identifier.
         /// </summary>
         /// <param name="businessPartnerId">The business partner identifier.</param>
         /// <returns></returns>
         Task<CustomerEntity> GetCustomerByBusinessPartnerId(long businessPartnerId);
+
         /// <summary>
         /// Updates the customer mailing address.
         /// </summary>
@@ -37,6 +39,7 @@ namespace PSE.Customer.V1.Repositories.Interfaces
         /// <param name="bpId">The bp identifier.</param>
         /// <returns></returns>
         Task<RowSet> UpdateCustomerMailingAddress(AddressDefinedType address, long bpId);
+
         /// <summary>
         /// Updates the customer email address.
         /// </summary>
@@ -44,12 +47,13 @@ namespace PSE.Customer.V1.Repositories.Interfaces
         /// <param name="bpId">The bp identifier.</param>
         /// <returns></returns>
         Task<RowSet> UpdateCustomerEmailAddress(string emailAddress, long bpId);
+
         /// <summary>
-        /// Updates the customer phone numbers.
+        /// Saves the cell phone number at the BP level
         /// </summary>
-        /// <param name="phones">The phones.</param>
-        /// <param name="bpId">The bp identifier.</param>
+        /// <param name="phone">Customer's cell phone</param>
+        /// <param name="bpId">Business partner ID</param>
         /// <returns></returns>
-        Task<RowSet> UpdateCustomerPhoneNumbers(List<Phone> phones, long bpId);
+        Task<RowSet> UpdateCustomerPhoneNumber(Phone phone, long bpId);
     }
 }

@@ -1,7 +1,4 @@
-﻿using Newtonsoft.Json;
-using PSE.RestUtility.Core.Json;
-
-namespace PSE.Customer.V1.Clients.Mcf.Request
+﻿namespace PSE.Customer.V1.Clients.Mcf.Request
 {
     /// <summary>
     /// Parameters for POSTing phone data
@@ -18,9 +15,7 @@ namespace PSE.Customer.V1.Clients.Mcf.Request
         /// <value>
         /// The business partner identifier.
         /// </value>
-        [JsonConverter(typeof(ToStringJsonConverter))]
-        [JsonProperty("AccountID")]
-        public long BusinessPartnerId { get; set; }
+        public long AccountID { get; set; }
 
         /// <summary>
         /// Gets or sets the phone number.
@@ -28,8 +23,7 @@ namespace PSE.Customer.V1.Clients.Mcf.Request
         /// <value>
         /// The phone number.
         /// </value>
-        [JsonProperty("PhoneNo")]
-        public string PhoneNumber { get; set; }
+        public string PhoneNo { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this instance is home.
@@ -37,8 +31,7 @@ namespace PSE.Customer.V1.Clients.Mcf.Request
         /// <value>
         ///   <c>true</c> if this instance is home; otherwise, <c>false</c>.
         /// </value>
-        [JsonProperty("HomeFlag")]
-        public bool IsHome { get; set; }
+        public bool HomeFlag { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this instance is standard.
@@ -46,7 +39,14 @@ namespace PSE.Customer.V1.Clients.Mcf.Request
         /// <value>
         ///   <c>true</c> if this instance is standard; otherwise, <c>false</c>.
         /// </value>
-        [JsonProperty("StandardFlag")]
-        public bool IsStandard { get; set; }
+        public bool StandardFlag { get; set; }
+
+        /// <summary>
+        /// Gets or sets the extension.
+        /// </summary>
+        /// <value>
+        /// Optional phone number extension.
+        /// </value>
+        public string Extension { get; set; }
     }
 }

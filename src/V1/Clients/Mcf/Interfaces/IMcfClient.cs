@@ -1,7 +1,6 @@
 ﻿using PSE.Customer.V1.Clients.Mcf.Request;
 using PSE.Customer.V1.Clients.Mcf.Response;
 using PSE.RestUtility.Core.Mcf;
-using System.Collections.Generic;
 
 namespace PSE.Customer.V1.Clients.Mcf.Interfaces
 {
@@ -32,7 +31,7 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// OData URI:
         /// POST ZERP_UTILITIES_UMC_PSE_SRV/AccountAddressIndependentEmails
         /// </remarks>
-        McfResponse<PostEmailResponse> CreateBusinessPartnerEmail(string jwt, CreateEmailRequest request);
+        McfResponse<GetEmailResponse> CreateBusinessPartnerEmail(string jwt, CreateEmailRequest request);
 
         /// <summary>
         /// POSTs the mobile phone for the business partner
@@ -44,7 +43,7 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// OData URI:
         /// POST ZERP_UTILITIES_UMC_PSE_SRV/AccountAddressIndependentMobilePhones
         /// </remarks>
-        McfResponse<PostPhoneResponse> CreateBusinessPartnerMobilePhone(string jwt,
+        McfResponse<GetPhoneResponse> CreateBusinessPartnerMobilePhone(string jwt,
             CreateAddressIndependantPhoneRequest request);
 
         /// <summary>
@@ -82,7 +81,7 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// OData URI:
         /// /sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/AccountAddressDependentPhones
         /// </remarks>
-        McfResponse<PostPhoneResponse> CreateContractAccountPhone(string jwt, CreatePhoneRequest request);
+        McfResponse<GetPhoneResponse> CreateContractAccountPhone(string jwt, CreatePhoneRequest request);
 
         /// <summary>
         /// Gets the payment arrangement.
@@ -91,6 +90,7 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// <param name="contractAccountId">The contract account identifier.</param>
         /// <returns></returns>
         McfResponse<PaymentArrangementResponse> GetPaymentArrangement(string jwt, long contractAccountId);
+
         /// <summary>
         /// Gets the Mailing Addresses
         /// </summary>

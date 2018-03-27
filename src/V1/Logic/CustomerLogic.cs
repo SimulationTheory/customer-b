@@ -21,6 +21,8 @@ using PSE.Customer.V1.Clients.Mcf.Interfaces;
 using PSE.RestUtility.Core.Mcf;
 using System.Linq;
 using PSE.Customer.Extensions;
+using PSE.Customer.V1.Clients.Mcf.Enums;
+using PSE.Customer.V1.Clients.Mcf.Request;
 
 namespace PSE.Customer.V1.Logic
 {
@@ -75,7 +77,7 @@ namespace PSE.Customer.V1.Logic
         }
 
         /// <summary>
-        /// Gets bp ID & acct status while validating acct ID & fullName.
+        /// Gets bp ID and acct status while validating acct ID and fullName.
         /// </summary>
         /// <param name="lookupCustomerRequest">The lookup customer request.</param>
         /// <returns></returns>
@@ -173,46 +175,61 @@ namespace PSE.Customer.V1.Logic
             // This returns an empty set and the IsFullyFetched property is true.
             // There is apparently no way to determine if any rows were updated or not,
             // so unless an exception occurs, NoContent will always be returned.
-            var response = await _customerRepository.UpdateCustomerMailingAddress(address, bpId);
-            if (response != null)
-            {
-                // TODO: Update using MCF too and return status of HTTP PUT
-            }
+            await _customerRepository.UpdateCustomerMailingAddress(address, bpId);
         }
 
         /// <summary>
         /// Saves the email address at the BP level
         /// </summary>
+        /// <param name="jwt">Java web token for authentication</param>
         /// <param name="emailAddress">Customer email address</param>
         /// <param name="bpId">Business partner ID</param>
         /// <returns>Status code of async respository call</returns>
-        public async Task PutEmailAddressAsync(string emailAddress, long bpId)
+        public async Task PutEmailAddressAsync(string jwt, string emailAddress, long bpId)
         {
-            _logger.LogInformation($"PutEmailAddressAsync({nameof(emailAddress)}: {emailAddress}," +
+            _logger.LogInformation($"PutEmailAddressAsync({nameof(jwt)}: {jwt})" +
+                                   $"{nameof(emailAddress)}: {emailAddress}," +
                                    $"{nameof(bpId)}: {bpId})");
+
+            // Call MCF to update SAP first.  If no exception is thrown, then update Cassandra.
+            _mcfClient.CreateBusinessPartnerEmail(jwt, new CreateEmailRequest
+            {
+                AccountID = bpId.ToString(),
+                Email = emailAddress,
+                StandardFlag = true
+            });
 
             // This returns an empty set and the IsFullyFetched property is true.
             // There is apparently no way to determine if any rows were updated or not,
             // so unless an exception occurs, NoContent will always be returned.
-            var response = await _customerRepository.UpdateCustomerEmailAddress(emailAddress, bpId);
-            if (response != null)
-            {
-                // TODO: Update using MCF too and return status of HTTP PUT
-            }
+            await _customerRepository.UpdateCustomerEmailAddress(emailAddress, bpId);
         }
 
         /// <summary>
-        /// Saves the phone numbers at the BP level
+        /// Saves the cell phone number at the BP level
         /// </summary>
-        /// <param name="phones">Customer's phones</param>
+        /// <param name="jwt">Java web token for authentication</param>
+        /// <param name="phone">Customer's cell phone</param>
         /// <param name="bpId">Business partner ID</param>
-        /// <returns>Status code of async respository call</returns>
-        public async Task PutPhoneNumbersAsync(List<Phone> phones, long bpId)
+        public async Task PutPhoneNumberAsync(string jwt, Phone phone, long bpId)
         {
-            _logger.LogInformation($"PutEmailAddressAsync({nameof(phones)}: {phones}," +
+            _logger.LogInformation($"PutEmailAddressAsync({nameof(phone)}: {phone.ToJson()}," +
                                    $"{nameof(bpId)}: {bpId})");
-            // TODO: What is the return type?
-            throw new NotImplementedException();
+
+            // Call MCF to update SAP first.  If no exception is thrown, then update Cassandra.
+            _mcfClient.CreateBusinessPartnerMobilePhone(jwt, new CreateAddressIndependantPhoneRequest
+            {
+                BusinessPartnerId = bpId,//.ToString(),
+                PhoneNumber = phone.Number,
+                IsStandard = true,//StandardFlag = true
+                Extension = phone.Extension,
+                PhoneType = AddressIndependantContactInfoEnum.AccountAddressIndependentMobilePhones
+            });
+
+            // This returns an empty set and the IsFullyFetched property is true.
+            // There is apparently no way to determine if any rows were updated or not,
+            // so unless an exception occurs, NoContent will always be returned.
+            await _customerRepository.UpdateCustomerPhoneNumber(phone, bpId);
         }
 
         /// <summary>

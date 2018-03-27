@@ -4,6 +4,7 @@ namespace PSE.RestUtility.Core.Mcf
 {
     public class McfAccountAddressDependentEmails : IMcfDeferred
     {
+        /// !!! This class is not an MCF clas and should be in the V1/Clients/Mcf/Request & Response folders
         /// <summary>
         /// Gets or sets the deferred.
         /// </summary>

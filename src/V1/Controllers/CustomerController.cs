@@ -13,7 +13,6 @@ using PSE.Customer.V1.Response;
 using PSE.WebAPI.Core.Exceptions;
 using PSE.WebAPI.Core.Service;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -250,6 +249,7 @@ namespace PSE.Customer.V1.Controllers
 
             try
             {
+                HttpContext.Request.Headers.TryGetValue("Authorization", out var jwt);
                 if (!ModelState.IsValid)
                 {
                     _logger.LogInformation($"Model invalid: {emailAddress}");
@@ -264,7 +264,7 @@ namespace PSE.Customer.V1.Controllers
                 }
 
                 var bpId = GetBpIdFromClaims();
-                await _customerLogic.PutEmailAddressAsync(emailAddress, bpId);
+                await _customerLogic.PutEmailAddressAsync(jwt, emailAddress, bpId);
                 result = Ok();
             }
             catch (Exception e)
@@ -278,26 +278,27 @@ namespace PSE.Customer.V1.Controllers
         }
 
         /// <summary>
-        /// Updates phone numbers for logged in user
+        /// Updates the location independent phone number for logged in user
         /// </summary>
-        /// <param name="phones">Collection of phone numbers to write to database</param>
+        /// <param name="phone">Phone number to write to database</param>
         /// <returns>200 if successful, 400 if address is not valid, 500 if exception</returns>
         [ProducesResponseType(typeof(OkResult), 200)]
-        [HttpPut("phones")]
-        public async Task<IActionResult> PutPhoneNumbersAsync([FromBody] List<Phone> phones)
+        [HttpPut("phone")]
+        public async Task<IActionResult> PutPhoneNumberAsync([FromBody] Phone phone)
         {
-            _logger.LogInformation($"PutMailingAddressAsync({nameof(phones)}: {phones})");
+            _logger.LogInformation($"PutMailingAddressAsync({nameof(phone)}: {phone})");
             IActionResult result;
 
             try
             {
+                HttpContext.Request.Headers.TryGetValue("Authorization", out var jwt);
                 if (!ModelState.IsValid)
                 {
                     return BadRequest(ModelState);
                 }
 
                 var bpId = GetBpIdFromClaims();
-                await _customerLogic.PutPhoneNumbersAsync(phones, bpId);
+                await _customerLogic.PutPhoneNumberAsync(jwt, phone, bpId);
                 result = Ok();
             }
             catch (Exception e)
@@ -319,10 +320,9 @@ namespace PSE.Customer.V1.Controllers
         [HttpGet("mailing-address/{isStandardOnly}")]
         public IActionResult GetMailingAddressesAsync(bool isStandardOnly)
         {
-
             _logger.LogInformation($"GetMailingAddressesAsync({nameof(isStandardOnly)}: {isStandardOnly})");
 
-            IActionResult result ;
+            IActionResult result;
 
             try
             {

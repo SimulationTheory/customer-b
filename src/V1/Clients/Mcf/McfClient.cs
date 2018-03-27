@@ -56,7 +56,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                 var cookies = restUtility.GetMcfCookies(jwt).Result;
 
                 var restRequest = new RestRequest(
-                    "/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/Accounts('1000001179')?$expand=AccountAddressIndependentEmails," +
+                    $"/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/Accounts('{bpId}')?$expand=AccountAddressIndependentEmails," +
                     "AccountAddressIndependentMobilePhones,AccountAddressIndependentPhones", Method.GET);
                 restRequest.AddCookies(cookies);
                 restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
@@ -86,9 +86,9 @@ namespace PSE.Customer.V1.Clients.Mcf
         /// OData URI:
         /// POST ZERP_UTILITIES_UMC_PSE_SRV/AccountAddressIndependentEmails
         /// </remarks>
-        public McfResponse<PostEmailResponse> CreateBusinessPartnerEmail(string jwt, CreateEmailRequest request)
+        public McfResponse<GetEmailResponse> CreateBusinessPartnerEmail(string jwt, CreateEmailRequest request)
         {
-            McfResponse<PostEmailResponse> response;
+            McfResponse<GetEmailResponse> response;
 
             try
             {
@@ -99,18 +99,18 @@ namespace PSE.Customer.V1.Clients.Mcf
                 var cookies = restUtility.GetMcfCookies(jwt).Result;
 
                 const string url = "/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/AccountAddressIndependentEmails";
+                _logger.LogInformation($"{url}");
                 var restRequest = new RestRequest(url, Method.POST);
                 restRequest.AddCookies(cookies);
                 restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
                 restRequest.AddHeader("Accept", "application/json");
                 restRequest.AddJsonBody(request);
-                _logger.LogInformation($"{nameof(restRequest)}: {restRequest.ToJson()})");
 
+                _logger.LogInformation("Making MCF call");
                 var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
                 var restResponse = client.Execute(restRequest);
-                _logger.LogInformation($"{nameof(restResponse)}: {restResponse.ToJson()})");
 
-                response = JsonConvert.DeserializeObject<McfResponse<PostEmailResponse>>(restResponse.Content);
+                response = JsonConvert.DeserializeObject<McfResponse<GetEmailResponse>>(restResponse.Content);
             }
             catch (Exception e)
             {
@@ -131,9 +131,9 @@ namespace PSE.Customer.V1.Clients.Mcf
         /// OData URI:
         /// POST ZERP_UTILITIES_UMC_PSE_SRV/AccountAddressIndependentMobilePhones
         /// </remarks>
-        public McfResponse<PostPhoneResponse> CreateBusinessPartnerMobilePhone(string jwt, CreateAddressIndependantPhoneRequest request)
+        public McfResponse<GetPhoneResponse> CreateBusinessPartnerMobilePhone(string jwt, CreateAddressIndependantPhoneRequest request)
         {
-            McfResponse<PostPhoneResponse> response;
+            McfResponse<GetPhoneResponse> response;
 
             try
             {
@@ -152,7 +152,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                 var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
                 var restResponse = client.Execute(restRequest);
 
-                response = JsonConvert.DeserializeObject<McfResponse<PostPhoneResponse>>(restResponse.Content);
+                response = JsonConvert.DeserializeObject<McfResponse<GetPhoneResponse>>(restResponse.Content);
             }
             catch (Exception e)
             {
@@ -205,7 +205,7 @@ namespace PSE.Customer.V1.Clients.Mcf
         /// OData URI:
         /// /sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/AccountAddressDependentPhones
         /// </remarks>
-        public McfResponse<PostPhoneResponse> CreateContractAccountPhone(string jwt, CreatePhoneRequest request)
+        public McfResponse<GetPhoneResponse> CreateContractAccountPhone(string jwt, CreatePhoneRequest request)
         {
             throw new NotImplementedException();
         }

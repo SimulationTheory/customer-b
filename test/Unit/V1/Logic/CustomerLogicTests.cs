@@ -18,7 +18,6 @@ using RestSharp;
 using Shouldly;
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Threading.Tasks;
 using Cassandra;
 using PSE.Customer.Tests.Unit.TestObjects;
@@ -456,7 +455,7 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
                 .Returns(Task.FromResult(new RowSet()));
 
             // Act
-            await logic.PutEmailAddressAsync(user.Email, user.BpNumber);
+            await logic.PutEmailAddressAsync(user.JwtToken, user.Email, user.BpNumber);
         }
 
         #endregion
@@ -464,17 +463,16 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
         #region PutPhoneNumbersAsync Tests
 
         [TestMethod]
-        public void PutPhoneNumbersAsync_ValidAddress_ThrowsNotImplementedException()
+        public async Task PutPhoneNumbersAsync_ValidAddress_PhoneNumberUpdated()
         {
             // Arrange
             var user = TestHelper.PaDev1;
             var logic = CreateCustomerLogic();
+            mockCustomerRepository.Setup(x => x.UpdateCustomerPhoneNumber(It.IsAny<Phone>(), It.IsAny<long>()))
+                .Returns(Task.FromResult(new RowSet()));
 
             // Act
-            Func<Task> action = async () => { await logic.PutPhoneNumbersAsync(user.Phones, user.BpNumber); };
-
-            // Assert
-            action.ShouldThrow<NotImplementedException>();
+            await logic.PutPhoneNumberAsync(user.JwtToken, user.Phones[0], user.BpNumber);
         }
 
         #endregion

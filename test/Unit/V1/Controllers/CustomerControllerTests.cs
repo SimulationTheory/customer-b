@@ -49,12 +49,23 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             };
         }
 
-        private static void ArrangeUserClaims(ControllerBase controller, TestUser user)
+        private static void ArrangeController(ControllerBase controller, TestUser user)
         {
-            ArrangeUserClaims(controller, new[]
+            if (controller.ControllerContext != null)
             {
-                new Claim("custom:bp", user.BpNumber.ToString())
-            });
+                var claims = new[]
+                {
+                    new Claim("custom:bp", user.BpNumber.ToString())
+                };
+                controller.ControllerContext = new ControllerContext
+                {
+                    HttpContext = new DefaultHttpContext
+                    {
+                        User = new ClaimsPrincipal(new ClaimsIdentity(claims, "someAuthTypeName"))
+                    }
+                };
+                controller.ControllerContext.HttpContext.Request.Headers.Add("Authorization", user.JwtToken);
+            }
         }
 
         [TestInitialize]
@@ -422,10 +433,10 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         {
             // Arrange
             var user = TestHelper.PaDev1;
-            CustomerLogicMock.Setup(logic => logic.PutEmailAddressAsync(It.IsAny<string>(), It.IsAny<long>()))
+            CustomerLogicMock.Setup(logic => logic.PutEmailAddressAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<long>()))
                 .Returns(() => Task.FromResult(HttpStatusCode.OK));
             var controller = GetController();
-            ArrangeUserClaims(controller, user);
+            ArrangeController(controller, user);
 
             // Act
             var results = await controller.PutEmailAddressAsync(user.Email);
@@ -435,11 +446,12 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         }
 
         [TestMethod]
-        public async Task PutEmailAddressAsync_UnparsableEmail_Returns400BadRequest()
+        public async Task PutEmailAddressAsync_EmailInvalidModelState_Returns400BadRequest()
         {
             // Arrange
-            var email = "test7 AT test DOT com";
+            const string email = "";
             var controller = GetController();
+            ArrangeController(controller, TestHelper.PaDev1);
             controller.ViewData.Model = email;
             controller.ViewData.ModelState.AddModelError("Email", "Invalid email format");
 
@@ -454,11 +466,13 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         }
 
         [TestMethod]
-        public async Task PutEmailAddressAsync_InvalidEmail_Returns400BadRequest()
+        public async Task PutEmailAddressAsync_EmailFailsFailsRegExCheck_Returns400BadRequest()
         {
             // Arrange
-            var email = "test7 AT test DOT com";
+            const string email = "test7 AT test DOT com";
             var controller = GetController();
+
+            ArrangeController(controller, TestHelper.PaDev1);
 
             // Act
             var results = await controller.PutEmailAddressAsync(email);
@@ -475,10 +489,10 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         {
             // Arrange
             var user = TestHelper.PaDev1;
-            CustomerLogicMock.Setup(logic => logic.PutEmailAddressAsync(It.IsAny<string>(), It.IsAny<long>()))
+            CustomerLogicMock.Setup(logic => logic.PutEmailAddressAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<long>()))
                 .Throws(new ApplicationException("Failed to update record"));
             var controller = GetController();
-            ArrangeUserClaims(controller, user);
+            ArrangeController(controller, user);
 
             // Act
             var results = await controller.PutEmailAddressAsync(user.Email);
@@ -491,36 +505,37 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
 
         #endregion
 
-        #region PutPhoneNumbersAsync Tests
+        #region PutPhoneNumberAsync Tests
 
         [TestMethod]
-        public async Task PutPhoneNumbersAsync_ValidPhoneNumbersAndClaim_ReturnsOk()
+        public async Task PutPhoneNumberAsync_ValidPhoneNumberAndClaim_ReturnsOk()
         {
             // Arrange
             var user = TestHelper.PaDev1;
-            CustomerLogicMock.Setup(logic => logic.PutPhoneNumbersAsync(It.IsAny<List<Phone>>(), It.IsAny<long>()))
+            CustomerLogicMock.Setup(logic => logic.PutPhoneNumberAsync(It.IsAny<string>(), It.IsAny<Phone>(), It.IsAny<long>()))
                 .Returns(() => Task.FromResult(HttpStatusCode.OK));
             var controller = GetController();
-            ArrangeUserClaims(controller, user);
+            ArrangeController(controller, user);
 
             // Act
-            var results = await controller.PutPhoneNumbersAsync(user.Phones);
+            var results = await controller.PutPhoneNumberAsync(user.Phones[0]);
 
             // Assert
             results.ShouldBeOfType<OkResult>();
         }
 
         [TestMethod]
-        public async Task PutPhoneNumbersAsync_InvalidPhoneNumber_Returns400BadRequest()
+        public async Task PutPhoneNumberAsync_InvalidPhoneNumber_Returns400BadRequest()
         {
             // Arrange
-            var phones = new List<Phone> { new Phone { Type = PhoneType.Cell } };
+            var phone = new Phone { Type = PhoneType.Cell };
             var controller = GetController();
-            controller.ViewData.Model = phones;
+            ArrangeController(controller, TestHelper.PaDev1);
+            controller.ViewData.Model = phone;
             controller.ViewData.ModelState.AddModelError("Number", "Number is required");
 
             // Act
-            var results = await controller.PutPhoneNumbersAsync(phones);
+            var results = await controller.PutPhoneNumberAsync(phone);
 
             // Assert
             results.ShouldBeOfType<BadRequestObjectResult>();
@@ -530,17 +545,17 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         }
 
         [TestMethod]
-        public async Task PutPhoneNumbersAsync_UnhandledException_Returns500InternalServerError()
+        public async Task PutPhoneNumberAsync_UnhandledException_Returns500InternalServerError()
         {
             // Arrange
             var user = TestHelper.PaDev1;
-            CustomerLogicMock.Setup(logic => logic.PutPhoneNumbersAsync(It.IsAny<List<Phone>>(), It.IsAny<long>()))
+            CustomerLogicMock.Setup(logic => logic.PutPhoneNumberAsync(It.IsAny<string>(), It.IsAny<Phone>(), It.IsAny<long>()))
                 .Throws(new ApplicationException("Failed to update record"));
             var controller = GetController();
-            ArrangeUserClaims(controller, user);
+            ArrangeController(controller, user);
 
             // Act
-            var results = await controller.PutPhoneNumbersAsync(user.Phones);
+            var results = await controller.PutPhoneNumberAsync(user.Phones[0]);
 
             // Assert
             results.ShouldBeOfType<ContentResult>();

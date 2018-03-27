@@ -1,11 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using Amazon.Runtime.Internal.Util;
 using Cassandra;
 using Microsoft.Extensions.Logging;
 using PSE.Cassandra.Core.Linq;
 using PSE.Cassandra.Core.Session.Interfaces;
 using PSE.Customer.Configuration.Keyspaces;
+using PSE.Customer.Extensions;
 using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Repositories.Entities;
@@ -23,7 +24,6 @@ namespace PSE.Customer.V1.Repositories
         private readonly IEntity<CustomerContactEntity> _customerContact;
         private readonly ILogger<CustomerRepository> _logger;
         private readonly ISessionFacade<MicroservicesKeyspace> _session;
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CustomerRepository"/> class.
@@ -129,13 +129,49 @@ namespace PSE.Customer.V1.Repositories
         }
 
         /// <summary>
-        /// Updates the phone numbers at the BP level
+        /// Saves the cell phone number at the BP level
         /// </summary>
-        /// <param name="phones">all phone numbers for the customer</param>
-        /// <param name="bpId">bpID</param>
-        public Task<RowSet> UpdateCustomerPhoneNumbers(List<Phone> phones, long bpId)
+        /// <param name="phone">Customer's cell phone</param>
+        /// <param name="bpId">Business partner ID</param>
+        /// <returns></returns>
+        public async Task<RowSet> UpdateCustomerPhoneNumber(Phone phone, long bpId)
         {
-            throw new NotImplementedException();
+            _logger.LogInformation($"UpdateCustomerPhoneNumber({nameof(phone)}: {phone.ToJson()}," +
+                                   $"{nameof(bpId)}: {bpId})");
+
+            // Get existing phone data
+            var customerContact = await GetCustomerContactAsync(bpId);
+            var phoneTypeName = phone.Type.GetEnumMemberValue();
+            string transactionType;
+
+            // Insert or update dictionary
+            if (customerContact.Phones.ContainsKey(phoneTypeName))
+            {
+                var phoneEntry = customerContact.Phones[phoneTypeName];
+                transactionType = "Updating";
+                phoneEntry.Number = phone.Number;
+                phoneEntry.Extension = phone.Extension;
+            }
+            else
+            {
+                transactionType = "Adding";
+                customerContact.Phones.Add(phoneTypeName, new PhoneDefinedType
+                {
+                    Number = phone.Number,
+                    Extension = phone.Extension
+                });
+            }
+
+            // Persist to Cassandra
+            var session = _session.Session();
+            var statement = session.Prepare(
+                "UPDATE customer_contact " +
+                "SET phones = ? " +
+                "WHERE bp_id = ?;");
+
+            _logger.LogInformation($"{transactionType} phone({nameof(phone.Number)}: {phone.Number}," +
+                                   $"{nameof(phone.Extension)}: {phone.Extension})");
+            return await session.ExecuteAsync(statement.Bind(customerContact.Phones, bpId));
         }
     }
 }

@@ -2,6 +2,7 @@
 
 namespace PSE.RestUtility.Core.Mcf
 {
+    /// !!! This class is not an MCF clas and should be in the V1/Clients/Mcf/Request & Response folders
     public class McfAddressinfo
     {
         public McfMetadata1 Metadata { get; set; }

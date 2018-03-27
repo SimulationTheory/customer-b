@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -94,7 +95,6 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         #region GetAccountAddress Tests
 
         [TestMethod]
-        [Ignore("This account is getting a not found error, but the call seems to work otherwise")]
         public async Task GetBusinessPartnerContactInfo_ValidUser_ContactInfoRetrieved()
         {
             // Arrange
@@ -105,7 +105,31 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
 
             var response = McfClient.GetBusinessPartnerContactInfo(user.JwtEncodedString, user.BPNumber.ToString());
             response.Result.ShouldNotBeNull();
+
+            var info = response.Result;
+            info.BusinessPartnerId.ShouldBe(user.BPNumber);
+            info.FirstName.ToUpper().ShouldBe("JENNIFER");
+            info.LastName.ToUpper().ShouldBe("POWERS");
+            info.FullName.ToUpper().ShouldBe("JENNIFER POWERS");
+
+            info.AccountAddressIndependentEmails.Results.ShouldNotBeNull();
+            var emails = info.AccountAddressIndependentEmails.Results.ToList();
+            emails.Count.ShouldBeGreaterThanOrEqualTo(1);
+            emails[0].AccountID.ShouldBe(user.BPNumber.ToString());
+            emails[0].SequenceNo.ShouldBe("001");
+            emails[0].Email.ShouldBe(user.Email);
+            emails[0].StandardFlag.ShouldBe(false);
+            emails[emails.Count - 1].StandardFlag = true;
+
+            info.AccountAddressIndependentPhones.Results.ShouldNotBeNull();
+            var phones = info.AccountAddressIndependentPhones.Results.ToList();
+            phones.Count.ShouldBeGreaterThanOrEqualTo(0);
+            // TBD: add a phone then update this get test
         }
+
+        #endregion
+
+        #region GetPaymentArrangement Tess
 
         [TestMethod]
         public void GetPaymentArrangement_AccountWithArrangement_CanParseTestData()
@@ -138,8 +162,11 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             firstPayment.AmountDue.ShouldBe(500m);
             firstPayment.AmountOpen.ShouldBe(0);
             firstPayment.DueDate.ShouldBe("/Date(1518652800000)/");
+
             firstPayment.DueDate.Between("(", ")").ShouldBe("1518652800000");
-            //var dueDate = firstPayment.DueDate.Between("(", ")").FromUnixTimeSeconds();
+            var dueDate = firstPayment.DueDate.Between("(", ")").FromUnixTimeSeconds();
+            dueDate.ShouldNotBeNull();
+            dueDate.Value.ShouldBe(new DateTime(2018, 2, 15, 0, 0, 0));
 
             var secondPayment = arrangement.InstallmentPlansNav.Results[1];
             secondPayment.AmountDue.ShouldBe(228.51m);
@@ -167,7 +194,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         #region CreateBusinessPartnerEmail Tests
 
         [TestMethod]
-        [Ignore]
+        [Ignore("The phone here is created for each call.  May try POST.")]
         public async Task CreateBusinessPartnerEmail_ValidUser_ContactInfoRetrieved()
         {
             // Arrange
@@ -184,6 +211,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
 
             var response = McfClient.CreateBusinessPartnerEmail(user.JwtEncodedString, request);
             response.Result.ShouldNotBeNull();
+            response.Result.Metadata.Id.ShouldBe("https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/AccountAddressIndependentEmails(AccountID=\'1002647070\',SequenceNo=\'015\')");
         }
 
         #endregion

@@ -46,6 +46,22 @@ namespace PSE.Customer.V1.Clients.Mcf.Response
         public string FullName { get; set; }
 
         /// <summary>
+        /// Gets or sets the account address independent emails.
+        /// </summary>
+        /// <value>
+        /// Collection of the BP level emails
+        /// </value>
+        public McfResponseResults<GetEmailResponse> AccountAddressIndependentEmails { get; set; }
+
+        /// <summary>
+        /// Gets or sets the account address independent phones.
+        /// </summary>
+        /// <value>
+        /// Collection of address independent phones.
+        /// </value>
+        public McfResponseResults<GetPhoneResponse> AccountAddressIndependentPhones { get; set; }
+
+        /// <summary>
         /// Gets or sets the metadata.
         /// </summary>
         /// <value>

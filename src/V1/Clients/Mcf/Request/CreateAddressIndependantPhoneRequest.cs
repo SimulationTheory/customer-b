@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using PSE.Customer.V1.Clients.Mcf.Enums;
 using PSE.RestUtility.Core.Json;
 
 namespace PSE.Customer.V1.Clients.Mcf.Request
@@ -44,5 +45,21 @@ namespace PSE.Customer.V1.Clients.Mcf.Request
         /// </value>
         [JsonProperty("StandardFlag")]
         public bool IsStandard { get; set; }
+
+        /// <summary>
+        /// Gets or sets a phone line extension (optional)
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if extension; otherwise, <c>false</c>.
+        /// </value>
+        public string Extension { get; set; }
+
+        /// <summary>
+        /// Gets or sets the type of the phone
+        /// </summary>
+        /// <value>
+        /// The type of the phone.
+        /// </value>
+        public AddressIndependantContactInfoEnum PhoneType { get; set; }
     }
 }

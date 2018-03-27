@@ -16,6 +16,11 @@ namespace PSE.Customer.V1.Clients.Extensions
         {
             if (long.TryParse(source, out var sourceAsLong))
             {
+                if (sourceAsLong >= 253402300799)
+                {
+                    // Value outside valid range, per exception text.  Assume this is in milliseconds and adjust.
+                    sourceAsLong /= 1000;
+                }
                 return DateTimeOffset.FromUnixTimeSeconds(sourceAsLong).DateTime;
             }
 
