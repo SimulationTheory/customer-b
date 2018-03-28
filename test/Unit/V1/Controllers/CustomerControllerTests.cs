@@ -171,7 +171,6 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         public async Task GetCustomerProfile_Test()
         {
             //Arrange
-
             CustomerLogicMock.Setup(dlm => dlm.GetCustomerProfileAsync(It.IsAny<long>()))
                 .Returns(() =>
                 {
@@ -227,7 +226,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         }
 
         [TestMethod]
-        public async Task GetCustomerProfile_InvalidDataType_Returns500InternalServerError()
+        public async Task GetCustomerProfile_InvalidBpId_Returns500InternalServerError()
         {
             //Arrange
             var target = GetController();
@@ -243,6 +242,22 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             results.ShouldBeOfType<ContentResult>();
             var returnCode = (ContentResult)results;
             returnCode.StatusCode.ShouldBe(StatusCodes.Status500InternalServerError);
+        }
+
+        [TestMethod]
+        public async Task GetCustomerProfile_MissingClaims_Returns401UnauthorizedError()
+        {
+            //Arrange
+            var target = GetController();
+            ArrangeUserClaims(target, new List<Claim>());
+
+            // Act
+            var results = await target.GetCustomerProfileAsync();
+
+            // Assert
+            results.ShouldBeOfType<ContentResult>();
+            var returnCode = (ContentResult)results;
+            returnCode.StatusCode.ShouldBe(StatusCodes.Status401Unauthorized);
         }
 
         #endregion
@@ -565,6 +580,84 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
 
         #endregion
 
+        #region GetMailingAddressesAsync Tests
+
+        [TestMethod]
+        public async Task GetMailingAddressesAsync_Returns200OKTest()
+        {
+            //Arrange
+            var user = TestHelper.PaDev1;
+            CustomerLogicMock.Setup(dlm => dlm.GetMailingAddressesAsync(It.IsAny<long>(), It.IsAny<bool>(),It.IsAny<string>()))
+                .Returns(() =>
+                {
+                    var mailingAddresses = GetMailingAddresses();
+                    return Task.FromResult(mailingAddresses);
+                });
+            var controller = GetController();
+
+            ArrangeController(controller, user);
+
+            //Act
+            var actual = await controller.GetMailingAddressesAsync(true);
+
+            //Assert
+            actual.ShouldNotBeNull();
+            actual.ShouldBeOfType<OkObjectResult>();
+            ((OkObjectResult)actual).StatusCode.ShouldBe(StatusCodes.Status200OK);
+            var response = ((OkObjectResult)actual).Value as GetMailingAddressesResponse;
+            response.ShouldNotBeNull();
+            response.MailingAddresses.ToList().Count.ShouldBeGreaterThan(0);
+            response.MailingAddresses.First().Address.AddressLine1.ToString().ShouldBe("SE 166th St");
+
+        }
+
+        [TestMethod]
+        public async Task GetMailingAddressesAsync_Returns404NoFoundTest()
+        {
+            //Arrange
+            var user = TestHelper.PaDev1;
+            CustomerLogicMock.Setup(dlm => dlm.GetMailingAddressesAsync(It.IsAny<long>(), It.IsAny<bool>(), It.IsAny<string>()))
+                .Returns(() =>
+                {
+                    IEnumerable<MailingAddressesModel> mailingAddresses = null;
+                    return Task.FromResult(mailingAddresses);
+                });
+            var controller = GetController();
+
+            ArrangeController(controller, user);
+
+            //Act
+            var actual = await controller.GetMailingAddressesAsync(true);
+
+            //Assert
+            actual.ShouldNotBeNull();
+            actual.ShouldBeOfType<NotFoundResult>();
+            var response = (NotFoundResult)actual;
+            response.StatusCode.ShouldBe(StatusCodes.Status404NotFound);
+        }
+
+        [TestMethod]
+        public async Task GetMailingAddressesAsync_Returns401UnauthorizedTest()
+        {
+            //Arrange
+            var target = GetController();
+            target.ControllerContext = new ControllerContext();
+            target.ControllerContext.HttpContext = new DefaultHttpContext();
+            target.ControllerContext.HttpContext.Request.Headers["Authorization"] = "";
+
+            //Act
+            var actual = await target.GetMailingAddressesAsync(true);
+
+            //Assert
+            actual.ShouldNotBeNull();
+            actual.ShouldBeOfType<UnauthorizedResult>();
+
+            var response = (UnauthorizedResult)actual;
+            response.StatusCode.ShouldBe(StatusCodes.Status401Unauthorized);
+        }
+
+        #endregion
+
         #region Private Methods
 
         private static CustomerProfileModel GetCustomerProfile()
@@ -588,6 +681,40 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
                     new Phone {Type= PhoneType.Work, Number="6251234567", Extension="1234"}
                 },
                 PrimaryPhone = PhoneType.Cell
+            };
+        }
+
+        private static IEnumerable<MailingAddressesModel> GetMailingAddresses()
+        {
+            return new List<MailingAddressesModel>
+            {
+                new MailingAddressesModel
+                {
+                    AddressID = 39403323,
+                    Address = new AddressDefinedType
+                    {
+                            AddressLine1 ="SE 166th St",
+                            AddressLine2 ="",
+                            City ="Renton",
+                            Country ="USA",
+                            PostalCode ="98055-5107",
+                            State="WA"
+                    }
+                },
+                new MailingAddressesModel
+                {
+                    AddressID = 33343907,
+                    Address = new AddressDefinedType
+                    {
+                         AddressLine1 ="350 110th Ave NE",
+                         AddressLine2 ="",
+                         City ="Bellevue",
+                         Country ="USA",
+                         PostalCode ="98004-1223",
+                         State="WA"
+                    }
+                }
+
             };
         }
 

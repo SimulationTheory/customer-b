@@ -1,7 +1,11 @@
-﻿namespace PSE.Customer.Tests.Integration.TestObjects
+﻿using System.IO;
+using System.Reflection;
+
+namespace PSE.Customer.Tests.Integration.TestObjects
 {
     public static class TestData
     {
+        static string MailingAddresses = "PSE.Customer.Tests.Integration.TestObjects.Data.GetMailingAddresses.json";
         public static class PaymentArrangementData
         {
             /// <summary>
@@ -69,6 +73,26 @@
         ]
     }
 }";
+        }
+        public static class MailingAddressesData
+        {
+            /// <summary>
+            /// Faked Mailing Addresses data.  Body is actual, but the MailingAddresses array is empty.
+            /// </summary>
+            /// 
+            public static string ActiveMaUserData = GetFromResources(MailingAddresses);
+        }
+
+        static internal string GetFromResources(string resourceName)
+        {
+            Assembly assem = Assembly.GetExecutingAssembly();
+            using (Stream stream = assem.GetManifestResourceStream(resourceName))
+            {
+                using (var reader = new StreamReader(stream))
+                {
+                    return reader.ReadToEnd();
+                }
+            }
         }
     }
 }

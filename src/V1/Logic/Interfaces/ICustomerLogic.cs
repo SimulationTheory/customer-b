@@ -73,7 +73,6 @@ namespace PSE.Customer.V1.Logic.Interfaces
         /// <param name="isStandardOnly"></param>
         /// <param name="jwt"></param>
         /// <returns></returns>
-        //Task<IEnumerable<AddressDefinedType>> GetMailingAddressesAsync(long bpId, bool isStandardOnly,string jwt);
-        IEnumerable<AddressDefinedType> GetMailingAddressesAsync(long bpId, bool isStandardOnly, string jwt);
+        Task<IEnumerable<MailingAddressesModel>> GetMailingAddressesAsync(long bpId, bool isStandardOnly, string jwt);
     }
 }

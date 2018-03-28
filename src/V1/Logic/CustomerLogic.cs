@@ -281,28 +281,30 @@ namespace PSE.Customer.V1.Logic
         /// <param name="isStandardOnly"></param>
         /// <param name="jwt"></param>
         /// <returns></returns>
-        public IEnumerable<AddressDefinedType> GetMailingAddressesAsync(long bpId, bool isStandardOnly, string jwt)
+        public async Task<IEnumerable<MailingAddressesModel>> GetMailingAddressesAsync(long bpId, bool isStandardOnly, string jwt)
         {
-            var mcfAddresses = new List<McfAddressinfo>();
+            var mailingAddresses = new List<MailingAddressesModel>();
 
             var key = $"selfservice:BusinessPartner:{bpId}:Address";
 
-            var result = _mcfClient.GetMailingAddresses(jwt, bpId);
+            var mcfResponse = _mcfClient.GetMailingAddresses(jwt, bpId);
 
-            var results = (isStandardOnly ? result.D.Results?
+            var results = (isStandardOnly ? mcfResponse?.Result?.Results?
                                     .Where(x => x.AddressInfo.StandardFlag.Equals("x", StringComparison.OrdinalIgnoreCase))
-                                    : result.D.Results?
+                                    : mcfResponse?.Result?.Results?
                                     .Where(x => string.IsNullOrEmpty(x.AddressInfo.StandardFlag)))
                                     .ToList();
 
-            results?.ForEach(x=> mcfAddresses.Add(x.AddressInfo));
+            results?.ForEach(x=> mailingAddresses.Add(new MailingAddressesModel
+                                                    {
+                                                        AddressID = x.AddressID,
+                                                        Address = x.AddressInfo.McfToCassandraModel()
+                                                    }));
 
-            var addresses = mcfAddresses.ToModels();
-
-            _redisCache.SetStringAsync(key, addresses.ToJson());
+            await _redisCache.SetStringAsync(key, mailingAddresses.ToJson());
 
 
-            return addresses;
+            return mailingAddresses;
 
         }
 

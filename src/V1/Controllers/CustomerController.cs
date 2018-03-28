@@ -4,13 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using PSE.Customer.Configuration;
 using PSE.Customer.V1.Logic.Interfaces;
 using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Response;
-using PSE.WebAPI.Core.Exceptions;
 using PSE.WebAPI.Core.Service;
 using System;
 using System.Linq;
@@ -74,7 +72,7 @@ namespace PSE.Customer.V1.Controllers
         public async Task<IActionResult> LookupCustomer(LookupCustomerRequest lookupCustomerRequest)
         {
             IActionResult result;
-            _logger.LogInformation($"LookupCustomer({nameof(lookupCustomerRequest)}: {JsonConvert.SerializeObject(lookupCustomerRequest, Formatting.Indented)})");
+            _logger.LogInformation($"LookupCustomer({nameof(lookupCustomerRequest)}: {lookupCustomerRequest.ToJson()})");
 
             try
             {
@@ -87,7 +85,7 @@ namespace PSE.Customer.V1.Controllers
                         BPId = lookupCustomerModel.BPId.ToString(),
                         HasWebAccount = lookupCustomerModel.HasWebAccount,
                     };
-                    _logger.LogInformation("LookupCustomer: " + JsonConvert.SerializeObject(response, Formatting.Indented));
+                    _logger.LogInformation("LookupCustomer: " + response.ToJson());
 
                     result = Ok(response);
                 }
@@ -136,6 +134,11 @@ namespace PSE.Customer.V1.Controllers
             return result;
         }
 
+        /// <summary>
+        /// Creates the web profile.
+        /// </summary>
+        /// <param name="webProfile">The web profile.</param>
+        /// <returns></returns>
         [ProducesResponseType(typeof(OkResult), 200)]
         [HttpPost("profile")]
         [AllowAnonymous]
@@ -145,12 +148,20 @@ namespace PSE.Customer.V1.Controllers
             try
             {
                 _logger.LogInformation($"CreateWebProfile({nameof(webProfile)}: {webProfile.ToJson()})");
-                var validBp = long.TryParse(webProfile?.BPId, out var bpId);
-                //Validate password,username, phone, email
+                if (webProfile == null)
+                {
+                    return BadRequest("No profile provided");
+                }
+
+                var validBp = long.TryParse(webProfile.BPId, out var bpId);
+
+                // Validate password,username, phone, email
                 ValidateCreateProfile(webProfile,validBp);
-                //make sure the account provider exists
+
+                // Make sure the account provider exists
                 var customermodel = _customerLogic.LookupCustomer(webProfile.Customer);
-                //Check if username  exists
+
+                // Check if username  exists
                 var usernameCheck = _customerLogic.UserNameExists(webProfile.CustomerCredentials.UserName);
                 await Task.WhenAll(customermodel, usernameCheck);
 
@@ -188,7 +199,7 @@ namespace PSE.Customer.V1.Controllers
                 //Create profile and  save security questions
                 await _customerLogic.CreateWebProfileAsync(webProfile);
 
-                //TODO update Phone and email async when the underline services are implemented              
+                //TODO update Phone and email async when the underline services are implemented
                 result = new OkResult();
             }
             catch (Exception e)
@@ -211,7 +222,7 @@ namespace PSE.Customer.V1.Controllers
         [HttpPut("mailing-address")]
         public async Task<IActionResult> PutMailingAddressAsync([FromBody] AddressDefinedType address)
         {
-            _logger.LogInformation($"PutMailingAddressAsync({nameof(address)}: {address})");
+            _logger.LogInformation($"PutMailingAddressAsync({nameof(address)}: {address.ToJson()})");
             IActionResult result;
 
             try
@@ -286,7 +297,7 @@ namespace PSE.Customer.V1.Controllers
         [HttpPut("phone")]
         public async Task<IActionResult> PutPhoneNumberAsync([FromBody] Phone phone)
         {
-            _logger.LogInformation($"PutMailingAddressAsync({nameof(phone)}: {phone})");
+            _logger.LogInformation($"PutMailingAddressAsync({nameof(phone)}: {phone.ToJson()})");
             IActionResult result;
 
             try
@@ -318,7 +329,7 @@ namespace PSE.Customer.V1.Controllers
         /// <returns></returns>
         [ProducesResponseType(typeof(GetMailingAddressesResponse), 200)]
         [HttpGet("mailing-address/{isStandardOnly}")]
-        public IActionResult GetMailingAddressesAsync(bool isStandardOnly)
+        public async Task<IActionResult> GetMailingAddressesAsync(bool isStandardOnly)
         {
             _logger.LogInformation($"GetMailingAddressesAsync({nameof(isStandardOnly)}: {isStandardOnly})");
 
@@ -329,16 +340,16 @@ namespace PSE.Customer.V1.Controllers
                 if (HttpContext.Request.Headers.TryGetValue("Authorization", out StringValues jwt))
                 {
                     var bpId = GetBpIdFromClaims();
-                    var customerAddresses = _customerLogic.GetMailingAddressesAsync(bpId, isStandardOnly,jwt);
+                    var customerAddresses = await _customerLogic.GetMailingAddressesAsync(bpId, isStandardOnly,jwt);
 
                     if (customerAddresses != null)
                     {
                         var response = new GetMailingAddressesResponse()
                         {
-                            MailingAddress = customerAddresses
+                            MailingAddresses = customerAddresses
                         };
 
-                        result = Ok(customerAddresses);
+                        result = Ok(response);
                     }
                     else
                     {
@@ -366,17 +377,22 @@ namespace PSE.Customer.V1.Controllers
         /// <summary>
         /// Gets the Business Partner ID (bpId) from an authenticated users claims
         /// </summary>
-        /// <returns>bpId as a long if it can be parsed, otherwise a null</returns>
+        /// <returns>bpId as a long if it can be parsed, otherwise an exception is throws</returns>
+        /// <exception cref="UnauthorizedAccessException">custom:bp is not found</exception>
+        /// <exception cref="InvalidRequestException">custom:bp has some value other than a long value</exception>
         private long GetBpIdFromClaims()
         {
             _logger.LogInformation("LoadBpIdFromClaims()");
             _logger.LogDebug($"Claims: {User?.Claims}");
             var bp = User?.Claims?.FirstOrDefault(x => x.Type.Equals("custom:bp"))?.Value;
+            if (string.IsNullOrWhiteSpace(bp))
+            {
+                throw new UnauthorizedAccessException($"{bp} should be Long data type");
+            }
 
-            // TODO:  How should this be handled?  Return a BadRequest()?  If so, maybe at the base controller level?
             if (!long.TryParse(bp, out var bpId))
             {
-                throw new InvalidRequestException($"{bp} should be Long data type");
+                throw new InternalServerException($"{bp} should be Long data type");
             }
 
             return bpId;

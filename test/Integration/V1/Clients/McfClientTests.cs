@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,6 +16,7 @@ using PSE.Customer.V1.Clients.Mcf;
 using PSE.Customer.V1.Clients.Mcf.Interfaces;
 using PSE.Customer.V1.Clients.Mcf.Request;
 using PSE.Customer.V1.Clients.Mcf.Response;
+using PSE.Customer.V1.Response;
 using PSE.RestUtility.Core.Mcf;
 using PSE.Test.Core;
 using PSE.WebAPI.Core.Configuration.Interfaces;
@@ -212,6 +214,78 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             var response = McfClient.CreateBusinessPartnerEmail(user.JwtEncodedString, request);
             response.Result.ShouldNotBeNull();
             response.Result.Metadata.Id.ShouldBe("https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/AccountAddressIndependentEmails(AccountID=\'1002647070\',SequenceNo=\'015\')");
+        }
+
+        #endregion
+
+        #region GetMailingAddresses Tests
+
+       [TestMethod]
+        public void GetMailingAddresses_AccountWithMailingAddresses_CanParseTestData()
+        {
+            // Arrange
+            var testData = TestData.MailingAddressesData.ActiveMaUserData;
+
+            // Act
+            var response = JsonConvert.DeserializeObject<McfResponse<McfResponseResults<GetAccountAddressesResponse>>>(testData);
+
+             response.Result.Results.ShouldBeOfType<List<GetAccountAddressesResponse>>();
+             response.Result.Results.ToList().Count.ShouldBeGreaterThanOrEqualTo(1);
+
+            var firstAddressResponse = response.Result.Results.FirstOrDefault();
+            firstAddressResponse.AccountID.ShouldBe(1200662307);
+            firstAddressResponse.AddressID.ShouldBe(33343907);
+
+            var firstAddress = firstAddressResponse.AddressInfo;
+            firstAddress.StandardFlag.ShouldBe("X");
+            firstAddress.City.ShouldBe("Renton");
+            firstAddress.PostalCode.ShouldBe("98055-5107");
+            firstAddress.POBoxPostalCode.ShouldBe("");
+            firstAddress.POBox.ShouldBe("");
+            firstAddress.Street.ShouldBe("SE 166th St");
+            firstAddress.HouseNo.ShouldBe("10502");
+            firstAddress.Building.ShouldBe("");
+            firstAddress.Floor.ShouldBe("");
+            firstAddress.RoomNo.ShouldBe("");
+            firstAddress.CountryID.ShouldBe("US");
+            firstAddress.CountryName.ShouldBe("USA");
+            firstAddress.Region.ShouldBe("WA");
+
+
+            var secondAddressResponse = response.Result.Results.ElementAt(1);
+            secondAddressResponse.AccountID.ShouldBe(1200662307);
+            secondAddressResponse.AddressID.ShouldBe(33343940);
+
+            var secondAddress = secondAddressResponse.AddressInfo;
+            secondAddress.StandardFlag.ShouldBe("");
+            secondAddress.City.ShouldBe("Renton");
+            secondAddress.PostalCode.ShouldBe("98055");
+            secondAddress.POBoxPostalCode.ShouldBe("");
+            secondAddress.POBox.ShouldBe("");
+            secondAddress.Street.ShouldBe("SE 166TH ST");
+            secondAddress.HouseNo.ShouldBe("10502");
+            secondAddress.Building.ShouldBe("");
+            secondAddress.Floor.ShouldBe("");
+            secondAddress.RoomNo.ShouldBe("");
+            secondAddress.CountryID.ShouldBe("US");
+            secondAddress.CountryName.ShouldBe("USA");
+            secondAddress.Region.ShouldBe("WA");
+           
+        }
+
+        [TestMethod]
+        public async Task GetMailingAddresses_AccountWithAMailingAddreses_CanGetMailingAddressesData()
+        {
+            // Arrange
+            var user = TestHelper.ActiveMaUser;
+            var loginResponse = await AuthClient.GetJwtToken(user.Username, "Start@123");
+            user.SetJwtEncodedString(loginResponse.Data.JwtAccessToken);
+
+            user.JwtEncodedString.ShouldNotBeNullOrWhiteSpace();
+            user.BPNumber.ShouldNotBe(0);
+
+            var response = McfClient.GetMailingAddresses(user.JwtEncodedString, user.ContractAccountId);
+            response.ShouldNotBeNull();
         }
 
         #endregion

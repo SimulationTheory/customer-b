@@ -10,7 +10,7 @@ namespace PSE.Customer.Extensions
     /// <summary>
     /// Extends Customer class
     /// </summary>
-    public static  class CustomerExtensions
+    public static class CustomerExtensions
     {
         /// <summary>
         /// Maps some ofthe CustomerEntity fields to CustomerProfileModel object

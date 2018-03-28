@@ -1,4 +1,5 @@
 ﻿using PSE.Customer.Extensions;
+using PSE.Customer.V1.Clients.Mcf.Response;
 using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Repositories.Entities;
@@ -76,31 +77,16 @@ namespace PSE.Customer.V1.Logic
             var model = new AddressDefinedType
             {
                 AddressLine1 = source.Street,
-                AddressLine2 = null,
+                AddressLine2 = !string.IsNullOrEmpty(source.RoomNo) ? source.RoomNo
+                                                 : !string.IsNullOrEmpty(source.Floor) ? source.Floor 
+                                                 : source.Building,
                 City = source.City,
-                PostalCode = source.PostalCode,
+                PostalCode = source.PostalCode, //TODO: Check if PoBox Exists, Then POBoxPostalCode
                 State = source.Region,
                 Country = source.CountryName
             };
 
             return model;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="source"></param>
-        /// <returns></returns>
-        public static IEnumerable<AddressDefinedType> ToModels(this IEnumerable<McfAddressinfo> source)
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException(nameof(source));
-            }
-
-            var models = source.ToArray().Select(x => x.McfToCassandraModel());
-
-            return models;
         }
 
         private static List<Phone> GetPhones(CustomerContactEntity source)

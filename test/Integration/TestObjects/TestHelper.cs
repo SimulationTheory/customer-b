@@ -60,6 +60,16 @@ namespace PSE.Customer.Tests.Integration.TestObjects
         };
 
         /// <summary>
+        /// Account that is supposed to have an mailing addresses 
+        /// </summary>
+        public static readonly TestUser ActiveMaUser = new TestUser
+        {
+            Username = "testuser6",
+            Email = "testpaactive02@test.com",
+            ContractAccountId = 1001907289
+        };
+
+        /// <summary>
         /// Gets a new service collection with logging enabled and ApplicationLifetime registered.
         /// </summary>
         /// <returns></returns>

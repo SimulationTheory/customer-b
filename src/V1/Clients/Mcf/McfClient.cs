@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using PSE.Customer.Extensions;
@@ -253,9 +252,9 @@ namespace PSE.Customer.V1.Clients.Mcf
         /// <param name="jwt"></param>
         /// <param name="contractAccountId"></param>
         /// <returns></returns>
-        public McfResponsesWrapper<GetAccountAddressesResponse> GetMailingAddresses(string jwt, long contractAccountId)
+        public McfResponse<McfResponseResults<GetAccountAddressesResponse>> GetMailingAddresses(string jwt, long contractAccountId)
         {
-            McfResponsesWrapper<GetAccountAddressesResponse> response;
+            McfResponse<McfResponseResults<GetAccountAddressesResponse>> response;
 
             try
             {
@@ -271,7 +270,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                 var client = restUtility.GetRestClient(config.McfEndpoint);
                 var restResponse = client.Execute(restRequest);
 
-                response = JsonConvert.DeserializeObject<McfResponsesWrapper<GetAccountAddressesResponse>>(restResponse.Content);
+                response = JsonConvert.DeserializeObject<McfResponse<McfResponseResults<GetAccountAddressesResponse>>>(restResponse.Content);
 
             }
             catch (Exception e)

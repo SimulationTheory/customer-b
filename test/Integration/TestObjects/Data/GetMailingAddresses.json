@@ -1,0 +1,122 @@
+{
+  "d": {
+    "results": [
+      {
+        "__metadata": {
+          "id": "http://ssapngtn2apv1.puget.com:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/AccountAddresses(AccountID='1200662307',AddressID='33343907')",
+          "uri": "http://ssapngtn2apv1.puget.com:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/AccountAddresses(AccountID='1200662307',AddressID='33343907')",
+          "type": "ERP_UTILITIES_UMC.AccountAddress"
+        },
+        "AddressInfo": {
+          "__metadata": {
+            "type": "ERP_UTILITIES_UMC.AddressInfo"
+          },
+          "StandardFlag": "X",
+          "City": "Renton",
+          "District": "",
+          "PostalCode": "98055-5107",
+          "POBoxPostalCode": "",
+          "POBox": "",
+          "Street": "SE 166th St",
+          "HouseNo": "10502",
+          "Building": "",
+          "Floor": "",
+          "RoomNo": "",
+          "CountryID": "US",
+          "CountryName": "USA",
+          "Region": "WA",
+          "RegionName": "Washington",
+          "TimeZone": "PST",
+          "TaxJurisdictionCode": "WA11700250",
+          "LanguageID": "E",
+          "ShortForm": "10502 SE 166th St / Renton WA 98055-5107"
+        },
+        "AccountID": "1200662307",
+        "AddressID": "33343907",
+        "AccountAddressDependentFaxes": {
+          "__deferred": {
+            "uri": "http://ssapngtn2apv1.puget.com:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/AccountAddresses(AccountID='1200662307',AddressID='33343907')/AccountAddressDependentFaxes"
+          }
+        },
+        "AccountAddressDependentMobilePhones": {
+          "__deferred": {
+            "uri": "http://ssapngtn2apv1.puget.com:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/AccountAddresses(AccountID='1200662307',AddressID='33343907')/AccountAddressDependentMobilePhones"
+          }
+        },
+        "AccountAddressDependentPhones": {
+          "__deferred": {
+            "uri": "http://ssapngtn2apv1.puget.com:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/AccountAddresses(AccountID='1200662307',AddressID='33343907')/AccountAddressDependentPhones"
+          }
+        },
+        "AccountAddressDependentEmails": {
+          "__deferred": {
+            "uri": "http://ssapngtn2apv1.puget.com:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/AccountAddresses(AccountID='1200662307',AddressID='33343907')/AccountAddressDependentEmails"
+          }
+        },
+        "AccountAddressUsages": {
+          "__deferred": {
+            "uri": "http://ssapngtn2apv1.puget.com:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/AccountAddresses(AccountID='1200662307',AddressID='33343907')/AccountAddressUsages"
+          }
+        }
+      },
+      {
+        "__metadata": {
+          "id": "http://ssapngtn2apv1.puget.com:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/AccountAddresses(AccountID='1200662307',AddressID='33343940')",
+          "uri": "http://ssapngtn2apv1.puget.com:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/AccountAddresses(AccountID='1200662307',AddressID='33343940')",
+          "type": "ERP_UTILITIES_UMC.AccountAddress"
+        },
+        "AddressInfo": {
+          "__metadata": {
+            "type": "ERP_UTILITIES_UMC.AddressInfo"
+          },
+          "StandardFlag": "",
+          "City": "Renton",
+          "District": "",
+          "PostalCode": "98055",
+          "POBoxPostalCode": "",
+          "POBox": "",
+          "Street": "SE 166TH ST",
+          "HouseNo": "10502",
+          "Building": "",
+          "Floor": "",
+          "RoomNo": "",
+          "CountryID": "US",
+          "CountryName": "USA",
+          "Region": "WA",
+          "RegionName": "Washington",
+          "TimeZone": "PST",
+          "TaxJurisdictionCode": "WA11700250",
+          "LanguageID": "E",
+          "ShortForm": "10502 SE 166TH ST / Renton WA 98055"
+        },
+        "AccountID": "1200662307",
+        "AddressID": "33343940",
+        "AccountAddressDependentFaxes": {
+          "__deferred": {
+            "uri": "http://ssapngtn2apv1.puget.com:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/AccountAddresses(AccountID='1200662307',AddressID='33343940')/AccountAddressDependentFaxes"
+          }
+        },
+        "AccountAddressDependentMobilePhones": {
+          "__deferred": {
+            "uri": "http://ssapngtn2apv1.puget.com:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/AccountAddresses(AccountID='1200662307',AddressID='33343940')/AccountAddressDependentMobilePhones"
+          }
+        },
+        "AccountAddressDependentPhones": {
+          "__deferred": {
+            "uri": "http://ssapngtn2apv1.puget.com:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/AccountAddresses(AccountID='1200662307',AddressID='33343940')/AccountAddressDependentPhones"
+          }
+        },
+        "AccountAddressDependentEmails": {
+          "__deferred": {
+            "uri": "http://ssapngtn2apv1.puget.com:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/AccountAddresses(AccountID='1200662307',AddressID='33343940')/AccountAddressDependentEmails"
+          }
+        },
+        "AccountAddressUsages": {
+          "__deferred": {
+            "uri": "http://ssapngtn2apv1.puget.com:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/AccountAddresses(AccountID='1200662307',AddressID='33343940')/AccountAddressUsages"
+          }
+        }
+      }
+    ]
+  }
+}

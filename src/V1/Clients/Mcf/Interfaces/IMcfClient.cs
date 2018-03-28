@@ -97,6 +97,6 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// <param name="jwt"></param>
         /// <param name="contractAccountId"></param>
         /// <returns></returns>
-        McfResponsesWrapper<GetAccountAddressesResponse> GetMailingAddresses(string jwt, long contractAccountId);
+        McfResponse<McfResponseResults<GetAccountAddressesResponse>> GetMailingAddresses(string jwt, long contractAccountId);
     }
 }

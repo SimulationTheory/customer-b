@@ -1,4 +1,5 @@
-﻿using PSE.Customer.V1.Repositories.DefinedTypes;
+﻿using PSE.Customer.V1.Models;
+using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.WebAPI.Core.Interfaces;
 using System.Collections.Generic;
 
@@ -16,6 +17,6 @@ namespace PSE.Customer.V1.Response
         /// <value>
         /// The mailing address.
         /// </value>
-        public IEnumerable<AddressDefinedType> MailingAddress { get; set; }
+        public IEnumerable<MailingAddressesModel> MailingAddresses { get; set; }
     }
 }
