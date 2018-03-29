@@ -72,22 +72,6 @@ namespace PSE.Customer.V1.Clients.Mcf.Response
         [JsonProperty("HouseNo")]
         public string HouseNo { get; set; }
         /// <summary>
-        /// Gets or sets the building.
-        /// </summary>
-        /// <value>
-        /// The building.
-        /// </value>
-        [JsonProperty("Building")]
-        public string Building { get; set; }
-        /// <summary>
-        /// Gets or sets the floor.
-        /// </summary>
-        /// <value>
-        /// The floor.
-        /// </value>
-        [JsonProperty("Floor")]
-        public string Floor { get; set; }
-        /// <summary>
         /// Gets or sets the room no.
         /// </summary>
         /// <value>
@@ -159,5 +143,13 @@ namespace PSE.Customer.V1.Clients.Mcf.Response
         /// </value>
         [JsonProperty("ShortForm")]
         public string ShortForm { get; set; }
+        /// <summary>
+        /// Gets or sets the house no2.
+        /// </summary>
+        /// <value>
+        /// The house no2.
+        /// </value>
+        [JsonProperty("HouseNo2")]
+        public string HouseNo2 { get; set; }
     }
 }

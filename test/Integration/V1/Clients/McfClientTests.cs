@@ -244,8 +244,6 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             firstAddress.POBox.ShouldBe("");
             firstAddress.Street.ShouldBe("SE 166th St");
             firstAddress.HouseNo.ShouldBe("10502");
-            firstAddress.Building.ShouldBe("");
-            firstAddress.Floor.ShouldBe("");
             firstAddress.RoomNo.ShouldBe("");
             firstAddress.CountryID.ShouldBe("US");
             firstAddress.CountryName.ShouldBe("USA");
@@ -264,8 +262,6 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             secondAddress.POBox.ShouldBe("");
             secondAddress.Street.ShouldBe("SE 166TH ST");
             secondAddress.HouseNo.ShouldBe("10502");
-            secondAddress.Building.ShouldBe("");
-            secondAddress.Floor.ShouldBe("");
             secondAddress.RoomNo.ShouldBe("");
             secondAddress.CountryID.ShouldBe("US");
             secondAddress.CountryName.ShouldBe("USA");

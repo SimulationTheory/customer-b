@@ -18,7 +18,6 @@ using PSE.WebAPI.Core.Configuration.Interfaces;
 using RestSharp;
 using Microsoft.AspNetCore.Mvc;
 using PSE.Customer.V1.Clients.Mcf.Interfaces;
-using PSE.RestUtility.Core.Mcf;
 using System.Linq;
 using PSE.Customer.Extensions;
 using PSE.Customer.V1.Clients.Mcf.Enums;
