@@ -66,7 +66,7 @@ namespace PSE.Customer.Tests.Integration.TestObjects
         {
             Username = "testuser6",
             Email = "testpaactive02@test.com",
-            ContractAccountId = 1001907289
+            ContractAccountId = 220007739539
         };
 
         /// <summary>

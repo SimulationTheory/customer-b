@@ -285,5 +285,42 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         }
 
         #endregion
+
+
+
+        #region GetContractAccounMailingAddress Tests
+
+        [TestMethod]
+        public void GetContractAccounMailingAddress_AccountWithMailingAddress_CanParseTestData()
+        {
+            // Arrange
+            var testData = TestData.ContractAccountAddressData.ActiveMaUserData;
+
+            // Act
+            var response = JsonConvert.DeserializeObject<McfResponse<GetContractAccountResponse>>(testData);
+
+            response.ShouldNotBeNull();
+            response.Result.AccountID.ShouldBe(1002785285);
+            response.Result.AddressID.ShouldBeEmpty();
+            response.Result.ContractAccountID.ShouldBe(200019410436);
+
+        }
+
+        [TestMethod]
+        public async Task GetContractAccounMailingAddress_AccountWithAMailingAddress_CanGetMailingAddressData()
+        {
+            // Arrange
+            var user = TestHelper.ActivePaUser;
+            var loginResponse = await AuthClient.GetJwtToken(user.Username, "Start@123");
+            user.SetJwtEncodedString(loginResponse.Data.JwtAccessToken);
+
+            user.JwtEncodedString.ShouldNotBeNullOrWhiteSpace();
+            user.BPNumber.ShouldNotBe(0);
+
+            var response = McfClient.GetContractAccounMailingAddress(user.JwtEncodedString, user.ContractAccountId);
+            response.ShouldNotBeNull();
+        }
+
+        #endregion
     }
 }

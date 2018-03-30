@@ -1,0 +1,196 @@
+{
+  "d": {
+    "__metadata": {
+      "id": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')",
+      "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')",
+      "type": "ERP_UTILITIES_UMC.ContractAccount"
+    },
+    "AccountAddressID": "",
+    "PriorObligation": "",
+    "AccountID": "1002785285",
+    "Bankrupt": "",
+    "AlternativePayeeID": "",
+    "DepositPaid": "0.000",
+    "ActiveBBP": "",
+    "AlternativePayerID": "",
+    "ActivePP": "",
+    "BillToAccountAddressID": "19356230",
+    "BillToAccountID": "1002785285",
+    "BudgetBillingProcedure": "3",
+    "ContractAccountID": "200019410436",
+    "CountryID": "US",
+    "Description": "",
+    "IncomingPaymentBankAccountID": "",
+    "IncomingPaymentMethodID": "",
+    "IncomingPaymentPaymentCardID": "",
+    "OutgoingPaymentBankAccountID": "",
+    "OutgoingPaymentMethodID1": "",
+    "OutgoingPaymentMethodID2": "",
+    "OutgoingPaymentMethodID3": "",
+    "OutgoingPaymentMethodID4": "",
+    "OutgoingPaymentMethodID5": "",
+    "AccountTypeFlag": "X",
+    "DisconnectFlag": "",
+    "CoCustomerType": "",
+    "OutgoingPaymentPaymentCardID": "",
+    "PaymentLock": "",
+    "BillConsolidator": "",
+    "NoFee": "X",
+    "ParentContractAccount": "",
+    "Invoices": {
+      "__deferred": {
+        "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')/Invoices"
+      }
+    },
+    "ContractAccountBalance": {
+      "__deferred": {
+        "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')/ContractAccountBalance"
+      }
+    },
+    "Contracts": {
+      "__deferred": {
+        "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')/Contracts"
+      }
+    },
+    "BillToAccountAddress": {
+      "__deferred": {
+        "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')/BillToAccountAddress"
+      }
+    },
+    "OutgoingPaymentMethod1": {
+      "__deferred": {
+        "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')/OutgoingPaymentMethod1"
+      }
+    },
+    "OutgoingAlternativePayeePaymentCard": {
+      "__deferred": {
+        "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')/OutgoingAlternativePayeePaymentCard"
+      }
+    },
+    "IncomingPaymentMethod": {
+      "__deferred": {
+        "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')/IncomingPaymentMethod"
+      }
+    },
+    "OutgoingPaymentMethod3": {
+      "__deferred": {
+        "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')/OutgoingPaymentMethod3"
+      }
+    },
+    "OutgoingPaymentMethod5": {
+      "__deferred": {
+        "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')/OutgoingPaymentMethod5"
+      }
+    },
+    "IncomingBankAccount": {
+      "__deferred": {
+        "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')/IncomingBankAccount"
+      }
+    },
+    "BillToAccount": {
+      "__deferred": {
+        "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')/BillToAccount"
+      }
+    },
+    "OutgoingAlternativePayeeBankAccount": {
+      "__deferred": {
+        "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')/OutgoingAlternativePayeeBankAccount"
+      }
+    },
+    "AlternativePayee": {
+      "__deferred": {
+        "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')/AlternativePayee"
+      }
+    },
+    "IncomingAlternativePayerBankAccount": {
+      "__deferred": {
+        "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')/IncomingAlternativePayerBankAccount"
+      }
+    },
+    "AccountAddress": {
+      "__deferred": {
+        "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')/AccountAddress"
+      }
+    },
+    "Country": {
+      "__deferred": {
+        "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')/Country"
+      }
+    },
+    "IncomingAlternativePayerPaymentCard": {
+      "__deferred": {
+        "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')/IncomingAlternativePayerPaymentCard"
+      }
+    },
+    "CommunicationPreferences": {
+      "__deferred": {
+        "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')/CommunicationPreferences"
+      }
+    },
+    "IncomingPaymentCard": {
+      "__deferred": {
+        "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')/IncomingPaymentCard"
+      }
+    },
+    "OutgoingPaymentMethod4": {
+      "__deferred": {
+        "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')/OutgoingPaymentMethod4"
+      }
+    },
+    "OutgoingBankAccount": {
+      "__deferred": {
+        "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')/OutgoingBankAccount"
+      }
+    },
+    "OutgoingPaymentCard": {
+      "__deferred": {
+        "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')/OutgoingPaymentCard"
+      }
+    },
+    "OutgoingPaymentMethod2": {
+      "__deferred": {
+        "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')/OutgoingPaymentMethod2"
+      }
+    },
+    "AlternativePayer": {
+      "__deferred": {
+        "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')/AlternativePayer"
+      }
+    },
+    "Preferences": {
+      "__deferred": {
+        "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')/Preferences"
+      }
+    },
+    "BudgetBilling": {
+      "__deferred": {
+        "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')/BudgetBilling"
+      }
+    },
+    "PaymentArrangement": {
+      "__deferred": {
+        "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')/PaymentArrangement"
+      }
+    },
+    "Correspondences": {
+      "__deferred": {
+        "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')/Correspondences"
+      }
+    },
+    "OutageManagement": {
+      "__deferred": {
+        "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')/OutageManagement"
+      }
+    },
+    "LatePayments": {
+      "__deferred": {
+        "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')/LatePayments"
+      }
+    },
+    "BillDueDates": {
+      "__deferred": {
+        "uri": "http://10.41.53.54:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('200019410436')/BillDueDates"
+      }
+    }
+  }
+}

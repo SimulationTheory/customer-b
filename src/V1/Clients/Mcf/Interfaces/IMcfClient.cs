@@ -92,11 +92,27 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         McfResponse<PaymentArrangementResponse> GetPaymentArrangement(string jwt, long contractAccountId);
 
         /// <summary>
-        /// Gets the Mailing Addresses
+        /// Gets the Mailing Addresses For A Given BP
+        /// </summary>
+        /// <param name="jwt"></param>
+        /// <param name="bpId"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// OData URI:
+        /// GET "/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/Accounts('{bpId}')/AccountAddresses?$format=json"
+        /// </remarks>
+        McfResponse<McfResponseResults<GetAccountAddressesResponse>> GetMailingAddresses(string jwt, long bpId);
+
+        /// <summary>
+        /// Gets the Mailing Addresses For A Given CA
         /// </summary>
         /// <param name="jwt"></param>
         /// <param name="contractAccountId"></param>
         /// <returns></returns>
-        McfResponse<McfResponseResults<GetAccountAddressesResponse>> GetMailingAddresses(string jwt, long contractAccountId);
+        /// <remarks>
+        /// OData URI:
+        /// GET "/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts(ContractAccountID='{contractAccountId}')?$format=json"
+        /// </remarks>
+        McfResponse<GetContractAccountResponse> GetContractAccounMailingAddress(string jwt, long contractAccountId);
     }
 }

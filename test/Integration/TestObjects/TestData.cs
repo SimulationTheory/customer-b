@@ -6,6 +6,7 @@ namespace PSE.Customer.Tests.Integration.TestObjects
     public static class TestData
     {
         static string MailingAddresses = "PSE.Customer.Tests.Integration.TestObjects.Data.GetMailingAddresses.json";
+        static string ContractAccountAddress = "PSE.Customer.Tests.Integration.TestObjects.Data.GetContractAccountAddress.json";
         public static class PaymentArrangementData
         {
             /// <summary>
@@ -82,7 +83,14 @@ namespace PSE.Customer.Tests.Integration.TestObjects
             /// 
             public static string ActiveMaUserData = GetFromResources(MailingAddresses);
         }
-
+        public static class ContractAccountAddressData
+        {
+            /// <summary>
+            /// Faked Mailing Addresses data.  Body is actual, but the MailingAddresses array is empty.
+            /// </summary>
+            /// 
+            public static string ActiveMaUserData = GetFromResources(ContractAccountAddress);
+        }
         static internal string GetFromResources(string resourceName)
         {
             Assembly assem = Assembly.GetExecutingAssembly();

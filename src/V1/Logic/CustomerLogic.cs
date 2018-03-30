@@ -274,7 +274,7 @@ namespace PSE.Customer.V1.Logic
         }
 
         /// <summary>
-        ///
+        ///  Gets the Mailing Addresses For A Given BP
         /// </summary>
         /// <param name="bpId"></param>
         /// <param name="isStandardOnly"></param>
