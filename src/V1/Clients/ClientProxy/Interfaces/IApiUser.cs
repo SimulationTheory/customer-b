@@ -35,6 +35,14 @@ namespace PSE.Customer.V1.Clients.ClientProxy.Interfaces
         string Username { get; }
 
         /// <summary>
+        /// Gets the cognito user identifier.
+        /// </summary>
+        /// <value>
+        /// A Guid that is a foreign key from the user_auth table to cognito
+        /// </value>
+        string CognitoUserId { get; }
+
+        /// <summary>
         /// Contract account ID
         /// </summary>
         long ContractAccountId { get; }

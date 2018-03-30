@@ -13,7 +13,7 @@ namespace PSE.Customer.Tests.Integration.TestObjects
         /// Test Java Web Token string for PaDev1
         /// </summary>
         public static string PaDev1JwtToken =
-            "eyJraWQiOiJSRGlmUFwvbEQ0Q0VVNXJadEJQeWdFSDI5S1haNThoOUtwXC9hRWxzK2t3bUE9IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiIxNzI1Mzc4NS1jN2NkLTRmZTItOTEwOC05Y2NiNDJhZjA0NmIiLCJhdWQiOiI2dGpzc2ZyaGh0cGw1dnRsYWN1bTdjdHVjbyIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwidG9rZW5fdXNlIjoiaWQiLCJhdXRoX3RpbWUiOjE1MjE0OTgxNTgsImlzcyI6Imh0dHBzOlwvXC9jb2duaXRvLWlkcC51cy13ZXN0LTIuYW1hem9uYXdzLmNvbVwvdXMtd2VzdC0yX1pmZzBmVVNwUyIsImN1c3RvbTpicCI6IjEwMDI2NDcwNzAiLCJjb2duaXRvOnVzZXJuYW1lIjoidGVzdHVzZXJwYWRldjEiLCJleHAiOjE1MjE1MDE3NTgsImlhdCI6MTUyMTQ5ODE1OCwiZW1haWwiOiJ0ZXN0dXNlcnBhRGV2MUB0ZXN0LmNvbSJ9.v7drhl7NffykIfWh5ZkqEKuyQbh9G9EhBk167vAshEIpw2BhHSfzU9kwa7wDWR0OF7PXS-V_Wncv5zcvwN4CIgNTvIKITGPcELvQthF2ch2D4eWC5HCnfYNYsMwut7ZpyurYuePM4j_JCBONnuqPlVUQbblWNqUzIZiIokvD0kkXR0xFdcqA6WfWmWHDCnycIsiRJohJlS4uPEpSJQVjsmY-r-XmGVJtlUamSs16WUCSS_uIRjAI19y1-fUw-tz5GaB57KW_GbQfd_nyB2sUyJhdrbUzcgh-jUIOjRDdw-JqEq7IFaE6Dd8yL-f8yDpr8C8DkcA9LdSb7phPOKqhkw";
+            "eyJraWQiOiJSRGlmUFwvbEQ0Q0VVNXJadEJQeWdFSDI5S1haNThoOUtwXC9hRWxzK2t3bUE9IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiI2YWM4MjA4My1jZDJhLTRlY2UtYTk2MC1iNzY3NGJiOTQwNTAiLCJhdWQiOiI2dGpzc2ZyaGh0cGw1dnRsYWN1bTdjdHVjbyIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwidG9rZW5fdXNlIjoiaWQiLCJhdXRoX3RpbWUiOjE1MjI0NDYyODEsImlzcyI6Imh0dHBzOlwvXC9jb2duaXRvLWlkcC51cy13ZXN0LTIuYW1hem9uYXdzLmNvbVwvdXMtd2VzdC0yX1pmZzBmVVNwUyIsImN1c3RvbTpicCI6IjEwMDI2NDcwNzAiLCJjb2duaXRvOnVzZXJuYW1lIjoiMTFmZDA0MzktNWZmZi00YzEzLWFmNjgtZTJiY2FiNTY3ZmY4IiwiZXhwIjoxNTIyNDQ5ODgxLCJpYXQiOjE1MjI0NDYyODEsImVtYWlsIjoidGVzdHVzZXJwYURldjFAdGVzdC5jb20ifQ.NSW-YjqiP3vCik1U2yVh3_VD5sBGqnP5zoNE-_EUHl8_p4vpMRK2kHo56_96f8Y0KO90F1we8IY1FFXWVNkwADybmQoIf3EpGDgCbyFPEq6H_jf1o3zHB8vJOa0ex-d4hZyCne4Ee68NZZQNgPU6CW6OrsijExkL-l0MQz73VZjDJdb-r7gaswKzLvzW4xhipiC3ylzWvKrnVEIJ-bjIeO4ideXCErvJyPM4MYKJhYp6iNi5-RMtEyXVTbY7s-ZP4BoKXrneb4Vmj6XfRRnXewJwJq09ULIQyTj7dFrOM84a0L5qp9ta-mT8yJQFkESr3OahaaA8sXsbU9OxpKS7-Q";
 
         /// <summary>
         /// This account is set up to use MCF and has a mailing address and phone number
@@ -45,6 +45,11 @@ namespace PSE.Customer.Tests.Integration.TestObjects
                 {
                     Type = PhoneType.Work,
                     Number = "4258824091"
+                },
+                new Phone
+                {
+                    Type = PhoneType.Home,
+                    Number = "4258824004"
                 }
             }
         };

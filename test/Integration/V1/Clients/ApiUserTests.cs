@@ -22,8 +22,8 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             // Assert
             var claim = apiUser.SecurityToken.Claims.FirstOrDefault(c => c.Type == "cognito:username");
             claim.ShouldNotBeNull();
-            claim.Value.ShouldBe("testuserpadev1");
-            apiUser.Username.ShouldBe("testuserpadev1");
+            claim.Value.ShouldBe("11fd0439-5fff-4c13-af68-e2bcab567ff8");
+            apiUser.CognitoUserId.ShouldBe("11fd0439-5fff-4c13-af68-e2bcab567ff8");
         }
 
         [TestMethod]
@@ -112,7 +112,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
 
             // Assert
             claimValue.ShouldNotBeNull();
-            claimValue.Value.ShouldBe(new DateTime(2018, 3, 19, 22, 22, 38));
+            claimValue.Value.ShouldBe(new DateTime(2018, 3, 30, 21, 44, 41));
         }
 
         [TestMethod]
@@ -126,7 +126,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
 
             // Assert
             claimValue.ShouldNotBeNull();
-            claimValue.Value.ShouldBe(new DateTime(2018, 3, 19, 22, 22, 38));
+            claimValue.Value.ShouldBe(new DateTime(2018, 3, 30, 21, 44, 41));
         }
 
         [TestMethod]
@@ -140,7 +140,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
 
             // Assert
             claimValue.ShouldNotBeNull();
-            claimValue.Value.ShouldBe(new DateTime(2018, 3, 19, 23, 22, 38));
+            claimValue.Value.ShouldBe(new DateTime(2018, 3, 30, 22, 44, 41));
         }
     }
 }

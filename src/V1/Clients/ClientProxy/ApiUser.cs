@@ -31,7 +31,7 @@ namespace PSE.Customer.V1.Clients.ClientProxy
         {
             JwtEncodedString = jwtEncodedString;
             SecurityToken = new JwtSecurityToken(jwtEncodedString);
-            Username = GetClaimValue("cognito:username");
+            CognitoUserId = GetClaimValue("cognito:username");
             if (long.TryParse(GetClaimValue("custom:bp"), out var bpId))
             {
                 BPNumber = bpId;
@@ -52,6 +52,9 @@ namespace PSE.Customer.V1.Clients.ClientProxy
 
         /// <inheritdoc />
         public string Username { get; set; }
+
+        /// <inheritdoc />
+        public string CognitoUserId { get; set; }
 
         /// <inheritdoc />
         public long ContractAccountId { get; set; }

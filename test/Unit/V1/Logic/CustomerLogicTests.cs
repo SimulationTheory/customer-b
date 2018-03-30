@@ -23,6 +23,9 @@ using Cassandra;
 using PSE.Customer.Tests.Unit.TestObjects;
 using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Clients.Mcf.Interfaces;
+using PSE.Customer.V1.Clients.Mcf.Request;
+using PSE.Customer.V1.Clients.Mcf.Response;
+using PSE.RestUtility.Core.Mcf;
 
 namespace PSE.Customer.Tests.Unit.V1.Logic
 {
@@ -463,16 +466,46 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
         #region PutPhoneNumbersAsync Tests
 
         [TestMethod]
-        public async Task PutPhoneNumbersAsync_ValidAddress_PhoneNumberUpdated()
+        public async Task PutPhoneNumbersAsync_CellPhoneAtBpLevel_PhoneNumberUpdated()
         {
             // Arrange
             var user = TestHelper.PaDev1;
             var logic = CreateCustomerLogic();
             mockCustomerRepository.Setup(x => x.UpdateCustomerPhoneNumber(It.IsAny<Phone>(), It.IsAny<long>()))
                 .Returns(Task.FromResult(new RowSet()));
+            mockMcfClient.Setup(x => x.CreateBusinessPartnerMobilePhone(It.IsAny<string>(), It.IsAny<CreateAddressIndependantPhoneRequest>()))
+                .Returns(new McfResponse<GetPhoneResponse>
+                {
+                    Error = null,
+                    Result = new GetPhoneResponse
+                    {
+                        AccountID = user.ContractAccountId,
+                        PhoneNo = user.Phones[0].Number,
+                        PhoneType = "2",
+                        StandardFlag = true
+                    }
+                });
 
             // Act
             await logic.PutPhoneNumberAsync(user.JwtToken, user.Phones[0], user.BpNumber);
+        }
+
+        [TestMethod]
+        public void PutPhoneNumbersAsync_ThrowsException_ExceptionRelayedToCaller()
+        {
+            // Arrange
+            var user = TestHelper.PaDev1;
+            var logic = CreateCustomerLogic();
+            mockCustomerRepository.Setup(x => x.UpdateCustomerPhoneNumber(It.IsAny<Phone>(), It.IsAny<long>()))
+                .Returns(Task.FromResult(new RowSet()));
+            mockMcfClient.Setup(x => x.CreateBusinessPartnerMobilePhone(It.IsAny<string>(), It.IsAny<CreateAddressIndependantPhoneRequest>()))
+                .Throws(new ApplicationException());
+
+            // Act
+            Func<Task> action = async () => { await logic.PutPhoneNumberAsync(user.JwtToken, user.Phones[0], user.BpNumber); };
+
+            // Assert
+            action.ShouldThrow<ApplicationException>();
         }
 
         #endregion

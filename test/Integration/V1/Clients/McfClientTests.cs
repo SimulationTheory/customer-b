@@ -13,10 +13,11 @@ using PSE.Customer.Tests.Integration.TestObjects;
 using PSE.Customer.V1.Clients.Authentication.Interfaces;
 using PSE.Customer.V1.Clients.Extensions;
 using PSE.Customer.V1.Clients.Mcf;
+using PSE.Customer.V1.Clients.Mcf.Enums;
 using PSE.Customer.V1.Clients.Mcf.Interfaces;
 using PSE.Customer.V1.Clients.Mcf.Request;
 using PSE.Customer.V1.Clients.Mcf.Response;
-using PSE.Customer.V1.Response;
+using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.RestUtility.Core.Mcf;
 using PSE.Test.Core;
 using PSE.WebAPI.Core.Configuration.Interfaces;
@@ -131,7 +132,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
 
         #endregion
 
-        #region GetPaymentArrangement Tess
+        #region GetPaymentArrangement Tests
 
         [TestMethod]
         public void GetPaymentArrangement_AccountWithArrangement_CanParseTestData()
@@ -177,6 +178,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         }
 
         [TestMethod]
+        [Ignore("This user is no longer valid.  Move to payment arrangement repo")]
         public async Task GetPaymentArrangement_AccountWithArrangement_CanGetArrangementData()
         {
             // Arrange
@@ -196,7 +198,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         #region CreateBusinessPartnerEmail Tests
 
         [TestMethod]
-        [Ignore("The phone here is created for each call.  May try POST.")]
+        [Ignore("The email here is created for each call, so run it manually to avoid large numbers on test server.")]
         public async Task CreateBusinessPartnerEmail_ValidUser_ContactInfoRetrieved()
         {
             // Arrange
@@ -211,9 +213,64 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
                 StandardFlag = true
             };
 
+            if (request.Email == user.Email)
+            {
+                Assert.Fail("Bypass by debugging in order to avoid posting excess rows on server");
+            }
+
+            var contactInfoResponse = McfClient.GetBusinessPartnerContactInfo(user.JwtEncodedString, user.BPNumber.ToString());
+            contactInfoResponse.Result.ShouldNotBeNull();
+            var emails = contactInfoResponse.Result.AccountAddressIndependentEmails.Results.ToList();
+
+            // Act
             var response = McfClient.CreateBusinessPartnerEmail(user.JwtEncodedString, request);
+
+            // Assert
             response.Result.ShouldNotBeNull();
-            response.Result.Metadata.Id.ShouldBe("https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/AccountAddressIndependentEmails(AccountID=\'1002647070\',SequenceNo=\'015\')");
+            response.Result.Metadata.Id.ShouldBe("https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/AccountAddressIndependentEmails(" +
+                                                 $"AccountID=\'{user.BPNumber}\',SequenceNo=\'{emails.Count:D3}\')");
+        }
+
+        #endregion
+
+        #region CreateBusinessPartnerPhone Tests
+
+        [TestMethod]
+        [Ignore("The phone here is created for each call, so run it manually to avoid large numbers on test server.")]
+        public async Task CreateBusinessPartnerMobilePhone_ValidUser_ContactInfoRetrieved()
+        {
+            // Arrange
+            var user = TestHelper.PaDev1;
+            var loginResponse = await AuthClient.GetJwtToken(user.Username, "Start@123");
+            user.JwtEncodedString = loginResponse.Data.JwtAccessToken;
+            user.JwtEncodedString.ShouldNotBeNullOrWhiteSpace();
+            var phone = user.Phones.First(p => p.Type == PhoneType.Cell);
+            var request = new CreateAddressIndependantPhoneRequest
+            {
+                BusinessPartnerId = user.BPNumber,
+                PhoneNumber = phone.Number,
+                Extension = phone.Extension ?? "",
+                IsHome = true,
+                IsStandard = true,
+                PhoneType = AddressIndependantContactInfoEnum.AccountAddressIndependentMobilePhones
+            };
+
+            if (request.BusinessPartnerId == user.BPNumber)
+            {
+                Assert.Fail("Bypass by debugging in order to avoid posting excess rows on server");
+            }
+
+            var contactInfoResponse = McfClient.GetBusinessPartnerContactInfo(user.JwtEncodedString, user.BPNumber.ToString());
+            contactInfoResponse.Result.ShouldNotBeNull();
+            var phones = contactInfoResponse.Result.AccountAddressIndependentPhones.Results.ToList();
+
+            // Act
+            var response = McfClient.CreateBusinessPartnerMobilePhone(user.JwtEncodedString, request);
+
+            // Assert
+            response.Result.ShouldNotBeNull();
+            response.Result.Metadata.Id.ShouldBe("https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/AccountAddressIndependentPhones(" +
+                                                 $"AccountID=\'{user.BPNumber}\',SequenceNo=\'{phones.Count:D3}\')");
         }
 
         #endregion
@@ -233,6 +290,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
              response.Result.Results.ToList().Count.ShouldBeGreaterThanOrEqualTo(1);
 
             var firstAddressResponse = response.Result.Results.FirstOrDefault();
+            firstAddressResponse.ShouldNotBeNull();
             firstAddressResponse.AccountID.ShouldBe(1200662307);
             firstAddressResponse.AddressID.ShouldBe(33343907);
 

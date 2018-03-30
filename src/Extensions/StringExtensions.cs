@@ -28,7 +28,7 @@ namespace PSE.Customer.Extensions
         }
 
         /// <summary>
-        /// Helpler method to convert object to JSON (e.g. for logging objects)
+        /// Helper method to convert object to JSON (e.g. for logging objects)
         /// </summary>
         /// <param name="serializableObject">The serializable object.</param>
         /// <param name="formatting">The formatting style (defaults to indented)</param>

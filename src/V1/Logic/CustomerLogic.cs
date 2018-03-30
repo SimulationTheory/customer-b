@@ -22,6 +22,9 @@ using System.Linq;
 using PSE.Customer.Extensions;
 using PSE.Customer.V1.Clients.Mcf.Enums;
 using PSE.Customer.V1.Clients.Mcf.Request;
+using PSE.Customer.V1.Clients.Mcf.Response;
+using PSE.RestUtility.Core.Mcf;
+using RestSharp.Extensions;
 
 namespace PSE.Customer.V1.Logic
 {
@@ -186,7 +189,7 @@ namespace PSE.Customer.V1.Logic
         /// <returns>Status code of async respository call</returns>
         public async Task PutEmailAddressAsync(string jwt, string emailAddress, long bpId)
         {
-            _logger.LogInformation($"PutEmailAddressAsync({nameof(jwt)}: {jwt})" +
+            _logger.LogInformation($"PutEmailAddressAsync(jwt, " +
                                    $"{nameof(emailAddress)}: {emailAddress}," +
                                    $"{nameof(bpId)}: {bpId})");
 
@@ -215,20 +218,44 @@ namespace PSE.Customer.V1.Logic
             _logger.LogInformation($"PutEmailAddressAsync({nameof(phone)}: {phone.ToJson()}," +
                                    $"{nameof(bpId)}: {bpId})");
 
-            // Call MCF to update SAP first.  If no exception is thrown, then update Cassandra.
-            _mcfClient.CreateBusinessPartnerMobilePhone(jwt, new CreateAddressIndependantPhoneRequest
+            // Prepare MCF request
+            var mcfRequest = new CreateAddressIndependantPhoneRequest
             {
-                BusinessPartnerId = bpId,//.ToString(),
+                BusinessPartnerId = bpId,
                 PhoneNumber = phone.Number,
-                IsStandard = true,//StandardFlag = true
-                Extension = phone.Extension,
-                PhoneType = AddressIndependantContactInfoEnum.AccountAddressIndependentMobilePhones
-            });
+                Extension = phone.Extension ?? "",
+                IsHome = true,
+                IsStandard = true
+            };
 
-            // This returns an empty set and the IsFullyFetched property is true.
-            // There is apparently no way to determine if any rows were updated or not,
-            // so unless an exception occurs, NoContent will always be returned.
-            await _customerRepository.UpdateCustomerPhoneNumber(phone, bpId);
+            // Call MCF to update SAP first.  If no error, then update Cassandra.
+            McfResponse<GetPhoneResponse> response = null;
+            switch (phone.Type)
+            {
+                case PhoneType.Cell:
+                    mcfRequest.PhoneType = AddressIndependantContactInfoEnum.AccountAddressIndependentMobilePhones;
+                    response = _mcfClient.CreateBusinessPartnerMobilePhone(jwt, mcfRequest);
+                    break;
+                case PhoneType.Home:
+                case PhoneType.Work:
+                    mcfRequest.PhoneType = AddressIndependantContactInfoEnum.AccountAddressIndependentPhones;
+                    response = _mcfClient.CreateBusinessPartnerMobilePhone(jwt, mcfRequest);
+                    break;
+            }
+
+            if (response?.Error != null)
+            {
+                _logger.LogError($"Failure saving phone number to SAP: {response.Error.ToJson()}");
+            }
+            else
+            {
+                _logger.LogInformation($"Success saving phone number to SAP: {response?.Result.ToJson()}");
+
+                // This returns an empty set and the IsFullyFetched property is true.
+                // There is apparently no way to determine if any rows were updated or not,
+                // so unless an exception occurs, NoContent will always be returned.
+                await _customerRepository.UpdateCustomerPhoneNumber(phone, bpId);
+            }
         }
 
         /// <summary>
@@ -248,7 +275,7 @@ namespace PSE.Customer.V1.Logic
             if (resp.StatusCode != HttpStatusCode.OK)
             {
                 var message = resp.Content;
-                _logger.LogError($"Unable to  sign up for user name {webprofile?.CustomerCredentials?.UserName} and Bp {webprofile.BPId} with error message from Auth sign up service {message}");
+                _logger.LogError($"Unable to  sign up for user name {webprofile?.CustomerCredentials?.UserName} and Bp {webprofile?.BPId} with error message from Auth sign up service {message}");
                 throw new Exception(message);
             }
             //save security questions

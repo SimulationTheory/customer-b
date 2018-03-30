@@ -91,8 +91,7 @@ namespace PSE.Customer.V1.Clients.Mcf
 
             try
             {
-                _logger.LogInformation($"CreateBusinessPartnerEmail({nameof(jwt)}: {jwt}," +
-                                       $"{nameof(request)}: {request.ToJson()})");
+                _logger.LogInformation($"CreateBusinessPartnerEmail(jwt, {nameof(request)}: {request.ToJson(Formatting.None)})");
                 var config = _coreOptions.Configuration;
                 var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
                 var cookies = restUtility.GetMcfCookies(jwt).Result;
@@ -136,18 +135,21 @@ namespace PSE.Customer.V1.Clients.Mcf
 
             try
             {
+                var requestBody = request.ToJson(Formatting.None);
+                _logger.LogInformation($"CreateBusinessPartnerMobilePhone(jwt, {nameof(request)}: {requestBody})");
                 var config = _coreOptions.Configuration;
                 var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
                 var cookies = restUtility.GetMcfCookies(jwt).Result;
 
-                var restRequest = new RestRequest("sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/AccountAddressIndependentPhones",
-                    Method.POST);
+                const string url = "sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/AccountAddressIndependentPhones";
+                var restRequest = new RestRequest(url, Method.POST);
                 restRequest.AddCookies(cookies);
                 restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
                 restRequest.AddHeader("ContentType", "application/json");
                 restRequest.AddHeader("Accept", "application/json");
-                restRequest.AddParameter("application/json", JsonConvert.SerializeObject(request), ParameterType.RequestBody);
+                restRequest.AddParameter("application/json", requestBody, ParameterType.RequestBody);
 
+                _logger.LogInformation("Making MCF call");
                 var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
                 var restResponse = client.Execute(restRequest);
 
@@ -276,7 +278,7 @@ namespace PSE.Customer.V1.Clients.Mcf
             catch (Exception e)
             {
                 _logger.LogError(e, e.Message);
-                throw e;
+                throw;
             }
 
             return response;
@@ -313,7 +315,7 @@ namespace PSE.Customer.V1.Clients.Mcf
             catch (Exception e)
             {
                 _logger.LogError(e, e.Message);
-                throw e;
+                throw;
             }
 
             return response;
