@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Amazon.Runtime.Internal.Util;
 using Cassandra;
 using Microsoft.Extensions.Logging;
 using PSE.Cassandra.Core.Linq;
@@ -57,7 +56,7 @@ namespace PSE.Customer.V1.Repositories
         ///  Get a given customer based on the bpId
         /// </summary>
         /// <param name="bpId"></param>
-        /// <returns>Task<CustomerEntity></returns>
+        /// <returns>Task returning CustomerEntity</returns>
         public async Task<CustomerEntity> GetCustomerAsync(long bpId)
         {
             var customerDetails = _customer.Table;
@@ -71,7 +70,7 @@ namespace PSE.Customer.V1.Repositories
         /// Get a given customer contact based on the bpId
         /// </summary>
         /// <param name="bpId"></param>
-        /// <returns>Task<CustomerContactEntity></returns>
+        /// <returns>Task returning CustomerEntity</returns>
         public async Task<CustomerContactEntity> GetCustomerContactAsync(long bpId)
         {
             var customerContactDetails = _customerContact.Table;
@@ -85,7 +84,7 @@ namespace PSE.Customer.V1.Repositories
         /// Gets the customer by business partner identifier.
         /// </summary>
         /// <param name="businessPartnerId">The business partner identifier.</param>
-        /// <returns></returns>
+        /// <returns>Task returning CustomerEntity</returns>
         public async Task<CustomerEntity> GetCustomerByBusinessPartnerId(long businessPartnerId)
         {
             var customerTable = _customer.Table;

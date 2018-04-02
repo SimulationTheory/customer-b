@@ -218,34 +218,54 @@ namespace PSE.Customer.V1.Logic
             _logger.LogInformation($"PutEmailAddressAsync({nameof(phone)}: {phone.ToJson()}," +
                                    $"{nameof(bpId)}: {bpId})");
 
-            // Prepare MCF request
-            var mcfRequest = new CreateAddressIndependantPhoneRequest
-            {
-                BusinessPartnerId = bpId,
-                PhoneNumber = phone.Number,
-                Extension = phone.Extension ?? "",
-                IsHome = true,
-                IsStandard = true
-            };
-
             // Call MCF to update SAP first.  If no error, then update Cassandra.
             McfResponse<GetPhoneResponse> response = null;
-            switch (phone.Type)
+            McfResponse<GetAccountAddressesResponse> addressResponse = null;
+            if (phone.Type == PhoneType.Cell)
             {
-                case PhoneType.Cell:
-                    mcfRequest.PhoneType = AddressIndependantContactInfoEnum.AccountAddressIndependentMobilePhones;
-                    response = _mcfClient.CreateBusinessPartnerMobilePhone(jwt, mcfRequest);
-                    break;
-                case PhoneType.Home:
-                case PhoneType.Work:
-                    mcfRequest.PhoneType = AddressIndependantContactInfoEnum.AccountAddressIndependentPhones;
-                    response = _mcfClient.CreateBusinessPartnerMobilePhone(jwt, mcfRequest);
-                    break;
+                // Prepare MCF request
+                var mcfRequest = new CreateAddressIndependantPhoneRequest
+                {
+                    BusinessPartnerId = bpId,
+                    PhoneNumber = phone.Number,
+                    Extension = phone.Extension ?? "",
+                    IsHome = true,
+                    IsStandard = true,
+                    PhoneType = AddressIndependantContactInfoEnum.AccountAddressIndependentMobilePhones
+                };
+
+                // Save phone via MCF
+                response = _mcfClient.CreateBusinessPartnerMobilePhone(jwt, mcfRequest);
+            }
+            else
+            {
+                addressResponse = _mcfClient.GetStandardMailingAddress(jwt, bpId);
+                if (addressResponse.Error == null)
+                {
+                    // Prepare MCF request
+                    var mcfDepRequest = new CreateAddressDependantPhoneRequest
+                    {
+                        BusinessPartnerId = bpId,
+                        AddressId = addressResponse.Result.AddressID.ToString(),
+                        PhoneNumber = phone.Number,
+                        Extension = phone.Extension ?? "",
+                        IsHome = true,
+                        IsStandard = true,
+                        PhoneType = "1"
+                    };
+
+                    // Save phone via MCF
+                    response = _mcfClient.CreateAddressDependantPhone(jwt, mcfDepRequest);
+                }
             }
 
             if (response?.Error != null)
             {
                 _logger.LogError($"Failure saving phone number to SAP: {response.Error.ToJson()}");
+            }
+            else if (addressResponse?.Error != null)
+            {
+                _logger.LogError($"Failure getting standard mail address: {addressResponse.Error.ToJson()}");
             }
             else
             {

@@ -47,6 +47,19 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
             CreateAddressIndependantPhoneRequest request);
 
         /// <summary>
+        /// POSTs the work or home phone for the business partner
+        /// </summary>
+        /// <param name="jwt">Java Web Token for authentication</param>
+        /// <param name="request">Phone data to save</param>
+        /// <returns>Results of POST request</returns>
+        /// <remarks>
+        /// OData URI:
+        /// POST ZERP_UTILITIES_UMC_PSE_SRV/AccountAddressIndependentMobilePhones
+        /// </remarks>
+        McfResponse<GetPhoneResponse> CreateAddressDependantPhone(string jwt,
+            CreateAddressDependantPhoneRequest request);
+
+        /// <summary>
         /// GETs the contact information that is associated with a location.
         /// </summary>
         /// <param name="jwt">Java Web Token for authentication</param>
@@ -90,6 +103,18 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// <param name="contractAccountId">The contract account identifier.</param>
         /// <returns></returns>
         McfResponse<PaymentArrangementResponse> GetPaymentArrangement(string jwt, long contractAccountId);
+
+        /// <summary>
+        ///  Gets the standard mailing addresses for business partner
+        /// </summary>
+        /// <param name="jwt">Java Web Token for authentication</param>
+        /// <param name="bpId">Business partner ID</param>
+        /// <returns>Large set of information including mobile phone number and email</returns>
+        /// <remarks>
+        /// OData URI:
+        /// ZERP_UTILITIES_UMC_PSE_SRV/Accounts('BP#')/StandardAccountAddress?$format=json
+        /// </remarks>
+        McfResponse<GetAccountAddressesResponse> GetStandardMailingAddress(string jwt, long bpId);
 
         /// <summary>
         /// Gets the Mailing Addresses For A Given BP

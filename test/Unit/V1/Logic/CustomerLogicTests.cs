@@ -491,7 +491,7 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
         }
 
         [TestMethod]
-        public void PutPhoneNumbersAsync_ThrowsException_ExceptionRelayedToCaller()
+        public async Task PutPhoneNumbersAsync_FailureUpdatingBusinessPartnerMobilePhone_CassandraNotUpdated()
         {
             // Arrange
             var user = TestHelper.PaDev1;
@@ -499,13 +499,92 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
             mockCustomerRepository.Setup(x => x.UpdateCustomerPhoneNumber(It.IsAny<Phone>(), It.IsAny<long>()))
                 .Returns(Task.FromResult(new RowSet()));
             mockMcfClient.Setup(x => x.CreateBusinessPartnerMobilePhone(It.IsAny<string>(), It.IsAny<CreateAddressIndependantPhoneRequest>()))
-                .Throws(new ApplicationException());
+                .Returns(new McfResponse<GetPhoneResponse>
+                {
+                    Error = new McfErrorResult
+                    {
+                        Code = "asdf",
+                        Message = new McfErrorMessage
+                        {
+                            Language = "en-us",
+                            Value = "Some Error"
+                        }
+                    }
+                });
 
             // Act
-            Func<Task> action = async () => { await logic.PutPhoneNumberAsync(user.JwtToken, user.Phones[0], user.BpNumber); };
+            await logic.PutPhoneNumberAsync(user.JwtToken, user.Phones[0], user.BpNumber);
 
             // Assert
-            action.ShouldThrow<ApplicationException>();
+            mockCustomerRepository.Verify(m => m.UpdateCustomerPhoneNumber(It.IsAny<Phone>(), It.IsAny<long>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task PutPhoneNumbersAsync_FailureGettingStandardAddress_CassandraNotUpdated()
+        {
+            // Arrange
+            var user = TestHelper.PaDev1;
+            var logic = CreateCustomerLogic();
+            mockCustomerRepository.Setup(x => x.UpdateCustomerPhoneNumber(It.IsAny<Phone>(), It.IsAny<long>()))
+                .Returns(Task.FromResult(new RowSet()));
+            mockMcfClient.Setup(x => x.GetStandardMailingAddress(It.IsAny<string>(), It.IsAny<long>()))
+                .Returns(new McfResponse<GetAccountAddressesResponse>
+                {
+                    Error = new McfErrorResult
+                    {
+                        Code = "asdf",
+                        Message = new McfErrorMessage
+                        {
+                            Language = "en-us",
+                            Value = "Some Error"
+                        }
+                    }
+                });
+
+            // Act
+            await logic.PutPhoneNumberAsync(user.JwtToken, user.Phones[1], user.BpNumber);
+
+            // Assert
+            mockCustomerRepository.Verify(m => m.UpdateCustomerPhoneNumber(It.IsAny<Phone>(), It.IsAny<long>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task PutPhoneNumbersAsync_FailureUpdatingLocationSpecificPhone_CassandraNotUpdated()
+        {
+            // Arrange
+            var user = TestHelper.PaDev1;
+            var logic = CreateCustomerLogic();
+            mockCustomerRepository.Setup(x => x.UpdateCustomerPhoneNumber(It.IsAny<Phone>(), It.IsAny<long>()))
+                .Returns(Task.FromResult(new RowSet()));
+            mockMcfClient.Setup(x => x.GetStandardMailingAddress(It.IsAny<string>(), It.IsAny<long>()))
+                .Returns(new McfResponse<GetAccountAddressesResponse>
+                {
+                    Error = null,
+                    Result = new GetAccountAddressesResponse
+                    {
+                        AccountID = user.BpNumber,
+                        AddressID = 123456
+                    }
+                });
+            mockMcfClient.Setup(x => x.CreateAddressDependantPhone(It.IsAny<string>(), It.IsAny<CreateAddressDependantPhoneRequest>()))
+                .Returns(new McfResponse<GetPhoneResponse>
+                {
+                    Error = new McfErrorResult
+                    {
+                        Code = "asdf",
+                        Message = new McfErrorMessage
+                        {
+                            Language = "en-us",
+                            Value = "Some Error"
+                        }
+                    }
+                });
+
+            // Act
+            await logic.PutPhoneNumberAsync(user.JwtToken, user.Phones[1], user.BpNumber);
+
+            // Assert
+            mockCustomerRepository.Verify(m => m.UpdateCustomerPhoneNumber(It.IsAny<Phone>(), It.IsAny<long>()), Times.Never);
         }
 
         #endregion
