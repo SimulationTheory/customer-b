@@ -72,17 +72,27 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         McfResponse<ContractAccountContactInfoResponse> GetContractAccountContactInfo(string jwt, string bpId);
 
         /// <summary>
-        /// PUTs the address.
+        /// Updates the standard address.
         /// </summary>
         /// <param name="jwt">Java Web Token for authentication</param>
-        /// <param name="bpId">Business partner ID</param>
+        /// <param name="request"></param>
+        /// <remarks>
+        /// Calls
+        /// UpdateAddress Method With StandFlag Set To "X"
+        /// </remarks>
+        void UpdateStandardAddress(string jwt, UpdateAddressRequest request);
+
+        /// <summary>
+        /// Updates the fixed address.
+        /// </summary>
+        /// <param name="jwt">Java Web Token for authentication</param>
         /// <param name="request"></param>
         /// <returns></returns>
         /// <remarks>
-        /// OData URI:
-        /// PUT ZCRM_UTILITIES_UMC_PSE_SRV/AccountAddresses(AccountID='BP#',AddressID='AD#')
+        /// Calls
+        /// UpdateAddress Method With StandFlag Set To Empty 
         /// </remarks>
-        void UpdateAddress(string jwt, UpdateAddressRequest request);
+        void UpdateFixedAddress(string jwt, UpdateAddressRequest request);
 
         /// <summary>
         /// POSTs the mobile phone for the business partner

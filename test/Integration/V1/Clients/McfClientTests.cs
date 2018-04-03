@@ -447,7 +447,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         #region UpdateAddress Tests
 
         [TestMethod]
-        public async Task UpdateAddress_ValidUser()
+        public async Task UpdateStandardAddress_ValidUser()
         {
             //Arrange
             var user = TestHelper.ActivePaUser;
@@ -478,7 +478,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             };
 
             // Act
-            McfClient.UpdateAddress(user.JwtEncodedString, request);
+            McfClient.UpdateStandardAddress(user.JwtEncodedString, request);
 
             var requestAddress = request.AddressInfo;
             var newAddressResponse = McfClient.GetStandardMailingAddress(user.JwtEncodedString, user.BPNumber).Result.AddressInfo;
@@ -513,7 +513,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
                 }
             };
 
-            McfClient.UpdateAddress(user.JwtEncodedString, restoreRequest);
+            McfClient.UpdateStandardAddress(user.JwtEncodedString, restoreRequest);
         }
 
         #endregion

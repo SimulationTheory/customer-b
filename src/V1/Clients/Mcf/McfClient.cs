@@ -226,49 +226,35 @@ namespace PSE.Customer.V1.Clients.Mcf
         }
 
         /// <summary>
-        /// PUTs the address.
+        /// Updates the standard address.
         /// </summary>
         /// <param name="jwt">Java Web Token for authentication</param>
         /// <param name="request"></param>
-        /// <returns></returns>
         /// <remarks>
-        /// OData URI:
-        /// PUT /sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/AccountAddresses(AccountID='BP#',AddressID='AD#')
+        /// Calls
+        /// UpdateAddress Method With StandFlag Set To "X"
         /// </remarks>
-        public void UpdateAddress(string jwt, UpdateAddressRequest request)
+        public void UpdateStandardAddress(string jwt, UpdateAddressRequest request)
         {
+            request.AddressInfo.StandardFlag = "X";
 
-            try
-            {
-                var requestBody = request.ToJson(Formatting.None);
-                _logger.LogInformation($"UpdateAddress(jwt, {nameof(request)}: {requestBody})");
+            UpdateAddress(jwt, request);
+        }
 
-                var bpId = request.AccountID;
+        /// <summary>
+        /// Updates the fixed address.
+        /// </summary>
+        /// <param name="jwt">Java Web Token for authentication</param>
+        /// <param name="request"></param>
+        /// <remarks>
+        /// Calls
+        /// UpdateAddress Method With StandFlag Set To Empty
+        /// </remarks>
+        public void UpdateFixedAddress(string jwt, UpdateAddressRequest request)
+        {
+            request.AddressInfo.StandardFlag = string.Empty;
 
-                var addressResponse = GetStandardMailingAddress(jwt, bpId);
-                var addressId = addressResponse.Result.AddressID;
-
-                var config = _coreOptions.Configuration;
-                var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
-                var cookies = restUtility.GetMcfCookies(jwt).Result;
-
-                var restRequest = new RestRequest($"/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/AccountAddresses(AccountID='{bpId}',AddressID='{addressId}')", Method.PUT);
-                restRequest.AddCookies(cookies);
-                restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
-                restRequest.AddHeader("ContentType", "application/json");
-                restRequest.AddHeader("Accept", "application/json");
-                restRequest.AddParameter("application/json", requestBody, ParameterType.RequestBody);
-
-                _logger.LogInformation("Making MCF call");
-
-                var client = restUtility.GetRestClient(config.McfEndpoint);
-                var restResponse = client.Execute(restRequest);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, $"{e.Message} for {nameof(request)}: {request.ToJson(Formatting.None)}");
-                throw;
-            }
+            UpdateAddress (jwt,request);
         }
 
         /// <summary>
@@ -434,5 +420,52 @@ namespace PSE.Customer.V1.Clients.Mcf
 
             return response;
         }
+
+        #region private methods
+
+        /// <summary>
+        /// PUTs the address.
+        /// </summary>
+        /// <param name="jwt">Java Web Token for authentication</param>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// OData URI:
+        /// PUT /sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/AccountAddresses(AccountID='BP#',AddressID='AD#')
+        /// </remarks>
+        private void UpdateAddress(string jwt, UpdateAddressRequest request)
+        {
+
+            try
+            {
+                var requestBody = request.ToJson(Formatting.None);
+                _logger.LogInformation($"UpdateAddress(jwt, {nameof(request)}: {requestBody})");
+
+                var bpId = request.AccountID;
+                var addressId = request.AddressID;
+
+                var config = _coreOptions.Configuration;
+                var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
+                var cookies = restUtility.GetMcfCookies(jwt).Result;
+
+                var restRequest = new RestRequest($"/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/AccountAddresses(AccountID='{bpId}',AddressID='{addressId}')", Method.PUT);
+                restRequest.AddCookies(cookies);
+                restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
+                restRequest.AddHeader("ContentType", "application/json");
+                restRequest.AddHeader("Accept", "application/json");
+                restRequest.AddParameter("application/json", requestBody, ParameterType.RequestBody);
+
+                _logger.LogInformation("Making MCF call");
+
+                var client = restUtility.GetRestClient(config.McfEndpoint);
+                var restResponse = client.Execute(restRequest);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"{e.Message} for {nameof(request)}: {request.ToJson(Formatting.None)}");
+                throw e;
+            }
+        }
+        #endregion
     }
 }
