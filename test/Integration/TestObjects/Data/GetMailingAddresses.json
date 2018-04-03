@@ -29,7 +29,8 @@
           "TimeZone": "PST",
           "TaxJurisdictionCode": "WA11700250",
           "LanguageID": "E",
-          "ShortForm": "10502 SE 166th St / Renton WA 98055-5107"
+          "ShortForm": "10502 SE 166th St / Renton WA 98055-5107",
+          "HouseNo2": "Apt H3"
         },
         "AccountID": "1200662307",
         "AddressID": "33343907",
@@ -87,7 +88,8 @@
           "TimeZone": "PST",
           "TaxJurisdictionCode": "WA11700250",
           "LanguageID": "E",
-          "ShortForm": "10502 SE 166TH ST / Renton WA 98055"
+          "ShortForm": "10502 SE 166TH ST / Renton WA 98055",
+          "HouseNo2": "Apt B4"
         },
         "AccountID": "1200662307",
         "AddressID": "33343940",

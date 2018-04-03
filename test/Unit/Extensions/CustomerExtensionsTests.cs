@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PSE.Customer.Extensions;
 using PSE.Customer.Tests.Integration.TestObjects;
-using PSE.Customer.V1.Clients.Mcf.Response;
+using PSE.Customer.V1.Clients.Mcf.Models;
 using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Repositories.Entities;
@@ -225,10 +225,11 @@ namespace PSE.Customer.Tests.Unit.Extensions
             var addressInfo = new McfAddressinfo
                         {
                            Street = "SE 166TH ST",
+                           HouseNo = "10502",
                            City = "Renton",
                            PostalCode = "98055",
                            Region = "WA",
-                           CountryName = "USA",
+                           CountryID = "US",
                            HouseNo2 = "Apt H3"
                           };
 
@@ -236,12 +237,12 @@ namespace PSE.Customer.Tests.Unit.Extensions
 
             model.ShouldNotBeNull();
             model.ShouldBeOfType<AddressDefinedType>();
-            model.AddressLine1.ShouldBe(addressInfo.Street);
+            model.AddressLine1.ShouldBe($"{addressInfo.HouseNo?.Trim()} {addressInfo.Street.Trim()}");
             model.AddressLine2.ShouldBe(addressInfo.HouseNo2);
             model.City.ShouldBe(addressInfo.City);
             model.PostalCode.ShouldBe(addressInfo.PostalCode);
             model.State.ShouldBe(addressInfo.Region);
-            model.Country.ShouldBe(addressInfo.CountryName);
+            model.Country.ShouldBe(addressInfo.CountryID);
         }
         #endregion
     }

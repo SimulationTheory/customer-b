@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using PSE.Customer.V1.Clients.Mcf.Response;
+using PSE.Customer.V1.Clients.Mcf.Models;
 using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Repositories.Entities;
@@ -79,14 +79,13 @@ namespace PSE.Customer.Extensions
 
             var model = new AddressDefinedType
             {
-                AddressLine1 = source.Street,
-                AddressLine2 =  source.HouseNo2,
-                City = source.City,
-                PostalCode = !string.IsNullOrEmpty(source.POBox) ? source.POBox
-                                                 : !string.IsNullOrEmpty(source.POBoxPostalCode) ? source.POBoxPostalCode
-                                                 : source.PostalCode,
-                State = source.Region,
-                Country = source.CountryName
+                AddressLine1 = string.IsNullOrEmpty(source.POBox) ? $"{source.HouseNo?.Trim()} {source.Street.Trim()}" :  source.POBox,
+                AddressLine2 =  source?.HouseNo2?.Trim(), 
+                City = source.City.Trim(),
+                PostalCode = !string.IsNullOrEmpty(source.POBoxPostalCode) ? source.POBoxPostalCode.Trim()
+                                                 : source.PostalCode.Trim(),
+                State = source.Region.Trim(),
+                Country = source.CountryID.Trim()
             };
 
             return model;

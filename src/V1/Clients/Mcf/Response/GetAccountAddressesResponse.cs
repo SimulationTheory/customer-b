@@ -1,4 +1,6 @@
-﻿using PSE.RestUtility.Core.Interfaces;
+﻿using PSE.Customer.V1.Clients.Mcf.Interfaces;
+using PSE.Customer.V1.Clients.Mcf.Models;
+using PSE.RestUtility.Core.Interfaces;
 using PSE.RestUtility.Core.Mcf;
 
 namespace PSE.Customer.V1.Clients.Mcf.Response
@@ -6,15 +8,8 @@ namespace PSE.Customer.V1.Clients.Mcf.Response
     /// <summary>
     /// Response Object For Get All Addresses For A Bp From MCF
     /// </summary>
-    public class GetAccountAddressesResponse : IMcfResult
+    public class GetAccountAddressesResponse : McfBaseAddress, IMcfResult
     {
-        /// <summary>
-        /// Gets or sets the account identifier.
-        /// </summary>
-        /// <value>
-        /// The account identifier.
-        /// </value>
-        public long AccountID { get; set; }
         /// <summary>
         /// Gets or sets the address identifier.
         /// </summary>
@@ -22,13 +17,6 @@ namespace PSE.Customer.V1.Clients.Mcf.Response
         /// The address identifier.
         /// </value>
         public long AddressID { get; set; }
-        /// <summary>
-        /// Gets or sets the address information.
-        /// </summary>
-        /// <value>
-        /// The address information.
-        /// </value>
-        public McfAddressinfo AddressInfo { get; set; }
         /// <summary>
         /// Gets or sets the metadata.
         /// </summary>

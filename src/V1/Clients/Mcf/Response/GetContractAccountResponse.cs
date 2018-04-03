@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using PSE.Customer.V1.Clients.Mcf.Interfaces;
 using PSE.RestUtility.Core.Interfaces;
 using PSE.RestUtility.Core.Mcf;
 
@@ -8,17 +9,8 @@ namespace PSE.Customer.V1.Clients.Mcf.Response
     /// Response Object For Get Contract Account Details From MCF
     /// </summary>
     /// <seealso cref="PSE.RestUtility.Core.Interfaces.IMcfResult" />
-    public class GetContractAccountResponse : IMcfResult
+    public class GetContractAccountResponse : McfBaseAddress, IMcfResult 
     {
-        /// <summary>
-        /// Gets or sets the account (Business Partner) identifier.
-        /// </summary>
-        /// <value>
-        /// The account (Business Partner) identifier.
-        /// </value>
-        [JsonProperty("AccountID")]
-        public long AccountID { get; set; }
-
         /// <summary>
         /// Gets or sets the address identifier.
         /// </summary>

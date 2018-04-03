@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace PSE.Customer.V1.Clients.Mcf.Response
+namespace PSE.Customer.V1.Clients.Mcf.Models
 {
     /// <summary>
     /// Object Model For Mailing Addresses From Mcf Get Call
@@ -72,18 +72,10 @@ namespace PSE.Customer.V1.Clients.Mcf.Response
         [JsonProperty("HouseNo")]
         public string HouseNo { get; set; }
         /// <summary>
-        /// Gets or sets the room no.
-        /// </summary>
-        /// <value>
-        /// The room no.
-        /// </value>
-        [JsonProperty("RoomNo")]
-        public string RoomNo { get; set; }
-        /// <summary>
         /// Gets or sets the country identifier.
         /// </summary>
         /// <value>
-        /// The country identifier.
+        /// The country identifier (eg: US).
         /// </value>
         [JsonProperty("CountryID")]
         public string CountryID { get; set; }
@@ -91,7 +83,7 @@ namespace PSE.Customer.V1.Clients.Mcf.Response
         /// Gets or sets the name of the country.
         /// </summary>
         /// <value>
-        /// The name of the country.
+        /// The name of the country  (eg: USA).
         /// </value>
         [JsonProperty("CountryName")]
         public string CountryName { get; set; }
@@ -103,46 +95,6 @@ namespace PSE.Customer.V1.Clients.Mcf.Response
         /// </value>
         [JsonProperty("Region")]
         public string Region { get; set; }
-        /// <summary>
-        /// Gets or sets the name of the region.
-        /// </summary>
-        /// <value>
-        /// The name of the region.
-        /// </value>
-        [JsonProperty("RegionName")]
-        public string RegionName { get; set; }
-        /// <summary>
-        /// Gets or sets the time zone.
-        /// </summary>
-        /// <value>
-        /// The time zone.
-        /// </value>
-        [JsonProperty("TimeZone")]
-        public string TimeZone { get; set; }
-        /// <summary>
-        /// Gets or sets the tax jurisdiction code.
-        /// </summary>
-        /// <value>
-        /// The tax jurisdiction code.
-        /// </value>
-        [JsonProperty("TaxJurisdictionCode")]
-        public string TaxJurisdictionCode { get; set; }
-        /// <summary>
-        /// Gets or sets the language identifier.
-        /// </summary>
-        /// <value>
-        /// The language identifier.
-        /// </value>
-        [JsonProperty("LanguageID")]
-        public string LanguageID { get; set; }
-        /// <summary>
-        /// Gets or sets the short form.
-        /// </summary>
-        /// <value>
-        /// The short form.
-        /// </value>
-        [JsonProperty("ShortForm")]
-        public string ShortForm { get; set; }
         /// <summary>
         /// Gets or sets the house no2.
         /// </summary>

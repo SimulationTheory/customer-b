@@ -76,13 +76,13 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// </summary>
         /// <param name="jwt">Java Web Token for authentication</param>
         /// <param name="bpId">Business partner ID</param>
-        /// <param name="addressId">The address identifier.</param>
+        /// <param name="request"></param>
         /// <returns></returns>
         /// <remarks>
         /// OData URI:
         /// PUT ZCRM_UTILITIES_UMC_PSE_SRV/AccountAddresses(AccountID='BP#',AddressID='AD#')
         /// </remarks>
-        McfResponse<AddressResponse> UpdateAddress(string jwt, string bpId, string addressId);
+        void UpdateAddress(string jwt, UpdateAddressRequest request);
 
         /// <summary>
         /// POSTs the mobile phone for the business partner

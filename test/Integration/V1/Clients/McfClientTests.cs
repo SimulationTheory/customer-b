@@ -15,6 +15,7 @@ using PSE.Customer.V1.Clients.Extensions;
 using PSE.Customer.V1.Clients.Mcf;
 using PSE.Customer.V1.Clients.Mcf.Enums;
 using PSE.Customer.V1.Clients.Mcf.Interfaces;
+using PSE.Customer.V1.Clients.Mcf.Models;
 using PSE.Customer.V1.Clients.Mcf.Request;
 using PSE.Customer.V1.Clients.Mcf.Response;
 using PSE.Customer.V1.Repositories.DefinedTypes;
@@ -218,6 +219,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         #region CreateBusinessPartnerMobilePhone Tests
 
         [TestMethod]
+        [Ignore("The phone here is created for each call, so run it manually to avoid large numbers on test server.")]
         public async Task CreateBusinessPartnerAddressPhone_ValidUser_ContactInfoRetrieved()
         {
             // Arrange
@@ -369,10 +371,10 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             firstAddress.POBox.ShouldBe("");
             firstAddress.Street.ShouldBe("SE 166th St");
             firstAddress.HouseNo.ShouldBe("10502");
-            firstAddress.RoomNo.ShouldBe("");
             firstAddress.CountryID.ShouldBe("US");
             firstAddress.CountryName.ShouldBe("USA");
             firstAddress.Region.ShouldBe("WA");
+            firstAddress.HouseNo2.ShouldBe("Apt H3");
 
             var secondAddressResponse = response.Result.Results.ElementAt(1);
             secondAddressResponse.AccountID.ShouldBe(1200662307);
@@ -386,7 +388,6 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             secondAddress.POBox.ShouldBe("");
             secondAddress.Street.ShouldBe("SE 166TH ST");
             secondAddress.HouseNo.ShouldBe("10502");
-            secondAddress.RoomNo.ShouldBe("");
             secondAddress.CountryID.ShouldBe("US");
             secondAddress.CountryName.ShouldBe("USA");
             secondAddress.Region.ShouldBe("WA");
@@ -439,6 +440,80 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
 
             var response = McfClient.GetContractAccounMailingAddress(user.JwtEncodedString, user.ContractAccountId);
             response.ShouldNotBeNull();
+        }
+
+        #endregion
+
+        #region UpdateAddress Tests
+
+        [TestMethod]
+        public async Task UpdateAddress_ValidUser()
+        {
+            //Arrange
+            var user = TestHelper.ActivePaUser;
+            var loginResponse = await AuthClient.GetJwtToken(user.Username, "Start@123");
+            user.SetJwtEncodedString(loginResponse.Data.JwtAccessToken);
+
+            var addressResponse = McfClient.GetStandardMailingAddress(user.JwtEncodedString, user.BPNumber).Result;
+
+            var request = new UpdateAddressRequest
+            {
+                AccountID = user.BPNumber,
+                AddressID = addressResponse.AddressID,
+                AddressInfo = new McfAddressinfo
+                {
+                    StandardFlag = "X",
+                    City = "Bellevue",
+                    District = "",
+                    PostalCode = "98004",
+                    POBoxPostalCode = "",
+                    POBox = "",
+                    Street = "110th Ave NE",
+                    HouseNo = "355",
+                    CountryID = "US",
+                    CountryName = "USA",
+                    Region = "WA",
+                    HouseNo2 = ""
+                }
+            };
+
+            // Act
+            McfClient.UpdateAddress(user.JwtEncodedString, request);
+
+            var requestAddress = request.AddressInfo;
+            var newAddressResponse = McfClient.GetStandardMailingAddress(user.JwtEncodedString, user.BPNumber).Result.AddressInfo;
+
+            //Assert
+            newAddressResponse.StandardFlag.ShouldBe(requestAddress.StandardFlag);
+            newAddressResponse.City.ShouldBe(requestAddress.City);
+            newAddressResponse.PostalCode.ShouldBe(requestAddress.PostalCode);
+            newAddressResponse.Street.ShouldBe(requestAddress.Street);
+            newAddressResponse.HouseNo.ShouldBe(requestAddress.HouseNo);
+            newAddressResponse.CountryID.ShouldBe(requestAddress.CountryID);
+            newAddressResponse.CountryName.ShouldBe(requestAddress.CountryName);
+            newAddressResponse.Region.ShouldBe(requestAddress.Region);
+
+            // Restore the environment
+            var restoreRequest = new UpdateAddressRequest
+            {
+                AccountID = addressResponse.AccountID,
+                AddressID = addressResponse.AddressID,
+                AddressInfo = new McfAddressinfo
+                {
+                    StandardFlag = addressResponse.AddressInfo.StandardFlag,
+                    City = addressResponse.AddressInfo.City,
+                    PostalCode = addressResponse.AddressInfo.PostalCode,
+                    POBoxPostalCode = addressResponse.AddressInfo.POBoxPostalCode,
+                    POBox = addressResponse.AddressInfo.POBox,
+                    Street = addressResponse.AddressInfo.Street,
+                    HouseNo = addressResponse.AddressInfo.HouseNo,
+                    CountryID = addressResponse.AddressInfo.CountryID,
+                    CountryName = addressResponse.AddressInfo.CountryName,
+                    Region = addressResponse.AddressInfo.Region,
+                }
+            };
+
+            McfClient.UpdateAddress(user.JwtEncodedString, restoreRequest);
         }
 
         #endregion
