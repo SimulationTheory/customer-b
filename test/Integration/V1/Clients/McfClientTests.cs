@@ -423,7 +423,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
 
             response.ShouldNotBeNull();
             response.Result.AccountID.ShouldBe(1002785285);
-            response.Result.AddressID.ShouldBeEmpty();
+            response.Result.AddressID.ShouldBeNull();
             response.Result.ContractAccountID.ShouldBe(200019410436);
         }
 
@@ -447,7 +447,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         #region UpdateAddress Tests
 
         [TestMethod]
-        public async Task UpdateStandardAddress_ValidUser()
+        public async Task UpdateAddress_ValidUser()
         {
             //Arrange
             var user = TestHelper.ActivePaUser;
@@ -459,7 +459,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             var request = new UpdateAddressRequest
             {
                 AccountID = user.BPNumber,
-                AddressID = addressResponse.AddressID,
+                AddressID = addressResponse.AddressID.Value,
                 AddressInfo = new McfAddressinfo
                 {
                     StandardFlag = "X",
@@ -478,7 +478,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             };
 
             // Act
-            McfClient.UpdateStandardAddress(user.JwtEncodedString, request);
+            McfClient.UpdateAddress(user.JwtEncodedString, request);
 
             var requestAddress = request.AddressInfo;
             var newAddressResponse = McfClient.GetStandardMailingAddress(user.JwtEncodedString, user.BPNumber).Result.AddressInfo;
@@ -497,7 +497,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             var restoreRequest = new UpdateAddressRequest
             {
                 AccountID = addressResponse.AccountID,
-                AddressID = addressResponse.AddressID,
+                AddressID = addressResponse.AddressID.Value,
                 AddressInfo = new McfAddressinfo
                 {
                     StandardFlag = addressResponse.AddressInfo.StandardFlag,
@@ -513,7 +513,60 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
                 }
             };
 
-            McfClient.UpdateStandardAddress(user.JwtEncodedString, restoreRequest);
+            McfClient.UpdateAddress(user.JwtEncodedString, restoreRequest);
+        }
+
+        #endregion
+
+        #region CreateAddress Tests
+
+        [TestMethod]
+        [Ignore("The address is created for each call, so run it manually to avoid large numbers on test server.")]
+
+        public async Task CreateStandardAddress_ValidUser()
+        {
+            //Arrange
+            var user = TestHelper.ActivePaUser;
+            var loginResponse = await AuthClient.GetJwtToken(user.Username, "Start@123");
+            user.SetJwtEncodedString(loginResponse.Data.JwtAccessToken);
+            
+
+            var request = new CreateAddressRequest
+            {
+                AccountID = user.BPNumber,
+                AddressInfo = new McfAddressinfo
+                {
+                    StandardFlag = "X",
+                    City = "Bellevue",
+                    District = "",
+                    PostalCode = "98004",
+                    POBoxPostalCode = "",
+                    POBox = "",
+                    Street = "110th Ave NE",
+                    HouseNo = "355",
+                    CountryID = "US",
+                    CountryName = "USA",
+                    Region = "WA",
+                    HouseNo2 = ""
+                }
+            };
+
+            // Act
+            var response = McfClient.CreateAddress(user.JwtEncodedString, request);
+
+            var requestAddress = request.AddressInfo;
+
+            var responsetAddress = response.Result.AddressInfo;
+
+            //Assert
+            responsetAddress.StandardFlag.ShouldBe(requestAddress.StandardFlag);
+            responsetAddress.City.ShouldBe(requestAddress.City);
+            responsetAddress.PostalCode.ShouldBe(requestAddress.PostalCode);
+            responsetAddress.Street.ShouldBe(requestAddress.Street);
+            responsetAddress.HouseNo.ShouldBe(requestAddress.HouseNo);
+            responsetAddress.CountryID.ShouldBe(requestAddress.CountryID);
+            responsetAddress.CountryName.ShouldBe(requestAddress.CountryName);
+            responsetAddress.Region.ShouldBe(requestAddress.Region);
         }
 
         #endregion

@@ -1,5 +1,4 @@
 ﻿using PSE.Customer.V1.Clients.Mcf.Interfaces;
-using PSE.Customer.V1.Clients.Mcf.Models;
 using PSE.RestUtility.Core.Interfaces;
 using PSE.RestUtility.Core.Mcf;
 
@@ -16,7 +15,7 @@ namespace PSE.Customer.V1.Clients.Mcf.Response
         /// <value>
         /// The address identifier.
         /// </value>
-        public long AddressID { get; set; }
+        public long? AddressID { get; set; }
         /// <summary>
         /// Gets or sets the metadata.
         /// </summary>

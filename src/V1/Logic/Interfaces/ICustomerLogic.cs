@@ -2,6 +2,7 @@
 using PSE.Customer.V1.Models;
 using System.Threading.Tasks;
 using PSE.Customer.V1.Repositories.DefinedTypes;
+using PSE.Customer.V1.Clients.Mcf.Models;
 
 namespace PSE.Customer.V1.Logic.Interfaces
 {
@@ -74,5 +75,23 @@ namespace PSE.Customer.V1.Logic.Interfaces
         /// <param name="jwt"></param>
         /// <returns></returns>
         Task<IEnumerable<MailingAddressesModel>> GetMailingAddressesAsync(long bpId, bool isStandardOnly, string jwt);
+
+        /// <summary>
+        /// Upserts the standard mailing address.
+        /// </summary>
+        /// <param name="bpId">The bp identifier.</param>
+        /// <param name="address">The address.</param>
+        /// <param name="jwt">The JWT.</param>
+        /// <returns></returns>
+        long UpsertStandardMailingAddress(long bpId, McfAddressinfo address, string jwt);
+
+        /// <summary>
+        /// Upserts the fix mailing address.
+        /// </summary>
+        /// <param name="contractAccountId"></param>
+        /// <param name="address">The address.</param>
+        /// <param name="jwt">The JWT.</param>
+        /// <returns></returns>
+        long UpsertFixMailingAddress(long contractAccountId, McfAddressinfo address, string jwt);
     }
 }

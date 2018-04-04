@@ -1,15 +1,17 @@
 ﻿using Newtonsoft.Json;
 using PSE.Customer.V1.Clients.Mcf.Interfaces;
 using PSE.RestUtility.Core.Interfaces;
+using PSE.RestUtility.Core.Json;
 using PSE.RestUtility.Core.Mcf;
 
 namespace PSE.Customer.V1.Clients.Mcf.Response
 {
     /// <summary>
-    /// Response Object For Get Contract Account Details From MCF
+    /// Response Object returned From Creation Of New Address 
     /// </summary>
+    /// <seealso cref="PSE.Customer.V1.Clients.Mcf.Interfaces.McfBaseAddress" />
     /// <seealso cref="PSE.RestUtility.Core.Interfaces.IMcfResult" />
-    public class GetContractAccountResponse : McfBaseAddress, IMcfResult 
+    public class CreateAddressResponse : McfBaseAddress, IMcfResult
     {
         /// <summary>
         /// Gets or sets the address identifier.
@@ -17,22 +19,15 @@ namespace PSE.Customer.V1.Clients.Mcf.Response
         /// <value>
         /// The address identifier.
         /// </value>
-        [JsonProperty("AccountAddressID")]
-        public long? AddressID { get; set; }
-        /// <summary>
-        /// Gets or sets the contract account identifier.
-        /// </summary>
-        /// <value>
-        /// The contract account  identifier.
-        /// </value>
-        [JsonProperty("ContractAccountID")]
-        public long ContractAccountID { get; set; }
+        [JsonConverter(typeof(ToStringJsonConverter))]
+        [JsonProperty("AddressID")]
+        public long AddressID { get; set; }
 
         /// <summary>
         /// Gets or sets the metadata.
         /// </summary>
         /// <value>
-        /// The metadata.
+        /// The metadata is ignored
         /// </value>
         public McfMetadata Metadata { get; set; }
     }

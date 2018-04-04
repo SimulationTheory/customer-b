@@ -72,27 +72,16 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         McfResponse<ContractAccountContactInfoResponse> GetContractAccountContactInfo(string jwt, string bpId);
 
         /// <summary>
-        /// Updates the standard address.
-        /// </summary>
-        /// <param name="jwt">Java Web Token for authentication</param>
-        /// <param name="request"></param>
-        /// <remarks>
-        /// Calls
-        /// UpdateAddress Method With StandFlag Set To "X"
-        /// </remarks>
-        void UpdateStandardAddress(string jwt, UpdateAddressRequest request);
-
-        /// <summary>
-        /// Updates the fixed address.
+        /// PUTs the address.
         /// </summary>
         /// <param name="jwt">Java Web Token for authentication</param>
         /// <param name="request"></param>
         /// <returns></returns>
         /// <remarks>
-        /// Calls
-        /// UpdateAddress Method With StandFlag Set To Empty 
+        /// OData URI:
+        /// PUT /sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/AccountAddresses(AccountID='BP#',AddressID='AD#')
         /// </remarks>
-        void UpdateFixedAddress(string jwt, UpdateAddressRequest request);
+        void UpdateAddress(string jwt, UpdateAddressRequest request);
 
         /// <summary>
         /// POSTs the mobile phone for the business partner
@@ -149,5 +138,31 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// GET "/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts(ContractAccountID='{contractAccountId}')?$format=json"
         /// </remarks>
         McfResponse<GetContractAccountResponse> GetContractAccounMailingAddress(string jwt, long contractAccountId);
+
+        /// <summary>
+        /// POSTs a new address.
+        /// </summary>
+        /// <param name="jwt">Java Web Token for authentication</param>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// OData URI:
+        /// POST /sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/AccountAddresses
+        /// </remarks>
+        McfResponse<CreateAddressResponse> CreateAddress(string jwt, CreateAddressRequest request);
+
+        /// <summary>
+        /// PUTs address to contract account.
+        /// </summary>
+        /// <param name="jwt">Java Web Token for authentication</param>
+        /// <param name="contractAccountId"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// OData URI:
+        /// PUT /sap/opu/odata/sap//ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('CA#')
+        /// </remarks>
+        void FixAddressToContractAccount(string jwt, long contractAccountId, FixAddressToContractAccountRequest request);
+
     }
 }

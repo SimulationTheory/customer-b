@@ -25,6 +25,7 @@ using PSE.Customer.V1.Clients.Mcf.Request;
 using PSE.Customer.V1.Clients.Mcf.Response;
 using PSE.RestUtility.Core.Mcf;
 using RestSharp.Extensions;
+using PSE.Customer.V1.Clients.Mcf.Models;
 
 namespace PSE.Customer.V1.Logic
 {
@@ -343,7 +344,7 @@ namespace PSE.Customer.V1.Logic
 
             results?.ForEach(x=> mailingAddresses.Add(new MailingAddressesModel
                                                     {
-                                                        AddressID = x.AddressID,
+                                                        AddressID = x.AddressID.Value,
                                                         Address = x.AddressInfo.McfToCassandraModel()
                                                     }));
 
@@ -352,6 +353,91 @@ namespace PSE.Customer.V1.Logic
 
             return mailingAddresses;
 
+        }
+
+        /// <summary>
+        /// Upserts the standard mailing address.
+        /// </summary>
+        /// <param name="bpId">The bp identifier.</param>
+        /// <param name="address">The address.</param>
+        /// <param name="jwt">The JWT.</param>
+        /// <returns></returns>
+        public long UpsertStandardMailingAddress(long bpId, McfAddressinfo address, string jwt)
+        {
+
+            _logger.LogInformation($"UpsertStandardMailingAddress({nameof(bpId)}: {bpId}," +
+                                   $"{nameof(address)}: {address.ToJson()})");
+
+            var response = _mcfClient.GetStandardMailingAddress(jwt, bpId);
+
+            var addressId = response.Result.AddressID;
+
+            if(addressId != null)
+            {
+                var request = new UpdateAddressRequest
+                {
+                     AccountID = bpId,
+                     AddressID = addressId.Value,
+                     AddressInfo = address
+                };
+
+                UpdateStandardAddress(jwt, request);
+            }
+            else
+            {
+                var request = new CreateAddressRequest
+                {
+                    AccountID = bpId,
+                    AddressInfo = address
+                };
+
+                addressId = CreateStandardAddress(jwt, request).Result.AddressID;
+            }
+
+            return addressId.Value;
+        }
+
+        /// <summary>
+        /// Upserts the fix mailing address.
+        /// </summary>
+        /// <param name="contractAccountId"></param>
+        /// <param name="address">The address.</param>
+        /// <param name="jwt">The JWT.</param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public long UpsertFixMailingAddress(long contractAccountId, McfAddressinfo address, string jwt)
+        {
+
+            _logger.LogInformation($"UpsertFixMailingAddress({nameof(contractAccountId)}: {contractAccountId}," +
+                                   $"{nameof(address)}: {address.ToJson()})");
+
+            var response = _mcfClient.GetContractAccounMailingAddress(jwt, contractAccountId);
+
+            var addressId = response.Result.AddressID;
+
+            if (addressId != null)
+            {
+                var request = new UpdateAddressRequest
+                {
+                    AccountID = response.Result.AccountID,
+                    AddressID = addressId.Value,
+                    AddressInfo = address
+                };
+
+                UpdateFixAddress(jwt, request);
+            }
+            else
+            {
+                var request = new CreateAddressRequest
+                {
+                    AccountID = response.Result.AccountID,
+                    AddressInfo = address
+                };
+
+                addressId = CreateFixAddress(jwt, contractAccountId, request).Result.AddressID;
+            }
+
+            return addressId.Value;
         }
 
         #region private methods
@@ -385,6 +471,42 @@ namespace PSE.Customer.V1.Logic
             {
                 _logger.LogError("Saveing Security questions failed with unexpected error", exp);
             }
+        }
+        
+        private void UpdateStandardAddress(string jwt, UpdateAddressRequest request)
+        {
+            request.AddressInfo.StandardFlag = "X";
+
+            _mcfClient.UpdateAddress(jwt, request);
+        }
+
+        private void UpdateFixAddress(string jwt, UpdateAddressRequest request)
+        {
+            request.AddressInfo.StandardFlag = string.Empty;
+
+            _mcfClient.UpdateAddress(jwt, request);
+        }
+
+        private McfResponse<CreateAddressResponse> CreateStandardAddress(string jwt, CreateAddressRequest request)
+        {
+            request.AddressInfo.StandardFlag = "X";
+
+            return _mcfClient.CreateAddress(jwt, request);
+        }
+
+        private McfResponse<CreateAddressResponse> CreateFixAddress(string jwt, long contractAccountId, CreateAddressRequest request)
+        {
+            request.AddressInfo.StandardFlag = string.Empty;
+
+            var response = _mcfClient.CreateAddress(jwt, request);
+
+            _mcfClient.FixAddressToContractAccount(jwt, contractAccountId,
+                                                    new FixAddressToContractAccountRequest
+                                                    {
+                                                         AccountAddressID = response.Result.AddressID
+                                                    });
+
+             return response;
         }
         #endregion
     }
