@@ -54,7 +54,7 @@ namespace PSE.Customer.V1.Controllers
         }
 
         /// <summary>
-        /// Lookup Customer by given customer name & account number
+        /// Lookup Customer by given customer name and account number
         /// </summary>
         /// <remarks>
         /// Sample request:
