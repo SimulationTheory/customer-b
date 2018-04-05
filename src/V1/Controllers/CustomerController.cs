@@ -18,6 +18,8 @@ using PSE.Exceptions.Core;
 using System.Text.RegularExpressions;
 using PSE.Customer.Extensions;
 using Microsoft.Extensions.Primitives;
+using PSE.Customer.V1.Request;
+using System.Collections.Generic;
 
 namespace PSE.Customer.V1.Controllers
 {
