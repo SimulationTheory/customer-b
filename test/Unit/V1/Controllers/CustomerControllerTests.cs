@@ -19,6 +19,7 @@ using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using PSE.Customer.Tests.Unit.TestObjects;
+using PSE.Customer.V1.Clients.Mcf.Models;
 
 namespace PSE.Customer.Tests.Unit.V1.Controllers
 {
@@ -374,15 +375,19 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
                 AddressLine2 = "1600 Pennsylvania Avenue NW",
                 City = "Washington",
                 Country = "USA",
-                PostalCode = "20500"
+                PostalCode = "20500",
+                State = "WA"
             };
+
+            CustomerLogicMock.Setup(logic => logic.UpsertStandardMailingAddress(It.IsAny<long>(), It.IsAny<McfAddressinfo>(), It.IsAny<string>()))
+                .Returns(() => 4131426);
+
             CustomerLogicMock.Setup(logic => logic.PutMailingAddressAsync(It.IsAny<AddressDefinedType>(), It.IsAny<long>()))
                 .Returns(() => Task.FromResult(HttpStatusCode.OK));
+
             var controller = GetController();
-            ArrangeUserClaims(controller, new[]
-            {
-                new Claim("custom:bp", "1001907289")
-            });
+
+            ArrangeController(controller, TestHelper.PaDev1);
 
             // Act
             var results = await controller.PutMailingAddressAsync(address);
@@ -422,13 +427,15 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
                 Country = "USA",
                 PostalCode = "10001"
             };
+
+            CustomerLogicMock.Setup(logic => logic.UpsertStandardMailingAddress(It.IsAny<long>(), It.IsAny<McfAddressinfo>(), It.IsAny<string>()))
+                .Returns(() => 4131426);
+
             CustomerLogicMock.Setup(logic => logic.PutMailingAddressAsync(It.IsAny<AddressDefinedType>(), It.IsAny<long>()))
                 .Throws(new ApplicationException("Batman is not available"));
             var controller = GetController();
-            ArrangeUserClaims(controller, new[]
-            {
-                new Claim("custom:bp", "1001907289")
-            });
+
+            ArrangeController(controller, TestHelper.PaDev1);
 
             // Act
             var results = await controller.PutMailingAddressAsync(address);

@@ -41,7 +41,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             // The WebConfiguration does not have an interface, so a concrete type must be used.
             CoreOptionsMock = new Mock<ICoreOptions>();
             CoreOptionsMock.SetupGet(x => x.Configuration).Returns(
-                new WebConfiguration { LoadBalancerUrl = "http://internal-ci-dev-alb-962991584.us-west-2.elb.amazonaws.com" });
+                new WebConfiguration { LoadBalancerUrl = "http://internal-ci-dev-alb-478417170.us-west-2.elb.amazonaws.com" });
         }
 
         #endregion

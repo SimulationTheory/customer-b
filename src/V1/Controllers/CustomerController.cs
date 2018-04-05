@@ -223,24 +223,35 @@ namespace PSE.Customer.V1.Controllers
         public async Task<IActionResult> PutMailingAddressAsync([FromBody] AddressDefinedType address)
         {
             _logger.LogInformation($"PutMailingAddressAsync({nameof(address)}: {address.ToJson()})");
-            IActionResult result;
 
-            try
+            IActionResult result = BadRequest(ModelState);
+
+            if (ModelState.IsValid)
             {
-                if (!ModelState.IsValid)
+                try
                 {
-                    return BadRequest(ModelState);
+
+                    if (HttpContext.Request.Headers.TryGetValue("Authorization", out StringValues jwt))
+                    {
+                        var bpId = GetBpIdFromClaims();
+
+                        _customerLogic.UpsertStandardMailingAddress(bpId, address.CassandraToMcfModel(), jwt);
+
+                        await _customerLogic.PutMailingAddressAsync(address, bpId);
+
+                        result = Ok();
+                    }
+                    else
+                    {
+                        result = Unauthorized();
+                    }
                 }
+                catch (Exception e)
+                {
+                    _logger.LogError(e.Message);
 
-                var bpId = GetBpIdFromClaims();
-                await _customerLogic.PutMailingAddressAsync(address, bpId);
-                result = Ok();
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.Message);
-
-                result = e.ToActionResult();
+                    result = e.ToActionResult();
+                } 
             }
 
             return result;

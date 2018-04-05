@@ -90,6 +90,36 @@ namespace PSE.Customer.Extensions
 
             return model;
         }
+
+        /// <summary>        
+        /// Maps Cassandra Fields To Mcf Fields
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static McfAddressinfo CassandraToMcfModel(this AddressDefinedType source)
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+
+            var model = new McfAddressinfo
+            {
+                POBox = source.AddressLine1.Trim(),
+                Street = source.AddressLine1.Trim(),
+                HouseNo = source.AddressLine1.Trim(),
+                HouseNo2 = source.AddressLine2.Trim(),
+                PostalCode = source.PostalCode.Trim(),
+                POBoxPostalCode = source.PostalCode.Trim(),
+                City = source.City.Trim(),
+                Region = source.State.Trim(),
+                CountryID = source.Country.Trim()
+            };
+
+            return model;
+        }
+
+        #region private methods
         private static List<Phone> GetPhones(CustomerContactEntity source)
         {
             List<Phone> phones = new List<Phone>();
@@ -100,6 +130,7 @@ namespace PSE.Customer.Extensions
             }
 
             return phones;
-        }
+        } 
+        #endregion
     }
 }

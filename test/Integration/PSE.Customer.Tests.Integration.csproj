@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="localConfiguration.json" />
     <None Remove="TestObjects\Data\GetContractAccountAddress.json" />
     <None Remove="TestObjects\Data\GetMailingAddresses.json" />
   </ItemGroup>
@@ -16,9 +15,11 @@
     <Content Include="..\..\src\appSettings.json" Link="appSettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="localConfiguration.json">
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\src\localConfiguration.json" Link="localConfiguration.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
 
