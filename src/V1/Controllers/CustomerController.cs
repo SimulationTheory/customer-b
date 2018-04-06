@@ -60,11 +60,7 @@ namespace PSE.Customer.V1.Controllers
         /// </summary>
         /// <remarks>
         /// Sample request:
-        /// GET /lookup
-        /// {
-        /// "nameonbill":"test user",
-        /// "contractaccountnumber": "200909090900"
-        /// }
+        /// GET /lookup?NameOnBill=BARRON%20R%20HERNANDEZ&amp;ContractAccountNumber=200000035135
         /// </remarks>
         /// <param name="lookupCustomerRequest"></param>
         /// <returns>returns LookupCustomerResponse</returns>
@@ -93,7 +89,7 @@ namespace PSE.Customer.V1.Controllers
                 }
                 else
                 {
-                    result = NotFound();
+                    result = StatusCode(204);
                 }
             }
             catch (Exception ex)

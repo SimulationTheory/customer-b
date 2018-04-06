@@ -30,13 +30,13 @@
     "ClusterPassword": "Electric-Camel-76",
     "ConsistencyLevel": "Quorum",
     "UseClusterCredentials": true,
-    "UseSSL": true,
+    "UseSSL": false,
     "UseQueryOptions": true,
     "MaxConnectionsPerHost": 1000
   },
   "RedisOptions": {
     "Configuration": "rediscache.iuy6pw.ng.0001.usw2.cache.amazonaws.com",
-    "InstanceName": "Development-customer"
+    "InstanceName": "customer"
   },
   "LoadBalancerUrl": "http://internal-ci-dev-alb-478417170.us-west-2.elb.amazonaws.com/",
   "McfEndpoint": "http://10.41.53.54:8002", //"http://10.41.53.54:8002",

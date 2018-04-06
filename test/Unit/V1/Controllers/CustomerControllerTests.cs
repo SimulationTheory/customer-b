@@ -330,7 +330,8 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
 
             //Assert
             actual.ShouldNotBeNull();
-            actual.ShouldBeOfType<NotFoundResult>();
+            actual.ShouldBeOfType<StatusCodeResult>();
+            (actual as StatusCodeResult).StatusCode.ShouldBe((int)HttpStatusCode.NoContent);
         }
 
         [TestMethod]
