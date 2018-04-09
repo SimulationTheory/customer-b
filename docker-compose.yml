@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - ~/.aws/credentials:/root/.aws/credentials
+      - ~/.aws/credentials:/home/debian/.aws/credentials
     ports:
       - "5000:5000"
     healthcheck:

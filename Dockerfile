@@ -1,11 +1,12 @@
-FROM microsoft/aspnetcore-build:2.0 AS build-env
+FROM 484054947536.dkr.ecr.us-west-2.amazonaws.com/pse-aspnetcore-build:latest AS build-env 
 WORKDIR /app
 COPY . ./
 RUN dotnet publish -c Release -o out --packages ./packages
 
 # Build runtime image
-FROM microsoft/aspnetcore:2.0
+FROM 484054947536.dkr.ecr.us-west-2.amazonaws.com/pse-aspnetcore-runtime:latest
 WORKDIR /app
-COPY --from=build-env /app/src/out .
+COPY --chown=debian --from=build-env /app/src/out .
 EXPOSE 5000
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 cmd curl --fail -s http://localhost:5000/healthcheck || exit 1
 ENTRYPOINT ["dotnet", "app.dll"]
