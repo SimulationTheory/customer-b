@@ -404,7 +404,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             user.JwtEncodedString.ShouldNotBeNullOrWhiteSpace();
             user.BPNumber.ShouldNotBe(0);
 
-            var response = McfClient.GetMailingAddresses(user.JwtEncodedString, user.ContractAccountId);
+            var response = McfClient.GetMailingAddresses(user.JwtEncodedString, user.BPNumber);
             response.ShouldNotBeNull();
         }
 

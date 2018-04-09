@@ -84,14 +84,5 @@ namespace PSE.Customer.V1.Logic.Interfaces
         /// <param name="jwt">The JWT.</param>
         /// <returns></returns>
         long UpsertStandardMailingAddress(long bpId, McfAddressinfo address, string jwt);
-
-        /// <summary>
-        /// Upserts the fix mailing address.
-        /// </summary>
-        /// <param name="contractAccountId"></param>
-        /// <param name="address">The address.</param>
-        /// <param name="jwt">The JWT.</param>
-        /// <returns></returns>
-        long UpsertFixMailingAddress(long contractAccountId, McfAddressinfo address, string jwt);
     }
 }

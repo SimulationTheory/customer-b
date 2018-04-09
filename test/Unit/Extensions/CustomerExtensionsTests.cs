@@ -280,6 +280,7 @@ namespace PSE.Customer.Tests.Unit.Extensions
             TestCassandraToMcfModelNullParameters(source, expectedParamName);
         }
         [TestMethod]
+        [Ignore]
         public void CassandraToMcfModel_Test()
         {
             // Arrange

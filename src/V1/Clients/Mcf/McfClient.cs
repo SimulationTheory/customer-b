@@ -270,6 +270,7 @@ namespace PSE.Customer.V1.Clients.Mcf
         }
 
 
+
         /// <summary>
         /// POSTs the mobile phone for the business partner
         /// </summary>
@@ -480,48 +481,6 @@ namespace PSE.Customer.V1.Clients.Mcf
             }
 
             return response;
-        }
-
-        /// <summary>
-        /// PUTs address to contract account.
-        /// </summary>
-        /// <param name="jwt">Java Web Token for authentication</param>
-        /// <param name="contractAccountId"></param>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        /// <remarks>
-        /// OData URI:
-        /// PUT /sap/opu/odata/sap//ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('CA#')
-        /// </remarks>
-        public void FixAddressToContractAccount(string jwt, long contractAccountId, FixAddressToContractAccountRequest request)
-        {
-            try
-            {
-                var requestBody = request.ToJson(Formatting.None);
-                _logger.LogInformation($"FixAddressToContractAccount(jwt, {nameof(request)}: {requestBody})");
-
-                var config = _coreOptions.Configuration;
-                var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
-                var cookies = restUtility.GetMcfCookies(jwt).Result;
-
-                var restRequest = new RestRequest($"/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('{contractAccountId}')", Method.PUT);
-                restRequest.AddCookies(cookies);
-                restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
-                restRequest.AddHeader("ContentType", "application/json");
-                restRequest.AddHeader("Accept", "application/json");
-                restRequest.AddParameter("application/json", requestBody, ParameterType.RequestBody);
-
-                _logger.LogInformation("Making MCF call");
-
-                var client = restUtility.GetRestClient(config.McfEndpoint);
-                var restResponse = client.Execute(restRequest);
-                               
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, $"{e.Message} for {nameof(request)}: {request.ToJson(Formatting.None)}");
-                throw e;
-            }
         }
     }
 }

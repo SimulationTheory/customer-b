@@ -397,49 +397,6 @@ namespace PSE.Customer.V1.Logic
             return addressId.Value;
         }
 
-        /// <summary>
-        /// Upserts the fix mailing address.
-        /// </summary>
-        /// <param name="contractAccountId"></param>
-        /// <param name="address">The address.</param>
-        /// <param name="jwt">The JWT.</param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public long UpsertFixMailingAddress(long contractAccountId, McfAddressinfo address, string jwt)
-        {
-
-            _logger.LogInformation($"UpsertFixMailingAddress({nameof(contractAccountId)}: {contractAccountId}," +
-                                   $"{nameof(address)}: {address.ToJson()})");
-
-            var response = _mcfClient.GetContractAccounMailingAddress(jwt, contractAccountId);
-
-            var addressId = response.Result.AddressID;
-
-            if (addressId != null)
-            {
-                var request = new UpdateAddressRequest
-                {
-                    AccountID = response.Result.AccountID,
-                    AddressID = addressId.Value,
-                    AddressInfo = address
-                };
-
-                UpdateFixAddress(jwt, request);
-            }
-            else
-            {
-                var request = new CreateAddressRequest
-                {
-                    AccountID = response.Result.AccountID,
-                    AddressInfo = address
-                };
-
-                addressId = CreateFixAddress(jwt, contractAccountId, request).Result.AddressID;
-            }
-
-            return addressId.Value;
-        }
-
         #region private methods
         private async Task SaveSecurityQuestions(WebProfile webprofile, IRestResponse<OkResult> resp)
         {
@@ -480,33 +437,11 @@ namespace PSE.Customer.V1.Logic
             _mcfClient.UpdateAddress(jwt, request);
         }
 
-        private void UpdateFixAddress(string jwt, UpdateAddressRequest request)
-        {
-            request.AddressInfo.StandardFlag = string.Empty;
-
-            _mcfClient.UpdateAddress(jwt, request);
-        }
-
         private McfResponse<CreateAddressResponse> CreateStandardAddress(string jwt, CreateAddressRequest request)
         {
             request.AddressInfo.StandardFlag = "X";
 
             return _mcfClient.CreateAddress(jwt, request);
-        }
-
-        private McfResponse<CreateAddressResponse> CreateFixAddress(string jwt, long contractAccountId, CreateAddressRequest request)
-        {
-            request.AddressInfo.StandardFlag = string.Empty;
-
-            var response = _mcfClient.CreateAddress(jwt, request);
-
-            _mcfClient.FixAddressToContractAccount(jwt, contractAccountId,
-                                                    new FixAddressToContractAccountRequest
-                                                    {
-                                                         AccountAddressID = response.Result.AddressID
-                                                    });
-
-             return response;
         }
         #endregion
     }

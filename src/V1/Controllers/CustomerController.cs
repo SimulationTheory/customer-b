@@ -233,6 +233,7 @@ namespace PSE.Customer.V1.Controllers
                     {
                         var bpId = GetBpIdFromClaims();
 
+                        //TODO Call Address Microservice For Correct MCF
                         _customerLogic.UpsertStandardMailingAddress(bpId, address.CassandraToMcfModel(), jwt);
 
                         await _customerLogic.PutMailingAddressAsync(address, bpId);
