@@ -2,8 +2,14 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Internal;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using PSE.Cassandra.Core.Extensions;
+using PSE.Customer.Configuration;
 using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
+using PSE.WebAPI.Core.Configuration;
+using PSE.WebAPI.Core.Configuration.Interfaces;
 
 namespace PSE.Customer.Tests.Integration.TestObjects
 {
@@ -75,15 +81,36 @@ namespace PSE.Customer.Tests.Integration.TestObjects
         };
 
         /// <summary>
+        /// Gets the core options.
+        /// </summary>
+        /// <returns></returns>
+        public static ICoreOptions GetCoreOptions()
+        {
+            var options = new CoreOptions(ServiceConfiguration.AppName);
+
+            return options;
+        }
+
+        /// <summary>
         /// Gets a new service collection with logging enabled and ApplicationLifetime registered.
         /// </summary>
         /// <returns></returns>
         public static IServiceCollection GetServiceCollection()
         {
+            var coreOptions = GetCoreOptions();
             var services = new ServiceCollection()
-                .AddLogging()
-                .AddSingleton<IApplicationLifetime, ApplicationLifetime>();
-            Cassandra.Core.Extensions.ServiceCollectionExtensions.ClearCassandraSettings();
+                .AddLogging(builder =>
+                {
+                    builder.SetMinimumLevel(LogLevel.Trace);
+                    builder.AddConsole();
+                })
+                .AddSingleton<IApplicationLifetime, ApplicationLifetime>()
+                .AddSingleton(coreOptions)
+                .AddSingleton(Options.Create(coreOptions.Configuration.CassandraSettings))
+                .Configure<AppSettings>(a => a.MaxLookBackMonths = 24);
+
+            ServiceCollectionExtensions.ClearCassandraSettings();
+
             return services;
         }
     }

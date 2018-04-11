@@ -38,10 +38,6 @@ namespace PSE.Customer.Extensions
             logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
             // Setup Cassandra
-            var config = services.GetCoreOptions().Configuration;
-
-            services.AddSingleton(Options.Create(config.CassandraSettings));
-            services.AddCassandraConfiguration();
             services.AddCassandraMapping<MicroservicesKeyspace, AddressDefinedType>();
             services.AddCassandraMapping<MicroservicesKeyspace, PhoneDefinedType>();
             services.AddCassandraEntity<MicroservicesKeyspace, CustomerEntity>();
@@ -54,6 +50,7 @@ namespace PSE.Customer.Extensions
             services.AddTransient<ICustomerLogic, CustomerLogic>();
 
             // Mapping Logic
+            AutoMapper.Mapper.Reset();
             AutoMapper.Mapper.Initialize(cfg =>
             {
                 cfg.CreateMap<GetCustomerProfileResponse, CustomerProfileModel>();

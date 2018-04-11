@@ -36,13 +36,18 @@ namespace PSE.Customer.V1.Controllers
     [Route("v{version:apiVersion}/customer/")]
     public class MoveInController : PSEController
     {
-
         private readonly ILogger<MoveInController> _logger;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MoveInController"/> class.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <exception cref="ArgumentNullException">logger</exception>
         public MoveInController(ILogger<MoveInController> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+
         /// <summary>
         /// Mock Endpoint for Latepayments movein 
         /// 
@@ -56,8 +61,9 @@ namespace PSE.Customer.V1.Controllers
         /// </summary>
         /// <param name="reconnectFlag">If ReconnectFlag eq 'X', it will initiate reconnection</param>
         /// <returns></returns>
-        [HttpGet("movein-status-latepayment/{contractAccountId}")]
         [ProducesResponseType(typeof(MoveInLatePaymentsResponse), 200)]
+        [Authorize("ContractAccountValidator")]
+        [HttpGet("movein-status-latepayment/{contractAccountId}")]
         public async Task<IActionResult> MoveInLatePayments()
         {
             IActionResult result = Ok(new MoveInLatePaymentsResponse()
@@ -86,8 +92,9 @@ namespace PSE.Customer.V1.Controllers
         /// </summary>
         /// <param name="reconnectFlag"></param>
         /// <returns></returns>
-        [HttpPut("movein-latepayment/{contractAccountId}")]
         [ProducesResponseType(typeof(MoveInLatePaymentsResponse), 200)]
+        [Authorize("ContractAccountValidator")]
+        [HttpPut("movein-latepayment/{contractAccountId}")]
         public async Task<IActionResult> MoveInLatePayments([FromQuery]bool reconnectFlag)
         {
             IActionResult result = Ok(new MoveInLatePaymentsResponse()

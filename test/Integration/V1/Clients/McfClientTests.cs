@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Newtonsoft.Json;
+using PSE.Cassandra.Core.Extensions;
 using PSE.Customer.Configuration;
 using PSE.Customer.Extensions;
 using PSE.Customer.Tests.Integration.TestObjects;
@@ -46,10 +47,11 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             if (Provider == null)
             {
                 // Load the service collection
-                var logger = CoreHelper.GetLogger<Startup>();
                 AutoMapper.Mapper.Reset();
                 var services = TestHelper.GetServiceCollection();
-                services.ConfigurePSEWebAPI(ServiceConfiguration.AppName);
+                var loggerFactory = services.GetLoggerFactory();
+                var logger = loggerFactory.CreateLogger<Startup>();
+
                 services.AddRepositories(logger)
                     .AddClientProxies();
 
@@ -57,6 +59,9 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
                 Provider = services.BuildServiceProvider();
                 AuthClient = Provider.GetService<IAuthenticationApi>();
                 McfClient = Provider.GetService<IMcfClient>();
+              
+                // clean up artifacts left behind by cassand registration
+                Cassandra.Core.Extensions.ServiceCollectionExtensions.ClearCassandraSettings();
             }
         }
 

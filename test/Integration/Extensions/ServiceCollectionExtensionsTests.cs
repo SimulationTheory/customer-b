@@ -46,51 +46,50 @@ namespace PSE.Customer.Tests.Integration.Extensions
             {
                 // Arrange
                 var services = TestHelper.GetServiceCollection();
-                var logger = CoreHelper.GetLogger<Startup>();
-                services.ConfigurePSEWebAPI(ServiceConfiguration.AppName);
                 AutoMapper.Mapper.Reset();
 
-                using (services.GetLoggerFactory())
+                using (var loggerFactory = services.GetLoggerFactory())
                 {
+                    var logger = loggerFactory.CreateLogger<Startup>();
+                    services.AddClientProxies()
+                        .AddTransient<CustomerController>()
+                        .AddTransient<MoveInController>()
+                        .AddSingleton(CoreHelper.GetMemoryDistributedCache())
+                        .AddSingleton(CoreHelper.GetMemoryCache());
+
                     // Act
-                    var servicesReturned = services
-                        .AddRepositories(logger)
-                        .AddClientProxies();
+                    var servicesReturned = services.AddRepositories(logger);
 
                     // Assert
-                    logger.ShouldNotBeNull();
                     servicesReturned.ShouldBe(services);
                     var provider = services.BuildServiceProvider();
-                    provider.ShouldNotBeNull();
-                    provider.GetService<ILogger>().ShouldNotBeNull();
+                    provider.GetRequiredService<ILogger>();
 
                     // Repository
-                    provider.GetService<ISessionFacade<MicroservicesKeyspace>>().ShouldNotBeNull();
-                    provider.GetService<IEntity<CustomerEntity>>().ShouldNotBeNull();
-                    provider.GetService<IEntity<CustomerContactEntity>>().ShouldNotBeNull();
-                    provider.GetService<ILogger<CustomerRepository>>().ShouldNotBeNull();
-                    provider.GetService<ICustomerRepository>().ShouldNotBeNull();
+                    provider.GetRequiredService<ISessionFacade<MicroservicesKeyspace>>();
+                    provider.GetRequiredService<IEntity<CustomerEntity>>();
+                    provider.GetRequiredService<IEntity<CustomerContactEntity>>();
+                    provider.GetRequiredService<ILogger<CustomerRepository>>();
+                    provider.GetRequiredService<ICustomerRepository>();
+                    provider.GetRequiredService<IEntity<BPByContractAccountEntity>>();
+                    provider.GetRequiredService<ILogger<BPByContractAccountRepository>>();
+                    provider.GetRequiredService<IBPByContractAccountRepository>();
 
                     // Logic
-                    provider.GetService<IDistributedCache>().ShouldNotBeNull();
-                    provider.GetService<IMemoryCache>().ShouldNotBeNull();
-                    provider.GetService<IOptions<AppSettings>>().ShouldNotBeNull();
-                    provider.GetService<ILogger<CustomerLogic>>().ShouldNotBeNull();
-                    provider.GetService<ICoreOptions>().ShouldNotBeNull();
-                    provider.GetService<IBPByContractAccountRepository>().ShouldNotBeNull();
-                    provider.GetService<ICustomerRepository>().ShouldNotBeNull();
-                    provider.GetService<IAuthenticationApi>().ShouldNotBeNull();
-                    provider.GetService<ICustomerLogic>().ShouldNotBeNull();
+                    provider.GetRequiredService<IDistributedCache>();
+                    provider.GetRequiredService<IMemoryCache>();
+                    provider.GetRequiredService<IOptions<AppSettings>>();
+                    provider.GetRequiredService<ILogger<CustomerLogic>>();
+                    provider.GetRequiredService<ICoreOptions>();
+                    provider.GetRequiredService<IAuthenticationApi>();
+                    provider.GetRequiredService<IMcfClient>();
+                    provider.GetRequiredService<ICustomerLogic>();
 
                     // Controller
-                    provider.GetService<ILogger<CustomerController>>().ShouldNotBeNull();
-                    provider.GetService<ICustomerLogic>().ShouldNotBeNull();
-
-                    // Authentication client
-                    provider.GetService<IAuthenticationApi>().ShouldNotBeNull();
-
-                    // MCF client
-                    provider.GetService<IMcfClient>().ShouldNotBeNull();
+                    provider.GetRequiredService<ILogger<CustomerController>>();
+                    provider.GetRequiredService<CustomerController>();
+                    provider.GetRequiredService<MoveInController>();
+                    provider.GetRequiredService<ILogger<MoveInController>>();
                 }
             }
         }
