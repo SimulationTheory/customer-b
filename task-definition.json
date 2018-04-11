@@ -23,7 +23,14 @@
           "name": "GIT_HASH",
           "value": "$GIT_HASH"
         }
-      ]
+      ],
+      "dockerSecurityOptions": ["no-new-privileges"],
+      "privileged": false,
+      "linuxParameters": {
+      "capabilities": {
+        "drop": ["SETGID","SETUID"]
+        }
+      }
     }
   ]
 }
