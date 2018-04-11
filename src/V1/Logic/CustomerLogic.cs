@@ -342,7 +342,8 @@ namespace PSE.Customer.V1.Logic
             var mcfResponse = _mcfClient.GetMailingAddresses(jwt, bpId);
 
             var results = (isStandardOnly ? mcfResponse?.Result?.Results?
-                                    .Where(x => x.AddressInfo.StandardFlag.Equals("x", StringComparison.OrdinalIgnoreCase))
+                                    .Where(x => x.AddressInfo.StandardFlag != null &&
+                                                x.AddressInfo.StandardFlag.Equals("x", StringComparison.OrdinalIgnoreCase))
                                     : mcfResponse?.Result?.Results?
                                     .Where(x => string.IsNullOrEmpty(x.AddressInfo.StandardFlag)))
                                     .ToList();

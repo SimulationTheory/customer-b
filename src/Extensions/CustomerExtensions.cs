@@ -80,13 +80,13 @@ namespace PSE.Customer.Extensions
 
             var model = new AddressDefinedType
             {
-                AddressLine1 = string.IsNullOrEmpty(source.POBox) ? $"{source.HouseNo?.Trim()} {source.Street.Trim()}" :  source.POBox,
+                AddressLine1 = string.IsNullOrEmpty(source.POBox) ? $"{source.HouseNo?.Trim()} {source.Street?.Trim()}" :  source.POBox,
                 AddressLine2 =  source?.HouseNo2?.Trim(), 
                 City = source.City.Trim(),
                 PostalCode = !string.IsNullOrEmpty(source.POBoxPostalCode) ? source.POBoxPostalCode.Trim()
-                                                 : source.PostalCode.Trim(),
-                State = source.Region.Trim(),
-                Country = source.CountryID.Trim()
+                                                 : source.PostalCode?.Trim(),
+                State = source.Region?.Trim(),
+                Country = source.CountryID?.Trim()
             };
 
             return model;
