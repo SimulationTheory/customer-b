@@ -1,32 +1,66 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Threading.Tasks;
+﻿using System.Runtime.Serialization;
 
 namespace PSE.Customer.V1.Repositories.DefinedTypes
 {
     /// <summary>
-    /// Represents Identifier ypes
+    /// Represents Identifier types
     /// </summary>
     public enum IdentifierType
     {
+        // ReSharper disable InconsistentNaming
+
         /// <summary>
-        /// Work phone
+        /// Date of birth
         /// </summary>
         [EnumMember(Value = "ZDOB")]
         ZDOB,
 
         /// <summary>
-        /// Home phone
+        /// Driver's License Number and State of Issue
+        /// </summary>
+        [EnumMember(Value = "ZDRLNO")]
+        ZDRLNO,
+
+        /// <summary>
+        /// Passport Number ???
+        /// </summary>
+        [EnumMember(Value = "ZDNAC")]
+        ZDNAC,
+
+        /// <summary>
+        /// Fraud
+        /// </summary>
+        [EnumMember(Value = "ZFRAUD")]
+        ZFRAUD,
+
+        /// <summary>
+        /// Last four digits of Social Security Number
         /// </summary>
         [EnumMember(Value = "ZLAST4")]
         ZLAST4,
 
         /// <summary>
-        /// Cell phone
+        /// Military ID
         /// </summary>
-        [EnumMember(Value = "ZDNAC")]
-        ZDNAC
+        [EnumMember(Value = "ZMILID")]
+        ZMILID,
+
+        /// <summary>
+        /// Privacy Password
+        /// </summary>
+        [EnumMember(Value = "ZPASWD")]
+        ZPASWD,
+
+        /// <summary>
+        /// Federal Tax ID (EIN)
+        /// </summary>
+        [EnumMember(Value = "ZTAXID")]
+        ZTAXID,
+
+        /// <summary>
+        /// Washington State Unified Business Identifier (UBI)
+        /// </summary>
+        [EnumMember(Value = "ZUBI")]
+        ZUBI
     }
 }

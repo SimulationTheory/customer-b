@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Text;
+﻿using System.Net;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PSE.Customer.Tests.Integration.TestObjects;
-using PSE.Customer.V1.Controllers;
+using PSE.Customer.V1.Response;
 using PSE.Test.Core;
 using PSE.WebAPI.Core.Configuration;
 using Shouldly;

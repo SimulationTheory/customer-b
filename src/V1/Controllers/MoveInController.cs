@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -15,22 +14,6 @@ using PSE.WebAPI.Core.Service;
 
 namespace PSE.Customer.V1.Controllers
 {
-    public class MoveInLatePaymentsResponse
-    {
-        public decimal? FirstIp { get; set; }
-        public bool? EligibleRc { get; set; }
-        public long AccountNo { get; set; }
-        public bool? ReconnectFlag { get; set; }
-        public long? PriorObligationAccount { get; set; }
-        public decimal? DepositAmount { get; set; }
-        public decimal? ReconAmount { get; set; }
-        public decimal? MinPayment { get; set; }
-        public decimal? IncPayment { get; set; }
-        public string AccountType { get; set; }
-        public string ReasonCode { get; set; }
-        public string Reason { get; set; }
-    }
-
     [ApiVersion("1.0")]
     [Produces("application/json")]
     [Route("v{version:apiVersion}/customer/")]
@@ -346,10 +329,11 @@ namespace PSE.Customer.V1.Controllers
             return result;
         }
 
+        #region Business Partner ID Type
 
         /// <summary>
         /// Get All ID types and values for a Given BP
-        /// </summary>         
+        /// </summary>
         /// <returns>returns IndentifierResponse</returns>
         [ProducesResponseType(typeof(IndentifierResponse), 200)]
         [HttpGet("bp-id-types")]
@@ -380,7 +364,6 @@ namespace PSE.Customer.V1.Controllers
 
             return result;
         }
-
 
         /// <summary>
         /// Get ID type and value for a Given BP
@@ -467,6 +450,8 @@ namespace PSE.Customer.V1.Controllers
 
             return result;
         }
+
+        #endregion
 
         #endregion
     }

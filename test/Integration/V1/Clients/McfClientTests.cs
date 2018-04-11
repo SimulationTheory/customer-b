@@ -28,10 +28,7 @@ using Shouldly;
 
 namespace PSE.Customer.Tests.Integration.V1.Clients
 {
-#if DEBUG
-    // Exclude in release mode since load balancer machine is not available from build server
     [TestClass]
-#endif
     public class McfClientTests
     {
         #region Helpers
