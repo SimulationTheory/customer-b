@@ -1,5 +1,4 @@
 ﻿using Cassandra.Mapping.Attributes;
-using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
 using System.Collections.Generic;
 

@@ -1,6 +1,4 @@
-﻿using PSE.WebAPI.Core.Interfaces;
-
-namespace PSE.Customer.V1.Models
+﻿namespace PSE.Customer.V1.Models
 {
     public class LookupCustomerModel
     {

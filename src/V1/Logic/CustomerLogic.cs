@@ -24,7 +24,6 @@ using PSE.Customer.V1.Clients.Mcf.Enums;
 using PSE.Customer.V1.Clients.Mcf.Request;
 using PSE.Customer.V1.Clients.Mcf.Response;
 using PSE.RestUtility.Core.Mcf;
-using RestSharp.Extensions;
 using PSE.Customer.V1.Clients.Mcf.Models;
 using PSE.Customer.V1.Clients.Address.Interfaces;
 

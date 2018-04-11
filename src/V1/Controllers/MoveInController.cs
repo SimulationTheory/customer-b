@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using PSE.Customer.Extensions;
+using PSE.Customer.V1.Logic.Interfaces;
 using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Request;
@@ -14,56 +15,49 @@ using PSE.WebAPI.Core.Service;
 
 namespace PSE.Customer.V1.Controllers
 {
+
     [ApiVersion("1.0")]
     [Produces("application/json")]
+    [Authorize("ContractAccountValidator")]
     [Route("v{version:apiVersion}/customer/")]
     public class MoveInController : PSEController
     {
-        private readonly ILogger<MoveInController> _logger;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MoveInController"/> class.
-        /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <exception cref="ArgumentNullException">logger</exception>
-        public MoveInController(ILogger<MoveInController> logger)
+        private readonly ILogger<MoveInController> _logger;
+        private readonly IMoveInLogic _moveInLogic;
+
+        public MoveInController(ILogger<MoveInController> logger, IMoveInLogic moveInLogic)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _moveInLogic = moveInLogic ?? throw new ArgumentNullException(nameof(moveInLogic));
         }
 
         /// <summary>
-        /// Mock Endpoint for Latepayments movein 
-        /// 
-        /// A    "FirstIp" : "286.000", (first installment which is 50% of (B) ie total deposit ) 
-        ///B    "DepositAmount" : "572.000", (total deposit amount) 
-        ///C    "ReconAmount" : "70.000", (reconnection fees) 
-        ///D    "MinPayment" : "356.000", (Item A + B)
-        ///E    "IncPayment" : "320.000",  (Payment which have been made)
-        ///F    "EligibleRc" : "", (If this is ‘X’ it means customer has made thresh-hold payment and s/he is eligible for reconnection)
-        ///If ReconnectFlag eq 'X', it will initiate reconnection
+        /// Check if the contract account provided is eligible for reconnection after successful payment
         /// </summary>
-        /// <param name="reconnectFlag">If ReconnectFlag eq 'X', it will initiate reconnection</param>
+        /// <param name="contractAccountId"></param>
         /// <returns></returns>
-        [ProducesResponseType(typeof(MoveInLatePaymentsResponse), 200)]
-        [Authorize("ContractAccountValidator")]
         [HttpGet("movein-status-latepayment/{contractAccountId}")]
-        public async Task<IActionResult> MoveInLatePayments()
+        [ProducesResponseType(typeof(ReconnectStatusResponse), 200)]
+        public async Task<IActionResult> MoveInLatePayments(long contractAccountId)
         {
-            IActionResult result = Ok(new MoveInLatePaymentsResponse()
+
+            IActionResult result;
+
+            try
             {
-                FirstIp = 286.00m,
-                EligibleRc = true,
-                AccountNo = 200028750178,
-                ReconnectFlag = false,
-                PriorObligationAccount = 200026140646,
-                DepositAmount = 572.00m,
-                ReconAmount = 70.00m,
-                MinPayment = 356,
-                IncPayment = 320.00m,
-                AccountType = "RES",
-                ReasonCode = string.Empty,
-                Reason = string.Empty
-            });
+                var jwt = GetJWToken();
+                _logger.LogInformation($"GetMoveInLatePayment({nameof(contractAccountId)} : {contractAccountId})");
+                var response = _moveInLogic.GetMoveInLatePayment(contractAccountId, jwt);
+
+                result = Ok(response);
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                result = e.ToActionResult();
+            }
 
             return result;
         }
@@ -75,11 +69,13 @@ namespace PSE.Customer.V1.Controllers
         /// </summary>
         /// <param name="reconnectFlag"></param>
         /// <returns></returns>
-        [ProducesResponseType(typeof(MoveInLatePaymentsResponse), 200)]
-        [Authorize("ContractAccountValidator")]
         [HttpPut("movein-latepayment/{contractAccountId}")]
+        [ProducesResponseType(typeof(MoveInLatePaymentsResponse), 200)]
         public async Task<IActionResult> MoveInLatePayments([FromQuery]bool reconnectFlag)
         {
+
+            
+
             IActionResult result = Ok(new MoveInLatePaymentsResponse()
             {
 
@@ -451,6 +447,17 @@ namespace PSE.Customer.V1.Controllers
             return result;
         }
 
+        #endregion
+
+        #region Helper Methods
+        /// <summary>
+        /// Gets JWT token from the request Header. Copied from paymentarrangement
+        /// </summary>
+        /// <returns></returns>
+        protected virtual string GetJWToken() =>
+            HttpContext.Request.Headers.ContainsKey("Authorization")
+                ? HttpContext.Request.Headers["Authorization"].ToString()
+                : null;
         #endregion
 
         #endregion

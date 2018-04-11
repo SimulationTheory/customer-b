@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using PSE.Customer.Extensions;
 using PSE.Customer.V1.Clients.Mcf.Interfaces;
 using PSE.Customer.V1.Clients.Mcf.Request;
 using PSE.Customer.V1.Clients.Mcf.Response;
+using PSE.Customer.V1.Models;
 using PSE.Exceptions.Core;
 using PSE.RestUtility.Core.Extensions;
 using PSE.RestUtility.Core.Mcf;
@@ -270,7 +272,6 @@ namespace PSE.Customer.V1.Clients.Mcf
         }
 
 
-
         /// <summary>
         /// POSTs the mobile phone for the business partner
         /// </summary>
@@ -481,6 +482,86 @@ namespace PSE.Customer.V1.Clients.Mcf
             }
 
             return response;
+        }
+
+        /// <summary>
+        /// PUTs address to contract account.
+        /// </summary>
+        /// <param name="jwt">Java Web Token for authentication</param>
+        /// <param name="contractAccountId"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// OData URI:
+        /// PUT /sap/opu/odata/sap//ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('CA#')
+        /// </remarks>
+        public void FixAddressToContractAccount(string jwt, long contractAccountId, FixAddressToContractAccountRequest request)
+        {
+            try
+            {
+                var requestBody = request.ToJson(Formatting.None);
+                _logger.LogInformation($"FixAddressToContractAccount(jwt, {nameof(request)}: {requestBody})");
+
+                var config = _coreOptions.Configuration;
+                var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
+                var cookies = restUtility.GetMcfCookies(jwt).Result;
+
+                var restRequest = new RestRequest($"/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('{contractAccountId}')", Method.PUT);
+                restRequest.AddCookies(cookies);
+                restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
+                restRequest.AddHeader("ContentType", "application/json");
+                restRequest.AddHeader("Accept", "application/json");
+                restRequest.AddParameter("application/json", requestBody, ParameterType.RequestBody);
+
+                _logger.LogInformation("Making MCF call");
+
+                var client = restUtility.GetRestClient(config.McfEndpoint);
+                var restResponse = client.Execute(restRequest);
+                               
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"{e.Message} for {nameof(request)}: {request.ToJson(Formatting.None)}");
+                throw e;
+            }
+        }
+
+        /// <summary>
+        /// Get reconnection payment details from mcf
+        /// </summary>
+        /// <param name="contractAccountId"></param>
+        /// <param name="jwt"></param>
+        /// <returns></returns>
+        public MoveInLatePaymentsResponse GetMoveInLatePaymentsResponse(long contractAccountId, string jwt)
+        {
+            try
+            {
+                var config = _coreOptions.Configuration;
+                _logger.LogInformation($"GetMoveInLatePaymentsResponse(jwt, {nameof(contractAccountId)}: {contractAccountId}");
+                var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
+                var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
+                var cookies = restUtility.GetMcfCookies(jwt);
+
+                var restRequest = new RestRequest($"/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/LatePaymentsSet?$filter=AccountNo eq '{contractAccountId}' and Reconnect eq ''", Method.GET);
+                restRequest.AddCookies(cookies.Result);
+                restRequest.AddHeader("Accept", "application/json");
+
+                var restResponse = client.Execute(restRequest);
+                var mcfResponse = JsonConvert.DeserializeObject<McfResponse<McfResponseResults<MoveInLatePaymentsResponse>>>(restResponse.Content);
+
+                if (mcfResponse.Error != null && mcfResponse.Result == null)
+                {
+                    _logger.LogError(mcfResponse.Error.Message.Value);
+                    throw new InvalidRequestException(mcfResponse.Error.Message.Value);
+                } 
+                return mcfResponse.Result.Results.FirstOrDefault();
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"{e.Message} for {nameof(contractAccountId)}: {contractAccountId.ToJson(Formatting.None)}");
+                throw e;
+            }
         }
     }
 }

@@ -1,8 +1,12 @@
-﻿using System.Net;
+﻿using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PSE.Customer.Tests.Integration.TestObjects;
-using PSE.Customer.V1.Response;
+using PSE.Customer.V1.Controllers;
+using PSE.Customer.V1.Models;
 using PSE.Test.Core;
 using PSE.WebAPI.Core.Configuration;
 using Shouldly;
@@ -36,6 +40,7 @@ namespace PSE.Customer.Tests.Integration
             /// <summary>
             /// Tests the MoveInLatePayments() method. Golden path.
             /// </summary>
+            [Ignore]
             [TestMethod]
             public async Task MoveInLatePayments_1_R2E_Test()
             {
@@ -72,6 +77,7 @@ namespace PSE.Customer.Tests.Integration
             /// Tests the MoveInLatePayments() method over a rest call. 
             /// ContractAccountValidator enabled, so bp/contractAccountId must match. Golden path.
             /// </summary>
+            [Ignore]
             [TestMethod]
             public async Task MoveInLatePayments_1_R2E_ContractAccountValidator_Test()
             {

@@ -1,5 +1,4 @@
 ﻿using PSE.Customer.V1.Models;
-using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.WebAPI.Core.Interfaces;
 using System.Collections.Generic;
 

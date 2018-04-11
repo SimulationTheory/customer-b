@@ -3,11 +3,16 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PSE.Customer.Configuration;
 using PSE.Customer.Tests.Unit.TestObjects;
+using PSE.Customer.V1.Clients.Mcf.Interfaces;
 using PSE.Customer.V1.Controllers;
+using PSE.Customer.V1.Logic.Interfaces;
 using PSE.Customer.V1.Response;
 using Shouldly;
 
@@ -17,12 +22,13 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
     public class MoveInControllerTests
     {
         private Mock<ILogger<MoveInController>> LoggerMock { get; set; }
+        private Mock<IMoveInLogic> MoveInLogicMock { get; set; }
 
         #region Helpers
 
         private MoveInController GetController()
         {
-            return new MoveInController(LoggerMock?.Object);
+            return new MoveInController(LoggerMock?.Object, MoveInLogicMock.Object);
         }
 
         // Likely needed later.  Delete if not needed by 04/21
@@ -61,6 +67,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         public void TestInitialize()
         {
             LoggerMock = new Mock<ILogger<MoveInController>>();
+            MoveInLogicMock = new Mock<IMoveInLogic>();
         }
 
         #endregion

@@ -1,5 +1,6 @@
 ﻿using PSE.Customer.V1.Clients.Mcf.Request;
 using PSE.Customer.V1.Clients.Mcf.Response;
+using PSE.Customer.V1.Models;
 using PSE.RestUtility.Core.Mcf;
 
 namespace PSE.Customer.V1.Clients.Mcf.Interfaces
@@ -150,5 +151,21 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// POST /sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/AccountAddresses
         /// </remarks>
         McfResponse<CreateAddressResponse> CreateAddress(string jwt, CreateAddressRequest request);
+
+        /// <summary>
+        /// PUTs address to contract account.
+        /// </summary>
+        /// <param name="jwt">Java Web Token for authentication</param>
+        /// <param name="contractAccountId"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// OData URI:
+        /// PUT /sap/opu/odata/sap//ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('CA#')
+        /// </remarks>
+        void FixAddressToContractAccount(string jwt, long contractAccountId, FixAddressToContractAccountRequest request);
+
+
+        MoveInLatePaymentsResponse GetMoveInLatePaymentsResponse(long contractAccountId, string jwt);
     }
 }

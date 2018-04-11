@@ -1,6 +1,4 @@
-﻿using System.Data.Services.Client;
-
-namespace PSE.Customer.V1.Clients.Mcf.Response
+﻿namespace PSE.Customer.V1.Clients.Mcf.Response
 {
     public class InstallmentPlans
     {

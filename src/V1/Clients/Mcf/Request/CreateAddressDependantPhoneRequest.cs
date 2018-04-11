@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using PSE.Customer.V1.Clients.Mcf.Enums;
 using PSE.RestUtility.Core.Json;
 
 namespace PSE.Customer.V1.Clients.Mcf.Request

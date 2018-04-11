@@ -50,6 +50,7 @@ namespace PSE.Customer.Extensions
             services.AddTransient<ICustomerRepository, CustomerRepository>();
             services.AddTransient<IBPByContractAccountRepository, BPByContractAccountRepository>();
             services.AddTransient<ICustomerLogic, CustomerLogic>();
+            services.AddTransient<IMoveInLogic, MoveInLogic>();
 
             // Mapping Logic
             AutoMapper.Mapper.Reset();
