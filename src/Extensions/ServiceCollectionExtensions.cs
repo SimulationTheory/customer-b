@@ -3,6 +3,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PSE.Cassandra.Core.Extensions;
 using PSE.Customer.Configuration.Keyspaces;
+using PSE.Customer.V1.Clients.Address;
+using PSE.Customer.V1.Clients.Address.Interfaces;
 using PSE.Customer.V1.Clients.Authentication;
 using PSE.Customer.V1.Clients.Authentication.Interfaces;
 using PSE.Customer.V1.Clients.ClientProxy;
@@ -74,6 +76,7 @@ namespace PSE.Customer.Extensions
             services.AddTransient<IClientProxy, ClientProxy>();
             services.AddTransient<IAuthenticationApi, AuthenticationApi>();
             services.AddTransient<IMcfClient, McfClient>();
+            services.AddTransient<IAddressApi, AddressApi>();
 
             return services;
         }

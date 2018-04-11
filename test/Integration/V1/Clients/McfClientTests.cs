@@ -377,7 +377,6 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             firstAddress.Street.ShouldBe("SE 166th St");
             firstAddress.HouseNo.ShouldBe("10502");
             firstAddress.CountryID.ShouldBe("US");
-            firstAddress.CountryName.ShouldBe("USA");
             firstAddress.Region.ShouldBe("WA");
             firstAddress.HouseNo2.ShouldBe("Apt H3");
 
@@ -394,7 +393,6 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             secondAddress.Street.ShouldBe("SE 166TH ST");
             secondAddress.HouseNo.ShouldBe("10502");
             secondAddress.CountryID.ShouldBe("US");
-            secondAddress.CountryName.ShouldBe("USA");
             secondAddress.Region.ShouldBe("WA");
         }
 
@@ -469,14 +467,12 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
                 {
                     StandardFlag = "X",
                     City = "Bellevue",
-                    District = "",
                     PostalCode = "98004",
                     POBoxPostalCode = "",
                     POBox = "",
                     Street = "110th Ave NE",
                     HouseNo = "355",
                     CountryID = "US",
-                    CountryName = "USA",
                     Region = "WA",
                     HouseNo2 = ""
                 }
@@ -495,7 +491,6 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             newAddressResponse.Street.ShouldBe(requestAddress.Street);
             newAddressResponse.HouseNo.ShouldBe(requestAddress.HouseNo);
             newAddressResponse.CountryID.ShouldBe(requestAddress.CountryID);
-            newAddressResponse.CountryName.ShouldBe(requestAddress.CountryName);
             newAddressResponse.Region.ShouldBe(requestAddress.Region);
 
             // Restore the environment
@@ -513,7 +508,6 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
                     Street = addressResponse.AddressInfo.Street,
                     HouseNo = addressResponse.AddressInfo.HouseNo,
                     CountryID = addressResponse.AddressInfo.CountryID,
-                    CountryName = addressResponse.AddressInfo.CountryName,
                     Region = addressResponse.AddressInfo.Region,
                 }
             };
@@ -543,14 +537,12 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
                 {
                     StandardFlag = "X",
                     City = "Bellevue",
-                    District = "",
                     PostalCode = "98004",
                     POBoxPostalCode = "",
                     POBox = "",
                     Street = "110th Ave NE",
                     HouseNo = "355",
                     CountryID = "US",
-                    CountryName = "USA",
                     Region = "WA",
                     HouseNo2 = ""
                 }
@@ -570,7 +562,6 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             responsetAddress.Street.ShouldBe(requestAddress.Street);
             responsetAddress.HouseNo.ShouldBe(requestAddress.HouseNo);
             responsetAddress.CountryID.ShouldBe(requestAddress.CountryID);
-            responsetAddress.CountryName.ShouldBe(requestAddress.CountryName);
             responsetAddress.Region.ShouldBe(requestAddress.Region);
         }
 

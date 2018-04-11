@@ -26,6 +26,7 @@ using PSE.Customer.V1.Clients.Mcf.Response;
 using PSE.RestUtility.Core.Mcf;
 using RestSharp.Extensions;
 using PSE.Customer.V1.Clients.Mcf.Models;
+using PSE.Customer.V1.Clients.Address.Interfaces;
 
 namespace PSE.Customer.V1.Logic
 {
@@ -44,6 +45,7 @@ namespace PSE.Customer.V1.Logic
         private readonly ICustomerRepository _customerRepository;
         private readonly IAuthenticationApi _authenticationApi;
         private readonly IMcfClient _mcfClient;
+        private readonly IAddressApi _addressApi;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CustomerLogic"/> class.
@@ -57,6 +59,7 @@ namespace PSE.Customer.V1.Logic
         /// <param name="customerRepository">The customer repository.</param>
         /// <param name="authenticationApi">The authentication API.</param>
         /// <param name="mcfClient"></param>
+        /// <param name="addressApi"></param>
         public CustomerLogic(
             IDistributedCache redisCache,
             IMemoryCache localCache,
@@ -66,7 +69,8 @@ namespace PSE.Customer.V1.Logic
             IBPByContractAccountRepository bpByContractAccountRepository,
             ICustomerRepository customerRepository,
             IAuthenticationApi authenticationApi,
-            IMcfClient mcfClient)
+            IMcfClient mcfClient,
+            IAddressApi addressApi)
         {
             _redisCache = redisCache ?? throw new ArgumentNullException(nameof(redisCache));
             _localCache = localCache ?? throw new ArgumentNullException(nameof(localCache));
@@ -77,6 +81,7 @@ namespace PSE.Customer.V1.Logic
             _customerRepository = customerRepository ?? throw new ArgumentNullException(nameof(customerRepository)); 
             _authenticationApi = authenticationApi ?? throw new ArgumentNullException(nameof(authenticationApi));
             _mcfClient = mcfClient ?? throw new ArgumentNullException(nameof(mcfClient));
+            _addressApi = addressApi ?? throw new ArgumentNullException(nameof(addressApi));
         }
 
         /// <summary>
@@ -362,11 +367,15 @@ namespace PSE.Customer.V1.Logic
         /// <param name="address">The address.</param>
         /// <param name="jwt">The JWT.</param>
         /// <returns></returns>
-        public long UpsertStandardMailingAddress(long bpId, McfAddressinfo address, string jwt)
+        public long UpsertStandardMailingAddress(long bpId, AddressDefinedType address, string jwt)
         {
 
             _logger.LogInformation($"UpsertStandardMailingAddress({nameof(bpId)}: {bpId}," +
                                    $"{nameof(address)}: {address.ToJson()})");
+
+            var addressResponse = _addressApi.ToMcfMailingAddressAsync(address).Result;
+
+            var addressInfo = addressResponse?.Data;
 
             var response = _mcfClient.GetStandardMailingAddress(jwt, bpId);
 
@@ -378,7 +387,7 @@ namespace PSE.Customer.V1.Logic
                 {
                      AccountID = bpId,
                      AddressID = addressId.Value,
-                     AddressInfo = address
+                     AddressInfo = addressInfo
                 };
 
                 UpdateStandardAddress(jwt, request);
@@ -388,7 +397,7 @@ namespace PSE.Customer.V1.Logic
                 var request = new CreateAddressRequest
                 {
                     AccountID = bpId,
-                    AddressInfo = address
+                    AddressInfo = addressInfo
                 };
 
                 addressId = CreateStandardAddress(jwt, request).Result.AddressID;

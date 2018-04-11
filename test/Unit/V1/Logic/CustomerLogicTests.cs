@@ -26,6 +26,7 @@ using PSE.Customer.V1.Clients.Mcf.Interfaces;
 using PSE.Customer.V1.Clients.Mcf.Request;
 using PSE.Customer.V1.Clients.Mcf.Response;
 using PSE.RestUtility.Core.Mcf;
+using PSE.Customer.V1.Clients.Address.Interfaces;
 
 namespace PSE.Customer.Tests.Unit.V1.Logic
 {
@@ -43,6 +44,7 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
         private Mock<ICustomerRepository> mockCustomerRepository;
         private Mock<IAuthenticationApi> mockAuthenticationApi;
         private Mock<IMcfClient> mockMcfClient;
+        private Mock<IAddressApi> mockAddressApi;
 
         #region Helper Methods
 
@@ -57,7 +59,8 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
                 mockBPByContractAccountRepository?.Object,
                 mockCustomerRepository?.Object,
                 mockAuthenticationApi?.Object,
-                mockMcfClient?.Object);
+                mockMcfClient?.Object,
+                mockAddressApi?.Object);
         }
 
         [TestInitialize]
@@ -74,6 +77,7 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
             mockCustomerRepository = mockRepository.Create<ICustomerRepository>();
             mockAuthenticationApi = mockRepository.Create<IAuthenticationApi>();
             mockMcfClient = mockRepository.Create<IMcfClient>();
+            mockAddressApi = mockRepository.Create<IAddressApi>();
         }
 
         #endregion

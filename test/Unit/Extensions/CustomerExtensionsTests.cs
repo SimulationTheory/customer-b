@@ -74,25 +74,6 @@ namespace PSE.Customer.Tests.Unit.Extensions
             }
         }
 
-        private void TestCassandraToMcfModelNullParameters(AddressDefinedType source, string expectedParamName)
-        {
-            try
-            {
-                //Act
-                source.CassandraToMcfModel();
-
-                //Assert
-                Assert.Fail("The expected ArgumentNullException was not thrown.");
-            }
-            catch (ArgumentNullException ex)
-            {
-                Console.WriteLine(ex);
-
-                //Assert
-                expectedParamName.ShouldBe(ex.ParamName);
-            }
-        }
-
         #endregion Test Helper Methods
 
         #region ToModel Tests
@@ -264,50 +245,6 @@ namespace PSE.Customer.Tests.Unit.Extensions
             model.Country.ShouldBe(addressInfo.CountryID);
         }
         #endregion
-
-
-
-        #region CassandraToMcfModel Tests
-        [TestMethod]
-        public void CassandraToMcfModel_NullMcfAddressinfoThrows_Test()
-        {
-            //Arrange
-            const AddressDefinedType source = null;
-
-            const string expectedParamName = nameof(source);
-
-            // Act & Assert
-            TestCassandraToMcfModelNullParameters(source, expectedParamName);
-        }
-        [TestMethod]
-        [Ignore]
-        public void CassandraToMcfModel_Test()
-        {
-            // Arrange
-            var address = new AddressDefinedType
-            {
-                AddressLine1 = " 10502 SE 166TH ST",
-                AddressLine2 = "Apt H3  ",
-                City = " Renton ",
-                PostalCode = "98055",
-                State = "WA",
-                Country = "US"
-            };
-
-            var model = address.CassandraToMcfModel();
-
-            model.ShouldNotBeNull();
-            model.ShouldBeOfType<McfAddressinfo>();
-            model.POBox.ShouldBe(address.AddressLine1.Trim());
-            model.Street.ShouldBe(address.AddressLine1.Trim());
-            model.HouseNo.ShouldBe(address.AddressLine1.Trim());
-            model.HouseNo2.ShouldBe(address.AddressLine2.Trim());
-            model.PostalCode.ShouldBe(address.PostalCode.Trim());
-            model.POBoxPostalCode.ShouldBe(address.PostalCode.Trim());
-            model.City.ShouldBe(address.City.Trim());
-            model.Region.ShouldBe(address.State.Trim());
-            model.CountryID.ShouldBe(address.Country.Trim());
-        }
-        #endregion
+       
     }
 }

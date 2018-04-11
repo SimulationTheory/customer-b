@@ -18,8 +18,6 @@ using PSE.Exceptions.Core;
 using System.Text.RegularExpressions;
 using PSE.Customer.Extensions;
 using Microsoft.Extensions.Primitives;
-using PSE.Customer.V1.Request;
-using System.Collections.Generic;
 
 namespace PSE.Customer.V1.Controllers
 {
@@ -233,8 +231,7 @@ namespace PSE.Customer.V1.Controllers
                     {
                         var bpId = GetBpIdFromClaims();
 
-                        //TODO Call Address Microservice For Correct MCF
-                        _customerLogic.UpsertStandardMailingAddress(bpId, address.CassandraToMcfModel(), jwt);
+                        _customerLogic.UpsertStandardMailingAddress(bpId, address, jwt);
 
                         await _customerLogic.PutMailingAddressAsync(address, bpId);
 

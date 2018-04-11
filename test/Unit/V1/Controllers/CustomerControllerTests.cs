@@ -380,7 +380,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
                 State = "WA"
             };
 
-            CustomerLogicMock.Setup(logic => logic.UpsertStandardMailingAddress(It.IsAny<long>(), It.IsAny<McfAddressinfo>(), It.IsAny<string>()))
+            CustomerLogicMock.Setup(logic => logic.UpsertStandardMailingAddress(It.IsAny<long>(), It.IsAny<AddressDefinedType>(), It.IsAny<string>()))
                 .Returns(() => 4131426);
 
             CustomerLogicMock.Setup(logic => logic.PutMailingAddressAsync(It.IsAny<AddressDefinedType>(), It.IsAny<long>()))
@@ -429,7 +429,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
                 PostalCode = "10001"
             };
 
-            CustomerLogicMock.Setup(logic => logic.UpsertStandardMailingAddress(It.IsAny<long>(), It.IsAny<McfAddressinfo>(), It.IsAny<string>()))
+            CustomerLogicMock.Setup(logic => logic.UpsertStandardMailingAddress(It.IsAny<long>(), It.IsAny<AddressDefinedType>(), It.IsAny<string>()))
                 .Returns(() => 4131426);
 
             CustomerLogicMock.Setup(logic => logic.PutMailingAddressAsync(It.IsAny<AddressDefinedType>(), It.IsAny<long>()))

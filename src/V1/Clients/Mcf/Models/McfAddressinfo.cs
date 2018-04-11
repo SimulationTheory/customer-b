@@ -24,14 +24,6 @@ namespace PSE.Customer.V1.Clients.Mcf.Models
         [JsonProperty("City")]
         public string City { get; set; }
         /// <summary>
-        /// Gets or sets the district.
-        /// </summary>
-        /// <value>
-        /// The district.
-        /// </value>
-        [JsonProperty("District")]
-        public string District { get; set; }
-        /// <summary>
         /// Gets or sets the postal code.
         /// </summary>
         /// <value>
@@ -79,14 +71,6 @@ namespace PSE.Customer.V1.Clients.Mcf.Models
         /// </value>
         [JsonProperty("CountryID")]
         public string CountryID { get; set; }
-        /// <summary>
-        /// Gets or sets the name of the country.
-        /// </summary>
-        /// <value>
-        /// The name of the country  (eg: USA).
-        /// </value>
-        [JsonProperty("CountryName")]
-        public string CountryName { get; set; }
         /// <summary>
         /// Gets or sets the region.
         /// </summary>
