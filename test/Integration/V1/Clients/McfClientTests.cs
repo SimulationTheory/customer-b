@@ -25,7 +25,7 @@ using Shouldly;
 
 namespace PSE.Customer.Tests.Integration.V1.Clients
 {
-    [TestClass]
+    //[TestClass]
     public class McfClientTests
     {
         #region Helpers
