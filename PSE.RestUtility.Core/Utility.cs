@@ -63,6 +63,8 @@ namespace PSE.RestUtility.Core
                 var client = GetRestClient(_loadBalancerUrl, true);
                 var request = new RestRequest("/v1.0/authentication/mcf-token", Method.GET);
                 request.AddHeader("Authorization", jwtToken);
+                // TODO: Need to get this from somewhere...
+                request.AddHeader("request-channel", "Web");
 
                 var result = client.Execute(request);
 

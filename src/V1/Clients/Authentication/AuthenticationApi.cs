@@ -36,6 +36,8 @@ namespace PSE.Customer.V1.Clients.Authentication
         public Task<IRestResponse<AccountExistsResponse>> GetAccountExists(long bpId)
         {
             var request = new RestRequest($"/v{API_VERSION}/authentication/mypse-account-exists/{bpId}");
+            // TODO: Need to get this from somewhere...
+            request.AddHeader("request-channel", "Web");
             return ExecuteAsync<AccountExistsResponse>(request);
         }
 
@@ -47,6 +49,8 @@ namespace PSE.Customer.V1.Clients.Authentication
         public Task<IRestResponse<ExistsResponse>> GetUserNameExists(string userName)
         {
             var request = new RestRequest($"/v{API_VERSION}/authentication/user-name-exists/{userName}");
+            // TODO: Need to get this from somewhere...
+            request.AddHeader("request-channel", "Web");
             return ExecuteAsync<ExistsResponse>(request);
         }
 
@@ -79,6 +83,8 @@ namespace PSE.Customer.V1.Clients.Authentication
 
             var body = JsonConvert.SerializeObject(signUpInfo);
             request.AddParameter("application/json", body, ParameterType.RequestBody);
+            // TODO: Need to get this from somewhere...
+            request.AddHeader("request-channel", "Web");
 
             var resp = await ExecuteAsync<OkResult>(request);
             return resp;
@@ -102,6 +108,9 @@ namespace PSE.Customer.V1.Clients.Authentication
             };
             request.AddHeader("ContentType", "application/json");
             request.AddHeader("Accept", "application/json");
+            // TODO: Need to get this from somewhere...
+            request.AddHeader("request-channel", "Web");
+
             var body = JsonConvert.SerializeObject(requestBody);
             request.AddParameter("application/json", body, ParameterType.RequestBody);
 
@@ -124,6 +133,8 @@ namespace PSE.Customer.V1.Clients.Authentication
 
             request.AddHeader("ContentType", "application/json");
             request.AddHeader("Accept", "application/json");
+            // TODO: Need to get this from somewhere...
+            request.AddHeader("request-channel", "Web");
 
             var req1 = new List<CreateUpdateUserSecurityQuestionModel>();
             profileInfo.SecurityQuestionResponses.ToList().ForEach(s => req1.Add(new CreateUpdateUserSecurityQuestionModel() { Sequence = s.Sequence, Question = s.Question, Answer = s.Answer }));
