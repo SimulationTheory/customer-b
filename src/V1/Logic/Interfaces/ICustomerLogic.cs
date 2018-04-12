@@ -51,6 +51,14 @@ namespace PSE.Customer.V1.Logic.Interfaces
         Task PutPhoneNumberAsync(string jwt, Phone phone, long bpId);
 
         /// <summary>
+        /// Gets JWT token 
+        /// </summary>
+        /// <param name="userName"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        Task<string> GetJWTTokenAsync(string userName, string password);
+
+        /// <summary>
         /// Creates profile
         /// By signing up user in cognito and cassandra calling sign up API
         /// Save security questions by calling the security Questions API

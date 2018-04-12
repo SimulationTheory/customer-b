@@ -152,7 +152,7 @@ namespace PSE.Customer.V1.Controllers
                 var validBp = long.TryParse(webProfile.BPId, out var bpId);
 
                 // Validate password,username, phone, email
-                ValidateCreateProfile(webProfile,validBp);
+                ValidateCreateProfile(webProfile, validBp);
 
                 // Make sure the account provider exists
                 var customermodel = _customerLogic.LookupCustomer(webProfile.Customer);
@@ -182,7 +182,7 @@ namespace PSE.Customer.V1.Controllers
                         Message = "The Customer was not found"
                     });
                 }
-            
+
                 //make sure the Bp provided and the account match
                 if (bpId != lookupCustomerModel.BPId)
                 {
@@ -195,7 +195,14 @@ namespace PSE.Customer.V1.Controllers
                 //Create profile and  save security questions
                 await _customerLogic.CreateWebProfileAsync(webProfile);
 
-                //TODO update Phone and email async when the underline services are implemented
+                //Updates Email and Phone after signup 
+                var jwt = await _customerLogic.GetJWTTokenAsync(webProfile.CustomerCredentials.UserName, webProfile.CustomerCredentials.Password);
+                if(!string.IsNullOrEmpty(jwt))
+                {
+                    await _customerLogic.PutEmailAddressAsync(jwt, webProfile.Email, bpId);
+                    await _customerLogic.PutPhoneNumberAsync(jwt, webProfile.Phone, bpId);
+                }
+               
                 result = new OkResult();
             }
             catch (Exception e)

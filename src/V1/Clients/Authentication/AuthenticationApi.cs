@@ -100,6 +100,8 @@ namespace PSE.Customer.V1.Clients.Authentication
                 Password = password,
 
             };
+            request.AddHeader("ContentType", "application/json");
+            request.AddHeader("Accept", "application/json");
             var body = JsonConvert.SerializeObject(requestBody);
             request.AddParameter("application/json", body, ParameterType.RequestBody);
 

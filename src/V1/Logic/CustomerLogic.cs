@@ -297,7 +297,7 @@ namespace PSE.Customer.V1.Logic
 
             //Signs up customer in cognito and cassandra
             var resp = await _authenticationApi.SignUpCustomer(webprofile);
-            if (resp.StatusCode != HttpStatusCode.OK)
+            if (resp.StatusCode != HttpStatusCode.Created)
             {
                 var message = resp.Content;
                 _logger.LogError($"Unable to  sign up for user name {webprofile?.CustomerCredentials?.UserName} and Bp {webprofile?.BPId} with error message from Auth sign up service {message}");
@@ -405,6 +405,38 @@ namespace PSE.Customer.V1.Logic
 
             return addressId.Value;
         }
+
+        /// <summary>
+        /// Get JWT Token
+        /// </summary>
+        /// <param name="userName"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        public async Task<string> GetJWTTokenAsync(string userName, string password)
+        {
+            string token = null;
+            try
+            {
+                //gets JwtToken
+                var jwttoken = await _authenticationApi.GetJwtToken(userName, password);
+                token = jwttoken?.Data?.JwtAccessToken;
+                if (string.IsNullOrEmpty(token))
+                {
+                    var message = jwttoken?.Content;
+                    _logger.LogError($"Unable to signin and get jwt token after sign up for user name {userName} with error message from Auth sign in service {message}");
+                }
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError($"Getting JWTtoken from Signin for user name {userName}  Failed with error", ex);
+            }
+            
+            return token;
+        }
+
+
+       
+        
 
         #region private methods
         private async Task SaveSecurityQuestions(WebProfile webprofile, IRestResponse<OkResult> resp)
