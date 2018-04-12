@@ -363,10 +363,10 @@ namespace PSE.Customer.V1.Controllers
 
         /// <summary>
         /// Get ID type and value for a Given BP
-        /// </summary>         
+        /// </summary>
         /// <returns>returns IndentifierResponse</returns>
         [ProducesResponseType(typeof(IndentifierResponse), 200)]
-        [HttpGet("bp-id-type/{type}")]      
+        [HttpGet("bp-id-type/{type}")]
         public async Task<IActionResult> GetIdType(IdentifierType type)
         {
             IActionResult result;
@@ -407,7 +407,6 @@ namespace PSE.Customer.V1.Controllers
 
             try
             {
-
                 result = Ok();
             }
             catch (Exception ex)
@@ -434,7 +433,6 @@ namespace PSE.Customer.V1.Controllers
 
             try
             {
-
                 result = Ok();
             }
             catch (Exception ex)

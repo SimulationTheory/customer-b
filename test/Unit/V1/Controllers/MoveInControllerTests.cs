@@ -3,16 +3,14 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using PSE.Customer.Configuration;
 using PSE.Customer.Tests.Unit.TestObjects;
-using PSE.Customer.V1.Clients.Mcf.Interfaces;
 using PSE.Customer.V1.Controllers;
 using PSE.Customer.V1.Logic.Interfaces;
+using PSE.Customer.V1.Repositories.DefinedTypes;
+using PSE.Customer.V1.Request;
 using PSE.Customer.V1.Response;
 using Shouldly;
 
@@ -114,12 +112,58 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         #endregion
 
         #region GetIdType Tests
+
+        [TestMethod]
+        public void GetIdType_ValidAccount_ReturnsValue()
+        {
+            // Arrange
+            var controller = GetController();
+
+            // Act
+            var response = controller.GetIdType(IdentifierType.ZDOB);
+
+            // Assert
+            var result = (OkObjectResult)response.Result;
+            var idResponse = (IndentifierResponse)result.Value;
+            idResponse.Identifiers.Count.ShouldBeGreaterThan(0);
+        }
+
         #endregion
 
         #region CreateIDType Tests
+
+        [TestMethod]
+        public void CreateIDType_ValidAccountAndType_SavedSuccessfully()
+        {
+            // Arrange
+            var controller = GetController();
+            var identifier = new IdentifierRequest();
+
+            // Act
+            var response = controller.CreateIDType(identifier);
+
+            // Assert
+            response.Result.ShouldBeOfType<OkResult>();
+        }
+
         #endregion
 
         #region UpdateIDType Tests
+
+        [TestMethod]
+        public void UpdateIDType_ValidAccountAndType_SavedSuccessfully()
+        {
+            // Arrange
+            var controller = GetController();
+            var identifier = new IdentifierRequest();
+
+            // Act
+            var response = controller.UpdateIDType(identifier);
+
+            // Assert
+            response.Result.ShouldBeOfType<OkResult>();
+        }
+
         #endregion
 
         #endregion

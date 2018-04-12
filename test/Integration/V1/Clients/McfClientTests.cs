@@ -8,7 +8,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Newtonsoft.Json;
 using PSE.Cassandra.Core.Extensions;
-using PSE.Customer.Configuration;
 using PSE.Customer.Extensions;
 using PSE.Customer.Tests.Integration.TestObjects;
 using PSE.Customer.V1.Clients.Authentication.Interfaces;
@@ -21,9 +20,7 @@ using PSE.Customer.V1.Clients.Mcf.Request;
 using PSE.Customer.V1.Clients.Mcf.Response;
 using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.RestUtility.Core.Mcf;
-using PSE.Test.Core;
 using PSE.WebAPI.Core.Configuration.Interfaces;
-using PSE.WebAPI.Core.Startup;
 using Shouldly;
 
 namespace PSE.Customer.Tests.Integration.V1.Clients
@@ -455,6 +452,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             user.SetJwtEncodedString(loginResponse.Data.JwtAccessToken);
 
             var addressResponse = McfClient.GetStandardMailingAddress(user.JwtEncodedString, user.BPNumber).Result;
+            addressResponse.AddressID.ShouldNotBeNull();
 
             var request = new UpdateAddressRequest
             {
@@ -525,7 +523,6 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             var user = TestHelper.ActivePaUser;
             var loginResponse = await AuthClient.GetJwtToken(user.Username, "Start@123");
             user.SetJwtEncodedString(loginResponse.Data.JwtAccessToken);
-            
 
             var request = new CreateAddressRequest
             {
