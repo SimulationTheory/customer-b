@@ -17,5 +17,5 @@ services:
       retries: 3
     environment:
       - AWS_PROFILE=AWSDevUser
-      - ASPNETCORE_ENVIRONMENT=Dev
+      - ASPNETCORE_ENVIRONMENT=dev
       - GIT_HASH=Docker_Compose
