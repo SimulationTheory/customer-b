@@ -104,16 +104,20 @@ namespace PSE.Customer.V1.Controllers
         /// Gets Customer Profile by loggedIn user
         /// </summary>
         /// <returns>returns CustomerProfile information</returns>
+        [AllowAnonymous]
         [ProducesResponseType(typeof(CustomerProfileModel), 200)]
         [HttpGet("profile")]
-        public async Task<IActionResult> GetCustomerProfileAsync()
+       public async Task<IActionResult> GetCustomerProfileAsync(long bpId = 0)
         {
             _logger.LogInformation("GetCustomerProfileAsync()");
             IActionResult result;
-
+            
             try
             {
-                var bpId = GetBpIdFromClaims();
+                if (HttpContext.Request.Headers.TryGetValue("Authorization", out StringValues jwt))
+                {
+                    bpId = GetBpIdFromClaims();
+                }
                 var customerProfile = await _customerLogic.GetCustomerProfileAsync(bpId);
 
                 var model = Mapper.Map<GetCustomerProfileResponse>(customerProfile);

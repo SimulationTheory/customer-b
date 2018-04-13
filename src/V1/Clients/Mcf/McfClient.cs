@@ -12,6 +12,10 @@ using PSE.RestUtility.Core.Extensions;
 using PSE.RestUtility.Core.Mcf;
 using PSE.WebAPI.Core.Configuration.Interfaces;
 using RestSharp;
+using System.IO;
+using System.Collections.Generic;
+using PSE.Customer.Configuration;
+using PSE.WebAPI.Core.Configuration;
 
 namespace PSE.Customer.V1.Clients.Mcf
 {
@@ -398,8 +402,8 @@ namespace PSE.Customer.V1.Clients.Mcf
 
             return response;
         }
-
-        /// <summary>
+       
+             /// <summary>
         /// Gets the Mailing Addresses For A Given CA
         /// </summary>
         /// <param name="jwt"></param>
@@ -561,6 +565,37 @@ namespace PSE.Customer.V1.Clients.Mcf
             {
                 _logger.LogError(e, $"{e.Message} for {nameof(contractAccountId)}: {contractAccountId.ToJson(Formatting.None)}");
                 throw e;
+            }
+        }
+  
+        private void GetCustomerMcfCredentials(ref string userName, ref string password)
+        {
+            var options = new CoreOptions(ServiceConfiguration.AppName);
+            ICoreOptions _options = options;
+            string _environment = String.Empty;
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            _environment = string.IsNullOrEmpty(environment) ? "Development" : environment;
+
+
+            var isLocal = (_environment?.Equals("Development") ?? true) || string.IsNullOrEmpty(_environment);
+            var mcfCustomerUserNameParamName = $"/CI/MS/{_environment}/MCF/CustomerUserName";
+            var mcfCustomerUserPasswordParamName = $"/CI/MS/{_environment}/MCF/CustomerUserPassword";
+
+
+            if (!isLocal)
+            {
+                userName = _options.GetValueFromParameterStore(mcfCustomerUserNameParamName, false);
+                // TODO: this eventually should be updated to an encrypted param store
+                password = _options.GetValueFromParameterStore(mcfCustomerUserPasswordParamName, false);
+            }
+            else
+            {
+                var fileLocation = Path.Combine(Directory.GetCurrentDirectory(), "localParameterStore.json");
+                var json = File.ReadAllText(fileLocation);
+                IEnumerable<KeyValuePair<string, string>> parameters = JsonConvert.DeserializeObject<IEnumerable<KeyValuePair<string, string>>>(json);
+
+                userName = parameters.FirstOrDefault(x => x.Key.Equals(mcfCustomerUserNameParamName)).Value;
+                password = parameters.FirstOrDefault(x => x.Key.Equals(mcfCustomerUserPasswordParamName)).Value;
             }
         }
     }
