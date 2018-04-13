@@ -8,6 +8,15 @@ namespace PSE.Customer.V1.Clients.Mcf.Models
     public class McfAddressinfo
     {
         /// <summary>
+        /// Gets or sets the care of name.
+        /// </summary>
+        /// <value>
+        /// The name of the co.
+        /// </value>
+        [JsonProperty("COName")]
+        public string COName { get; set; }
+
+        /// <summary>
         /// Gets or sets the standard flag.
         /// </summary>
         /// <value>
@@ -15,6 +24,16 @@ namespace PSE.Customer.V1.Clients.Mcf.Models
         /// </value>
         [JsonProperty("StandardFlag")]
         public string StandardFlag { get; set; }
+
+        /// <summary>
+        /// Gets or sets the valid from date.
+        /// </summary>
+        /// <value>
+        /// The valid from date.
+        /// </value>
+        [JsonProperty("Validfromdate")]
+        public string ValidFromDate { get; set; }
+
         /// <summary>
         /// Gets or sets the city.
         /// </summary>
@@ -23,6 +42,16 @@ namespace PSE.Customer.V1.Clients.Mcf.Models
         /// </value>
         [JsonProperty("City")]
         public string City { get; set; }
+
+        /// <summary>
+        /// Gets or sets the valid to date.
+        /// </summary>
+        /// <value>
+        /// The valid to date.
+        /// </value>
+        [JsonProperty("Validtodate")]
+        public string ValidToDate { get; set; }
+
         /// <summary>
         /// Gets or sets the postal code.
         /// </summary>
@@ -87,5 +116,14 @@ namespace PSE.Customer.V1.Clients.Mcf.Models
         /// </value>
         [JsonProperty("HouseNo2")]
         public string HouseNo2 { get; set; }
+
+        /// <summary>
+        /// Gets or sets the type of the address.
+        /// </summary>
+        /// <value>
+        /// The type of the address.
+        /// </value>
+        //TODO: Maps To The Right Json Property When Exposed By MCF 
+        public McfAddressType AddressType { get; set; }
     }
 }
