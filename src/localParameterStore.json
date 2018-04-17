@@ -1,11 +1,11 @@
 ﻿[
   {
-  "Key":"/CI/MS/Development/MCF/CustomerUserName",
-  "Value":"cfeng"
+    "Key": "/CI/MS/Development/MCF/CustomerUserName",
+    "Value": "UMC_ANM_SRV"
   },
   {
-  "Key": "/CI/MS/Development/MCF/CustomerUserPassword",
-  "Value": "$Welcome123"
+    "Key": "/CI/MS/Development/MCF/CustomerUserPassword",
+    "Value": "nM7O=GH$"
   }
 ]
 

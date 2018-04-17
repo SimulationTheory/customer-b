@@ -1,4 +1,7 @@
 ﻿using PSE.Customer.V1.Models;
+using PSE.Customer.V1.Request;
+using PSE.Customer.V1.Response;
+using System.Threading.Tasks;
 
 namespace PSE.Customer.V1.Logic.Interfaces
 {
@@ -14,5 +17,12 @@ namespace PSE.Customer.V1.Logic.Interfaces
 
 
         //ReconnectionResponse GetReconnectAmountDueAndCa(string contractAccountId);
+        
+        /// <summary>
+        /// Create a Business Partner
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        Task<CreateBusinesspartnerResponse> CreateBusinessPartner(CreateBusinesspartnerRequest request);
     }
 }

@@ -30,9 +30,21 @@ namespace PSE.RestUtility.Core.Extensions
 
         public static IRestRequest AddJsonBody<T>(this IRestRequest source, T body)
         {
-            var json = JsonConvert.SerializeObject(body);
+            var json = JsonConvert.SerializeObject(body, Formatting.None,
+                    new JsonSerializerSettings
+                    {
+                        NullValueHandling = NullValueHandling.Ignore,
+                        DefaultValueHandling = DefaultValueHandling.Ignore,
+                    });
             source.AddParameter("application/json", json, ParameterType.RequestBody);
 
+            return source;
+        }
+        public static IRestRequest AddMcfRequestHeaders(this IRestRequest source)
+        {
+            source.AddHeader("X-Requested-With", "XMLHttpRequest");
+            source.AddHeader("ContentType", "application/json");
+            source.AddHeader("Accept", "application/json");
             return source;
         }
     }

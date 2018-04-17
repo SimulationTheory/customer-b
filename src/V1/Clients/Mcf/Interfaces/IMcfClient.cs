@@ -2,6 +2,7 @@
 using PSE.Customer.V1.Clients.Mcf.Response;
 using PSE.Customer.V1.Models;
 using PSE.RestUtility.Core.Mcf;
+using System.Threading.Tasks;
 
 namespace PSE.Customer.V1.Clients.Mcf.Interfaces
 {
@@ -167,5 +168,12 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
 
 
         MoveInLatePaymentsResponse GetMoveInLatePaymentsResponse(long contractAccountId, string jwt);
+
+        /// <summary>
+        /// Creates a Business Partner for Person/Organization or Autherized contact
+        /// </summary>
+        /// <param name="businesPartnerequest"></param>
+        /// <returns></returns>
+        Task<CreateBusinessPartnerMcfResponse> CreateBusinessPartner(CreateBusinesspartnerMcfRequest businesPartnerequest);
     }
 }

@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using PSE.Customer.Extensions;
@@ -11,8 +15,6 @@ using PSE.RestUtility.Core.Extensions;
 using PSE.RestUtility.Core.Mcf;
 using PSE.WebAPI.Core.Configuration.Interfaces;
 using RestSharp;
-using System.IO;
-using System.Collections.Generic;
 using PSE.Customer.Configuration;
 using PSE.WebAPI.Core.Configuration;
 using PSE.WebAPI.Core.Exceptions.Types;
@@ -26,6 +28,7 @@ namespace PSE.Customer.V1.Clients.Mcf
     {
         private readonly ICoreOptions _coreOptions;
         private readonly ILogger<McfClient> _logger;
+        private readonly string _environment;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="McfClient"/> class.
@@ -39,6 +42,9 @@ namespace PSE.Customer.V1.Clients.Mcf
         {
             _coreOptions = coreOptions ?? throw new ArgumentNullException(nameof(coreOptions));
             _logger = logger ?? throw new ArgumentNullException(nameof(coreOptions));
+
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            _environment = string.IsNullOrEmpty(environment) ? "Development" : environment;
         }
 
         /// <summary>
@@ -567,8 +573,64 @@ namespace PSE.Customer.V1.Clients.Mcf
                 throw e;
             }
         }
-  
-        private void GetCustomerMcfCredentials(ref string userName, ref string password)
+
+        /// <inheritdoc />
+        public async Task<CreateBusinessPartnerMcfResponse> CreateBusinessPartner(CreateBusinesspartnerMcfRequest request)
+        {
+            CreateBusinessPartnerMcfResponse response;
+
+            try
+            {
+                _logger.LogInformation($"CreateAddress({nameof(request)}: {request.ToJson()})");
+
+                var config = _coreOptions.Configuration;
+                var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
+              
+
+                var restRequest = new RestRequest($"/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/BusinessPartnerEasySet", Method.POST);
+                // Add basic auth for anon service account
+                var mcfUserName = string.Empty;
+                var mcfUserPassword = string.Empty;
+                SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword);
+                restRequest.AddBasicCredentials(mcfUserName, mcfUserPassword);
+                restRequest.AddMcfRequestHeaders();
+                
+                restRequest.AddJsonBody<CreateBusinesspartnerMcfRequest>(request);
+
+                _logger.LogInformation("Making MCF call");
+
+                var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
+                var cancellationTokenSource = new CancellationTokenSource();
+                var restResponse = await client.ExecuteTaskAsync(restRequest, cancellationTokenSource.Token);
+                if(!restResponse.IsSuccessful)
+                {
+                    var mcfResponse = JsonConvert.DeserializeObject<McfResponse<CreateBusinessPartnerMcfResponse>>(restResponse.Content);
+                    if (mcfResponse.Error != null && mcfResponse.Result == null)
+                    {
+                        var errormessage = $"BusinessPartnerEasySet call to create Business partner was not successfull with Error {mcfResponse.Error?.Message?.Value}";
+                       _logger.LogError(errormessage);
+                        throw new Exception(errormessage);
+                    }
+                   
+                }
+                
+                var mcfOkResponse = JsonConvert.DeserializeObject<McfResponse<CreateBusinessPartnerMcfResponse>>(restResponse.Content);
+                response = mcfOkResponse.Result;// mcfResponse.Result.Results.FirstOrDefault();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"{e.Message} for {nameof(request)}: {request.ToJson(Formatting.None)}");
+                throw e;
+            }
+
+            return response;
+        }
+
+
+
+        #region Private methods
+        //TODO Merge the GetCustomerMcfCredentials and SetMcfAnonCredentials once we verify we can use the UMC_ANM_SRV user for all anonymous
+        private void SetMcfAnonCredentials(ref string userName, ref string password)
         {
             var options = new CoreOptions(ServiceConfiguration.AppName);
             ICoreOptions _options = options;
@@ -598,5 +660,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                 password = parameters.FirstOrDefault(x => x.Key.Equals(mcfCustomerUserPasswordParamName)).Value;
             }
         }
+       
+        #endregion
     }
 }

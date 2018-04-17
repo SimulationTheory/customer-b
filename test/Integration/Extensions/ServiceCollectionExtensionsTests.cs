@@ -10,6 +10,7 @@ using PSE.Customer.Configuration;
 using PSE.Customer.Configuration.Keyspaces;
 using PSE.Customer.Extensions;
 using PSE.Customer.Tests.Integration.TestObjects;
+using PSE.Customer.V1.Clients.Address.Interfaces;
 using PSE.Customer.V1.Clients.Authentication.Interfaces;
 using PSE.Customer.V1.Clients.Mcf.Interfaces;
 using PSE.Customer.V1.Controllers;
@@ -84,6 +85,7 @@ namespace PSE.Customer.Tests.Integration.Extensions
                     provider.GetRequiredService<IAuthenticationApi>();
                     provider.GetRequiredService<IMcfClient>();
                     provider.GetRequiredService<ICustomerLogic>();
+                    provider.GetRequiredService<IAddressApi>();
 
                     // Controller
                     provider.GetRequiredService<ILogger<CustomerController>>();

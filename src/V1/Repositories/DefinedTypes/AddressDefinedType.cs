@@ -28,5 +28,8 @@ namespace PSE.Customer.V1.Repositories.DefinedTypes
         [DataMember(Name = "postal_code")]
         [Required]
         public string PostalCode { get; set; }
+
+        //[DataMember(Name = "CareOf")]
+        public string CareOf { get; set; }
     }
 }

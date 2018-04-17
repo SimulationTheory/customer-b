@@ -200,7 +200,7 @@ namespace PSE.Customer.V1.Controllers
         /// <param name="createBusinesspartnerRequest"></param>
         /// <returns></returns>
 
-        [ProducesResponseType(typeof(CreateBusinesspartnerResponse), 200)]
+        [ProducesResponseType(typeof(BusinessPartnerResponse), StatusCodes.Status200OK)]
         [HttpPost("business-partner")]
         [AllowAnonymous]
         public async Task<IActionResult> CreateBusinesspartner([FromBody] CreateBusinesspartnerRequest createBusinesspartnerRequest)
@@ -210,14 +210,16 @@ namespace PSE.Customer.V1.Controllers
 
             try
             {
-                //TODO remove below Mock data
-                var bpcreateresponse = new CreateBusinesspartnerResponse()
+                var resp = await _moveInLogic.CreateBusinessPartner(createBusinesspartnerRequest);  
+                if(resp.HttpStatusCode == System.Net.HttpStatusCode.BadRequest)
                 {
-                   BpId = "10000000001",
-                   Addressnumber = "0000041221"
-
+                    return BadRequest();
+                }
+                var createBp = new BusinessPartnerResponse()
+                {
+                    BpId = resp.BpId
                 };
-                result = Ok(bpcreateresponse);
+                result = Ok(createBp);
             }
             catch (Exception ex)
             {
