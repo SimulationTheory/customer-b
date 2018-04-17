@@ -4,6 +4,6 @@ namespace PSE.Customer.Configuration.Keyspaces
 {
     public class MicroservicesKeyspace : Keyspace
     {
-        public override string Name => "microservices";
+        public override string Name => WebAPI.Core.Common.Keyspaces.Microservices;
     }
 }

@@ -3,6 +3,10 @@ using PSE.Customer.V1.Models;
 using System.Threading.Tasks;
 using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Clients.Mcf.Models;
+using PSE.RestUtility.Core.Mcf;
+using PSE.Customer.V1.Clients.Mcf.Response;
+using System;
+using PSE.Customer.V1.Request;
 
 namespace PSE.Customer.V1.Logic.Interfaces
 {

@@ -167,5 +167,33 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         #endregion
 
         #endregion
+
+        [TestMethod]
+        public void GetInvalidMoveinDates_Valid_Request_Returns_Valid_Response()
+        {
+            // Arrange
+            var dateList = new List<DateTimeOffset>();
+            for (int i = 0; i < 5; i++)
+            {
+                dateList.Add(DateTime.Now.AddDays(i));
+            }
+
+            MoveInLogicMock.Setup(m => m.GetInvalidMoveinDates(It.IsAny<GetInvalidMoveinDatesRequest>())).Returns(dateList);
+            var controller = GetController();
+
+            var request = new GetInvalidMoveinDatesRequest
+            {
+                DateFrom = DateTime.Now,
+                DateTo = DateTime.Now.AddMonths(3),
+            };
+
+            // Act
+            var response = controller.GetInvalidMoveinDates(request);
+
+            // Assert
+            var result = ((OkObjectResult)response.Result).Value as GetInvalidMoveinDatesResponse;
+            result.InvalidMoveinDates.ShouldNotBeNull();
+            result.InvalidMoveinDates.Count.ShouldBe(5);
+        }
     }
 }

@@ -5,8 +5,8 @@ using System.Collections.Generic;
 namespace PSE.Customer.V1.Response
 {
     ///
-    public class HolidaysInDaterangeResponse : IAPIResponse
+    public class GetInvalidMoveinDatesResponse : IAPIResponse
     {
-        public List<DateTime> Holidays { get; set; }
+        public List<DateTimeOffset> InvalidMoveinDates { get; set; }
     }
 }

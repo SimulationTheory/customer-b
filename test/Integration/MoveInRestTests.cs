@@ -44,7 +44,7 @@ namespace PSE.Customer.Tests.Integration
                 var version = "1.0";
                 var contractAccountId = User.ContractAccountId;
                 var path = $"/v{version}/customer/movein-status-latepayment/{contractAccountId}";
-                var jwtToken = GetJwtToken(User.Username);
+                var jwtToken = await GetJwtToken(User.Username);
 
                 // test target service
                 using (var results = await Get(path, jwtToken))
@@ -81,7 +81,7 @@ namespace PSE.Customer.Tests.Integration
                 var version = "1.0";
                 var contractAccountId = User.ContractAccountId;
                 var path = $"/v{version}/customer/movein-status-latepayment/{contractAccountId}";
-                var jwtToken = GetJwtToken(User.Username);
+                var jwtToken = await GetJwtToken(User.Username);
 
                 // test target service
                 using (var results = await Get(path, jwtToken))
@@ -104,7 +104,7 @@ namespace PSE.Customer.Tests.Integration
                 var version = "1.0";
                 var contractAccountId = 1234567890;
                 var path = $"/v{version}/customer/movein-status-latepayment/{contractAccountId}";
-                var jwtToken = GetJwtToken(User.Username);
+                var jwtToken = await GetJwtToken(User.Username);
 
                 // test target service
                 using (var results = await Get(path, jwtToken))
@@ -126,7 +126,7 @@ namespace PSE.Customer.Tests.Integration
                 var version = "1.0";
                 var contractAccountId = User.ContractAccountId;
                 var path = $"/v{version}/customer/movein-latepayment/{contractAccountId}?reconnectFlag=true";
-                var jwtToken = GetJwtToken(User.Username);
+                var jwtToken = await GetJwtToken(User.Username);
 
                 // test target service
                 using (var results = await Put(path, "", jwtToken))
@@ -163,7 +163,7 @@ namespace PSE.Customer.Tests.Integration
                 var version = "1.0";
                 var contractAccountId = User.ContractAccountId;
                 var path = $"/v{version}/customer/movein-latepayment/{contractAccountId}?reconnectFlag=true";
-                var jwtToken = GetJwtToken(User.Username);
+                var jwtToken = await GetJwtToken(User.Username);
 
                 // test target service
                 using (var results = await Put(path, "", jwtToken))
@@ -186,7 +186,7 @@ namespace PSE.Customer.Tests.Integration
                 var version = "1.0";
                 var contractAccountId = 1234567890;
                 var path = $"/v{version}/customer/movein-latepayment/{contractAccountId}?reconnectFlag=true";
-                var jwtToken = GetJwtToken(User.Username);
+                var jwtToken = await GetJwtToken(User.Username);
 
                 // test target service
                 using (var results = await Put(path, "", jwtToken))

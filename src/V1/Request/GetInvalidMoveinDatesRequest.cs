@@ -7,7 +7,7 @@ namespace PSE.Customer.V1.Request
     /// <summary>
     /// 
     /// </summary>
-    public class HolidaysInDaterangeRequest : IAPIRequest
+    public class GetInvalidMoveinDatesRequest : IAPIRequest
     {
         /// <summary>
         /// Start date

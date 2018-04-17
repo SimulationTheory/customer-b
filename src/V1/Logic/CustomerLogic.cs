@@ -26,6 +26,7 @@ using PSE.Customer.V1.Clients.Mcf.Response;
 using PSE.RestUtility.Core.Mcf;
 using PSE.Customer.V1.Clients.Mcf.Models;
 using PSE.Customer.V1.Clients.Address.Interfaces;
+using PSE.Customer.V1.Request;
 using PSE.WebAPI.Core.Service.Enums;
 
 namespace PSE.Customer.V1.Logic
@@ -436,10 +437,6 @@ namespace PSE.Customer.V1.Logic
             
             return token;
         }
-
-
-       
-        
 
         #region private methods
         private async Task SaveSecurityQuestions(WebProfile webprofile, IRestResponse<OkResult> resp)

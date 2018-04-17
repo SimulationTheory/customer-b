@@ -1,8 +1,11 @@
 ﻿using PSE.Customer.V1.Clients.Mcf.Request;
 using PSE.Customer.V1.Clients.Mcf.Response;
+using PSE.Customer.V1.Request;
 using PSE.Customer.V1.Models;
 using PSE.RestUtility.Core.Mcf;
 using System.Threading.Tasks;
+using System;
+using PSE.Customer.V1.Clients.Mcf.Models;
 
 namespace PSE.Customer.V1.Clients.Mcf.Interfaces
 {
@@ -145,13 +148,20 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// POSTs a new address.
         /// </summary>
         /// <param name="jwt">Java Web Token for authentication</param>
-        /// <param name="request"></param>
+        /// <param name="request">The request.</param>
         /// <returns></returns>
         /// <remarks>
         /// OData URI:
         /// POST /sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/AccountAddresses
         /// </remarks>
         McfResponse<CreateAddressResponse> CreateAddress(string jwt, CreateAddressRequest request);
+
+        /// <summary>
+        /// Gets business holidays from MCF for a specific date range.
+        /// </summary>
+        /// <param name="invalidMoveinDatesRequest">The invalid movein dates request.</param>
+        /// <returns></returns>
+        McfResponse<GetHolidaysResponse> GetInvalidMoveinDates(GetInvalidMoveinDatesRequest invalidMoveinDatesRequest);
 
         /// <summary>
         /// PUTs address to contract account.

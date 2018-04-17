@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using PSE.Customer.Extensions;
 using Microsoft.Extensions.Primitives;
+using Microsoft.AspNetCore.Http;
 using PSE.WebAPI.Core.Exceptions;
 using PSE.WebAPI.Core.Exceptions.Types;
 
@@ -63,7 +64,10 @@ namespace PSE.Customer.V1.Controllers
         /// </remarks>
         /// <param name="lookupCustomerRequest"></param>
         /// <returns>returns LookupCustomerResponse</returns>
-        [ProducesResponseType(typeof(LookupCustomerResponse), 200)]
+        /// <response code="200">Customer found</response>
+        /// <response code="204">Customer not found.  (This is on purpose to avoid raising a 404 error)</response>
+        [ProducesResponseType(typeof(LookupCustomerResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [HttpGet("lookup")]
         [AllowAnonymous]
         public async Task<IActionResult> LookupCustomer(LookupCustomerRequest lookupCustomerRequest)
@@ -88,6 +92,7 @@ namespace PSE.Customer.V1.Controllers
                 }
                 else
                 {
+                    // This is on purpose to avoid raising a 404 error. Per Peter.
                     result = StatusCode(204);
                 }
             }

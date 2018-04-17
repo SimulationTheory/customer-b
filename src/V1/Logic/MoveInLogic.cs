@@ -10,6 +10,9 @@ using PSE.Customer.V1.Clients.Mcf.Request;
 using PSE.Customer.V1.Clients.Address.Interfaces;
 using PSE.Customer.V1.Clients.Mcf.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
+using System.Collections.Generic;
+using PSE.Customer.V1.Clients.Mcf.Models;
+using PSE.Customer.V1.Request;
 
 namespace PSE.Customer.V1.Logic
 {
@@ -234,5 +237,25 @@ namespace PSE.Customer.V1.Logic
         }
 
         #endregion
+
+        /// <inheritdoc/>
+        public List<DateTimeOffset> GetInvalidMoveinDates(GetInvalidMoveinDatesRequest invalidMoveinDatesRequest)
+        {
+            List<DateTimeOffset> dates = null;
+
+            var mcfResponse = _mcfClient.GetInvalidMoveinDates(invalidMoveinDatesRequest);
+
+            if (mcfResponse != null)
+            {
+                // Note verified with Vikas/Bimba that HolidaysResultList will always return a list with one element.
+                dates = new List<DateTimeOffset>();
+                foreach (Holiday holiday in mcfResponse.Result.HolidaysResultList[0].HolidaysNav.Holidays)
+                {
+                    dates.Add(holiday.Date);
+                }
+            }
+
+            return dates;
+        }
     }
 }

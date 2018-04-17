@@ -2,10 +2,15 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PSE.Customer.V1.Clients.Address.Interfaces;
+using Newtonsoft.Json;
 using PSE.Customer.V1.Clients.Mcf.Interfaces;
+using PSE.Customer.V1.Clients.Mcf.Response;
 using PSE.Customer.V1.Logic;
 using PSE.Customer.V1.Models;
+using PSE.Customer.V1.Request;
+using PSE.RestUtility.Core.Mcf;
 using Shouldly;
+using System;
 
 namespace PSE.Customer.Tests.Unit.V1.Logic
 {
@@ -51,5 +56,30 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
             actual.ShouldNotBeNull();
             actual.MinimumPaymentRequired.ShouldBe(minPayment);
         }
+
+        [TestMethod]
+        public void GetInvalidMoveinDates_Returns_GetInvalidMoveinDatesResponse_Given_Valid_Input()
+        {
+            //Arrange
+            var sampleResponse = JsonConvert.DeserializeObject<McfResponse<GetHolidaysResponse>>(GetHolidaysResponse.GetSampleData());
+            _mcfClientMock.Setup(mcm => mcm.GetInvalidMoveinDates(It.IsAny<GetInvalidMoveinDatesRequest>()))
+                .Returns(sampleResponse);
+
+            var target = new MoveInLogic(_loggerMock.Object, _mcfClientMock.Object, _addressApi.Object);
+
+            //Act
+            var request = new GetInvalidMoveinDatesRequest
+            {
+                DateFrom = DateTime.Now,
+                DateTo = DateTime.Now.AddMonths(1),
+            };
+            var actual = target.GetInvalidMoveinDates(request);
+
+            //Assert
+            actual.ShouldNotBeNull();
+            actual.Count.ShouldBe(6);
+        }
+
+
     }
 }

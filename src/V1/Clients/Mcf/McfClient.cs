@@ -6,18 +6,27 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using PSE.Customer.Configuration;
 using PSE.Customer.Extensions;
 using PSE.Customer.V1.Clients.Mcf.Interfaces;
+using PSE.Customer.V1.Clients.Mcf.Models;
 using PSE.Customer.V1.Clients.Mcf.Request;
 using PSE.Customer.V1.Clients.Mcf.Response;
 using PSE.Customer.V1.Models;
+using PSE.Customer.V1.Request;
 using PSE.RestUtility.Core.Extensions;
 using PSE.RestUtility.Core.Mcf;
+using PSE.WebAPI.Core.Configuration;
 using PSE.WebAPI.Core.Configuration.Interfaces;
+using PSE.WebAPI.Core.Exceptions.Types;
 using RestSharp;
 using PSE.Customer.Configuration;
 using PSE.WebAPI.Core.Configuration;
 using PSE.WebAPI.Core.Exceptions.Types;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace PSE.Customer.V1.Clients.Mcf
 {
@@ -26,6 +35,8 @@ namespace PSE.Customer.V1.Clients.Mcf
     /// </summary>
     public class McfClient : IMcfClient
     {
+        //For sending dates in Mcf requests
+        private const string McfDateFormat = "yyyy-MM-ddThh:mm:ss";
         private readonly ICoreOptions _coreOptions;
         private readonly ILogger<McfClient> _logger;
         private readonly string _environment;
@@ -492,6 +503,46 @@ namespace PSE.Customer.V1.Clients.Mcf
             }
 
             return response;
+        }
+
+        /// <inheritdoc/>
+        public McfResponse<GetHolidaysResponse> GetInvalidMoveinDates(GetInvalidMoveinDatesRequest invalidMoveinDatesRequest)
+        {
+            McfResponse<GetHolidaysResponse> mcfResponse = null;
+
+            try
+            {
+                var config = _coreOptions.Configuration;
+                var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
+                var client = restUtility.GetRestClient(config.McfEndpoint);
+                var request = //new RestRequest("/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/FactoryCalHolidaysSet?$filter=HolidayCalendar eq 'Z1' and FactoryCalendar eq 'Z1'and DateFrom eq datetime'2018-03-01T00:00:00' and DateTo eq datetime'2018-03-19T00:00:00'&$expand=HolidaysNav&$format=json", Method.GET);
+                new RestRequest("/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/FactoryCalHolidaysSet" +
+                "?$filter=HolidayCalendar eq 'Z1' and FactoryCalendar eq 'Z1'and DateFrom eq " +
+                $"datetime'{invalidMoveinDatesRequest.DateFrom.ToString(McfDateFormat)}' and DateTo eq datetime'{invalidMoveinDatesRequest.DateTo.ToString(McfDateFormat)}'" +
+                "&$expand=HolidaysNav&$format=json", Method.GET);
+
+                // Add anon bypass auth
+                var mcfUserName = string.Empty;
+                var mcfUserPassword = string.Empty;
+                SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword);
+                request.AddBasicCredentials(mcfUserName, mcfUserPassword);
+                request.AddHeader("Accept", "application/json");
+
+                var restResponse = client.Execute(request);
+                mcfResponse = JsonConvert.DeserializeObject<McfResponse<GetHolidaysResponse>>(restResponse.Content);
+                if (mcfResponse.Error != null && mcfResponse.Result == null)
+                {
+                    _logger.LogError(mcfResponse.Error.Message.Value);
+                    throw new BadRequestException(mcfResponse.Error.Message.Value);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                throw;
+            }
+
+            return mcfResponse;
         }
 
         /// <summary>

@@ -142,51 +142,45 @@ namespace PSE.Customer.V1.Controllers
         }
 
         /// <summary>
-        /// /Get Holidays in a given date range
+        /// Gets invalid movein dates (holidays and weekends) for a given date range.
         /// </summary>
         /// <remarks>
         /// Sample request:
-        /// GET /holidays-in-daterange
+        /// GET /movein/invalid-movein-dates
         /// {
         /// "DateFrom":"2018-03-01T00:00:00",
-        /// "DateTo": "2018-04-01T00:00:00"
+        /// "DateTo": “2018-04-01T00:00:00”
         /// }
         /// </remarks>
-        /// <param name="holidaysInDaterangerequest"></param>
+        /// <param name="invalidMoveinDatesRequest">The invalid movein dates request.</param>
         /// <returns></returns>
-        [ProducesResponseType(typeof(HolidaysInDaterangeResponse), 200)]
-        [HttpGet("holidays-in-daterange")]
+        /// <response code="200">Successfully retrieved invalid movein dates.</response>
+        [ProducesResponseType(typeof(GetInvalidMoveinDatesResponse), 200)]
+        [HttpGet("invalid-movein-dates")]
         [AllowAnonymous]
-        public async Task<IActionResult> GetHolidaysInDaterange(HolidaysInDaterangeRequest holidaysInDaterangerequest)
+        public async Task<IActionResult> GetInvalidMoveinDates(GetInvalidMoveinDatesRequest invalidMoveinDatesRequest)
         {
             IActionResult result;
-            _logger.LogInformation($"GetHolidaysInDaterange({nameof(holidaysInDaterangerequest)}: {holidaysInDaterangerequest.ToJson()})");
+            _logger.LogInformation($"GetInvalidMoveinDates({nameof(invalidMoveinDatesRequest)}: {invalidMoveinDatesRequest.ToJson()})");
 
             try
             {
                 if (!ModelState.IsValid)
                 {
-                    _logger.LogInformation($"Model invalid: {holidaysInDaterangerequest}");
+                    _logger.LogInformation($"Model invalid: {invalidMoveinDatesRequest}");
                     return BadRequest(ModelState);
                 }
-                //TODO remove Mock
-                //Mock Holiday Dates
-                var dates = new List<DateTime>();
 
-                for (var dt = holidaysInDaterangerequest.DateFrom; dt <= holidaysInDaterangerequest.DateTo; dt = dt.AddDays(1))
+                var dates = new GetInvalidMoveinDatesResponse()
                 {
-                    dates.Add(dt);
-                }
-
-                var holidayranges = new HolidaysInDaterangeResponse()
-                {
-                    Holidays = dates
+                    InvalidMoveinDates = _moveInLogic.GetInvalidMoveinDates(invalidMoveinDatesRequest),
                 };
-                result = Ok(holidayranges);
+
+                result = Ok(dates);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unable to Holidays in a given datrange", ex.Message);
+                _logger.LogError(ex, $"Unable to get invalid movein dates for DateFrom: {invalidMoveinDatesRequest.DateFrom} to DateTo: {invalidMoveinDatesRequest.DateTo}", ex.Message);
 
                 result = ex.ToActionResult();
             }

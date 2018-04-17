@@ -4,6 +4,6 @@ namespace PSE.Customer.Configuration.Keyspaces
 {
     public class SelfServiceAuthKeyspace : Keyspace
     {
-        public override string Name => "selfservice_auth";
+        public override string Name => WebAPI.Core.Common.Keyspaces.SelfServiceAuth;
     }
 }
