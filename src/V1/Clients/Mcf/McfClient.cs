@@ -7,7 +7,6 @@ using PSE.Customer.V1.Clients.Mcf.Interfaces;
 using PSE.Customer.V1.Clients.Mcf.Request;
 using PSE.Customer.V1.Clients.Mcf.Response;
 using PSE.Customer.V1.Models;
-using PSE.Exceptions.Core;
 using PSE.RestUtility.Core.Extensions;
 using PSE.RestUtility.Core.Mcf;
 using PSE.WebAPI.Core.Configuration.Interfaces;
@@ -16,6 +15,7 @@ using System.IO;
 using System.Collections.Generic;
 using PSE.Customer.Configuration;
 using PSE.WebAPI.Core.Configuration;
+using PSE.WebAPI.Core.Exceptions.Types;
 
 namespace PSE.Customer.V1.Clients.Mcf
 {
@@ -556,7 +556,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                 if (mcfResponse.Error != null && mcfResponse.Result == null)
                 {
                     _logger.LogError(mcfResponse.Error.Message.Value);
-                    throw new InvalidRequestException(mcfResponse.Error.Message.Value);
+                    throw new BadRequestException(mcfResponse.Error.Message.Value);
                 } 
                 return mcfResponse.Result.Results.FirstOrDefault();
 

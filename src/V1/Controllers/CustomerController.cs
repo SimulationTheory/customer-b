@@ -14,10 +14,11 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using PSE.Exceptions.Core;
 using System.Text.RegularExpressions;
 using PSE.Customer.Extensions;
 using Microsoft.Extensions.Primitives;
+using PSE.WebAPI.Core.Exceptions;
+using PSE.WebAPI.Core.Exceptions.Types;
 
 namespace PSE.Customer.V1.Controllers
 {

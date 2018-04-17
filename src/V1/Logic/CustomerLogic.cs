@@ -26,6 +26,7 @@ using PSE.Customer.V1.Clients.Mcf.Response;
 using PSE.RestUtility.Core.Mcf;
 using PSE.Customer.V1.Clients.Mcf.Models;
 using PSE.Customer.V1.Clients.Address.Interfaces;
+using PSE.WebAPI.Core.Service.Enums;
 
 namespace PSE.Customer.V1.Logic
 {
@@ -210,6 +211,8 @@ namespace PSE.Customer.V1.Logic
             // There is apparently no way to determine if any rows were updated or not,
             // so unless an exception occurs, NoContent will always be returned.
             await _customerRepository.UpdateCustomerEmailAddress(emailAddress, bpId);
+
+            var success = await _authenticationApi.SyncUserEmail(jwt, RequestChannelEnum.Web);
         }
 
         /// <summary>

@@ -11,6 +11,7 @@ using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Request;
 using PSE.Customer.V1.Response;
+using PSE.WebAPI.Core.Exceptions;
 using PSE.WebAPI.Core.Service;
 
 namespace PSE.Customer.V1.Controllers

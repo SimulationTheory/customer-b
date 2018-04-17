@@ -5,6 +5,7 @@ using PSE.Customer.V1.Clients.ClientProxy.Interfaces;
 using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Request;
 using PSE.Customer.V1.Response;
+using PSE.WebAPI.Core.Service.Enums;
 using RestSharp;
 
 namespace PSE.Customer.V1.Clients.Authentication.Interfaces
@@ -22,5 +23,6 @@ namespace PSE.Customer.V1.Clients.Authentication.Interfaces
         Task<IRestResponse<SignInResponse>> GetJwtToken(string username, string password);
 
         Task<IRestResponse<PostCreateUserSecurityQuestionsResponse>> SaveSecurityQuestions(WebProfile profileInfo, string jwtToken);
+        Task<IRestResponse<PutSyncUserEmailResponse>> SyncUserEmail(string jwt, RequestChannelEnum requestChannel);
     }
 }

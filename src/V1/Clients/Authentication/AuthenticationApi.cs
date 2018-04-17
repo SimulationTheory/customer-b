@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using PSE.Customer.V1.Clients.Authentication.Interfaces;
 using PSE.Customer.V1.Clients.Authentication.Models.Response;
@@ -11,6 +12,8 @@ using RestSharp;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using PSE.WebAPI.Core.Service.Enums;
+using PSE.WebAPI.Core.Service.Interfaces;
 
 namespace PSE.Customer.V1.Clients.Authentication
 {
@@ -22,6 +25,7 @@ namespace PSE.Customer.V1.Clients.Authentication
         /// <summary>
         /// Constructor for DI
         /// </summary>
+        /// <param name="requestContextAdapter"></param>
         /// <param name="coreOptions"></param>
         public AuthenticationApi(ICoreOptions coreOptions) : base(coreOptions)
         {
@@ -40,7 +44,6 @@ namespace PSE.Customer.V1.Clients.Authentication
             request.AddHeader("request-channel", "Web");
             return ExecuteAsync<AccountExistsResponse>(request);
         }
-
         /// <summary>
         /// Calls Usrename exist API in Authentication
         /// </summary>
@@ -53,7 +56,6 @@ namespace PSE.Customer.V1.Clients.Authentication
             request.AddHeader("request-channel", "Web");
             return ExecuteAsync<ExistsResponse>(request);
         }
-
         /// <summary>
         /// Calls the Signup Api in authentication repo to create users in Cognito as well as Cassandra
         /// </summary>
@@ -71,7 +73,6 @@ namespace PSE.Customer.V1.Clients.Authentication
 
             return SignUpCustomer(signUpInfo);
         }
-
         /// <summary>
         /// Calls the Signup Api in authentication repo to create users in Cognito as well as Cassandra
         /// </summary>
@@ -89,7 +90,6 @@ namespace PSE.Customer.V1.Clients.Authentication
             var resp = await ExecuteAsync<OkResult>(request);
             return resp;
         }
-
         /// <summary>
         /// Calls the Signup Api in authentication repo to create users in Cognito as well as Cassandra
         /// </summary>
@@ -117,7 +117,6 @@ namespace PSE.Customer.V1.Clients.Authentication
             var resp = await ExecuteAsync<SignInResponse>(request);
             return resp;
         }
-
         /// <summary>
         /// Calls the Signup Api in authentication repo to save user selected security questions
         /// /authentication/security-question/user
@@ -147,6 +146,21 @@ namespace PSE.Customer.V1.Clients.Authentication
 
             var resp = await ExecuteAsync<PostCreateUserSecurityQuestionsResponse>(request);
             return resp;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="jwt"></param>
+        /// <param name="requestChannel"></param>
+        /// <returns></returns>
+        public async Task<IRestResponse<PutSyncUserEmailResponse>> SyncUserEmail(string jwt, RequestChannelEnum requestChannel)
+        {
+            var request = new RestRequest("/v1.0/authentication/sync/email", Method.PUT);
+            request.SetJwtAuthorization(jwt);
+            request.AddHeader("request-channel", requestChannel.ToString());
+            var response = await ExecuteAsync<PutSyncUserEmailResponse>(request);
+
+            return response;
         }
     }
 }
