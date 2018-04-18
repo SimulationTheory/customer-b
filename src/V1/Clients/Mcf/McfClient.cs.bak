@@ -27,7 +27,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Newtonsoft.Json.Linq;
 
 namespace PSE.Customer.V1.Clients.Mcf
 {
@@ -501,67 +500,6 @@ namespace PSE.Customer.V1.Clients.Mcf
             {
                 _logger.LogError(e, $"{e.Message} for {nameof(request)}: {request.ToJson(Formatting.None)}");
                 throw e;
-            }
-
-            return response;
-        }
-		/// <summary>
-        /// POSTs a new customer interaction record.
-        /// </summary>
-        /// <param name="jwt">Java Web Token for authentication</param>
-        /// <param name="request">Request object</param>
-        /// <returns>Response object</returns>
-        /// <remarks>
-        /// OData URI:
-        /// POST /sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/InteractionRecords
-        /// </remarks>
-		public GetCustomerInteractionResponse CreateCustomerInteractionRecord(CreateCustomerInteractionRequest request, string jwt)
-        {
-            GetCustomerInteractionResponse response = new GetCustomerInteractionResponse();
-
-            try
-            {
-                var config = _coreOptions.Configuration;
-                var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
-                var requestBody = request.ToJson(Formatting.None);
-                // URL for creating interaction record post
-                var restRequest = new RestRequest($"/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/InteractionRecords", Method.POST);
-             
-                if (jwt != null)
-                {
-                    var cookies = restUtility.GetMcfCookies(jwt).Result;
-                    restRequest.AddCookies(cookies);
-                    restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
-                }
-                else
-                {
-                    // Add anon bypass auth
-                    var mcfUserName = string.Empty;
-                    var mcfUserPassword = string.Empty;
-                    SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword);
-                    restRequest.AddBasicCredentials(mcfUserName, mcfUserPassword);
-                    restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
-
-                }
-               // adding headers   
-                restRequest.AddHeader("ContentType", "application/json");
-                restRequest.AddHeader("Accept", "application/json");
-                restRequest.AddParameter("application/json", requestBody, ParameterType.RequestBody);
-               // executing request and response       
-               var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
-               var restResponse = client.Execute(restRequest);
-                response.Success = restResponse.IsSuccessful.ToString();
-                if (response.Success == "True")
-                {
-                    var responseValues = JObject.Parse(restResponse.Content);
-                    response.InteractionRecordID = (string)responseValues["d"]["InteractionRecordID"];
-                }
-
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, e.Message);
-                throw;
             }
 
             return response;

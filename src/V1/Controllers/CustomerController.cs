@@ -20,6 +20,9 @@ using Microsoft.Extensions.Primitives;
 using Microsoft.AspNetCore.Http;
 using PSE.WebAPI.Core.Exceptions;
 using PSE.WebAPI.Core.Exceptions.Types;
+using PSE.Customer.V1.Clients.Mcf.Request;
+using PSE.Customer.V1.Clients.Mcf.Response;
+using PSE.RestUtility.Core.Mcf;
 
 namespace PSE.Customer.V1.Controllers
 {
@@ -109,6 +112,7 @@ namespace PSE.Customer.V1.Controllers
         /// <summary>
         /// Gets Customer Profile by loggedIn user
         /// </summary>
+        /// <param name="bpId"></param>
         /// <returns>returns CustomerProfile information</returns>
         [AllowAnonymous]
         [ProducesResponseType(typeof(CustomerProfileModel), 200)]
@@ -139,6 +143,7 @@ namespace PSE.Customer.V1.Controllers
 
             return result;
         }
+        
 
         /// <summary>
         /// Creates the web profile.
@@ -396,6 +401,37 @@ namespace PSE.Customer.V1.Controllers
             return result;
         }
 
+        /// <summary>
+        /// Creates interaction record for logged in user, valid priority levels are 1 (very high), 2(high),3(normal),4(low),5(very low)
+        /// </summary>
+        /// <param name="createCustomerInteraction"></param>
+        /// <returns>returns GetCustomerInteractionResponse</returns>
+        [ProducesResponseType(typeof(GetCustomerInteractionResponse), 201)]
+        [HttpPost("interaction")]
+        [AllowAnonymous]
+        public async Task<IActionResult> CreateCustomerInteractionRecord([FromBody] CreateCustomerInteractionRequest createCustomerInteraction)
+        {
+            _logger.LogInformation($"CreateCustomerInteractionRecord({nameof(createCustomerInteraction)}: {createCustomerInteraction.ToJson()}");
+            IActionResult result;
+            Task<GetCustomerInteractionResponse> customerProfile = null;
+            try
+            {
+
+                HttpContext.Request.Headers.TryGetValue("Authorization", out StringValues jwt);
+                
+                customerProfile = _customerLogic.CreateCustomerInteractionRecord(createCustomerInteraction, jwt);
+                                              
+                result = Ok(customerProfile);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+
+                result = e.ToActionResult();
+            }
+
+            return result;
+        }
         #region Private methods
 
         /// <summary>

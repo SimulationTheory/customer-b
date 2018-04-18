@@ -79,7 +79,15 @@ namespace PSE.Customer.Tests.Integration.TestObjects
             Email = "testpaactive02@test.com",
             ContractAccountId = 220007739539
         };
-
+        /// <summary>
+        /// Account for creating a user interaction record 
+        /// </summary>
+        public static readonly TestUser ActiveInteractionUser = new TestUser
+        {
+            Username = "donaldmcconnell",
+            BPNumber = 1001840105
+                   
+        };
         /// <summary>
         /// Gets the core options.
         /// </summary>
@@ -90,6 +98,8 @@ namespace PSE.Customer.Tests.Integration.TestObjects
 
             return options;
         }
+
+      
 
         /// <summary>
         /// Gets a new service collection with logging enabled and ApplicationLifetime registered.

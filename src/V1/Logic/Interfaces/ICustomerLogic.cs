@@ -3,6 +3,8 @@ using PSE.Customer.V1.Models;
 using System.Threading.Tasks;
 using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Clients.Mcf.Models;
+using PSE.Customer.V1.Clients.Mcf.Response;
+using PSE.Customer.V1.Clients.Mcf.Request;
 using PSE.RestUtility.Core.Mcf;
 using PSE.Customer.V1.Clients.Mcf.Response;
 using System;
@@ -96,5 +98,18 @@ namespace PSE.Customer.V1.Logic.Interfaces
         /// <param name="jwt">The JWT.</param>
         /// <returns></returns>
         long UpsertStandardMailingAddress(long bpId, AddressDefinedType address, string jwt);
-    }
+
+        /// <summary>
+        /// Upserts the standard mailing address.
+        /// </summary>
+        /// <param name="bpId">The bp identifier.</param>
+        /// <param name="createCustomerInteraction">The address.</param>
+        /// <param name="jwt">The JWT.</param>
+        /// <returns></returns>
+        Task<GetCustomerInteractionResponse> CreateCustomerInteractionRecord(CreateCustomerInteractionRequest createCustomerInteraction, string jwt);
+
+
+        
+    }  
+    
 }

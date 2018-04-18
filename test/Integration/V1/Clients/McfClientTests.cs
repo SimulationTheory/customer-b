@@ -25,7 +25,7 @@ using Shouldly;
 
 namespace PSE.Customer.Tests.Integration.V1.Clients
 {
-    //[TestClass]
+    [TestClass]
     public class McfClientTests
     {
         #region Helpers
@@ -513,6 +513,42 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         }
 
         #endregion
+        #region CreateInteractionRecords Tests
+        [TestMethod]
+        public async Task CreateCustomerInteractionRecord_CanCreateRecord()
+        {
+            // Arrange
+            var user = TestHelper.ActiveInteractionUser;
+            var loginResponse = await AuthClient.GetJwtToken("donaldmcconnell", "Start@123");
+            user.SetJwtEncodedString(loginResponse.Data.JwtAccessToken);
+
+            user.JwtEncodedString.ShouldNotBeNullOrWhiteSpace();
+            user.BPNumber.ShouldNotBe(0);
+            CreateCustomerInteractionRequest newInteraction = new CreateCustomerInteractionRequest()
+            {
+
+                AccountID = "1001840105",
+                Description = "High Bill Call",
+                PremiseID = 7000006028,
+                BusinessAgreementID = 200000053856,
+                Priority = 5,
+                InteractionRecordReasonID = "A1-ZBIL -HIGH",
+                InteractionRecordCategory1 = "",
+                InteractionRecordCategory2 = "",
+                InteractionRecordCategory1GUID = "",
+                InteractionRecordCategory2GUID = "",
+                ChannelID = "Z14",
+                Note = "Insert Notes for the IR",
+                IncomingFlag = true,
+                DocumentStatusID = "E0003"
+             };
+
+            GetCustomerInteractionResponse response = McfClient.CreateCustomerInteractionRecord(newInteraction, user.JwtEncodedString);
+            Assert.AreEqual(response.Success, "True");
+            Assert.IsNotNull(response.InteractionRecordID);
+        }
+        #endregion
+
 
         #region CreateAddress Tests
 

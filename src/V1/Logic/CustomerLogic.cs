@@ -148,6 +148,20 @@ namespace PSE.Customer.V1.Logic
             return lookupCustomerModel;
         }
 
+
+
+        /// <summary>
+        /// Returns CustomerProfileModel based customer and customer contact information retrieved from Cassandra
+        /// </summary>
+        /// <param name="bpId">Business partner ID</param>
+        /// <returns>Awaitable CustomerProfileModel result</returns>
+        public async Task<GetCustomerInteractionResponse> CreateCustomerInteractionRecord(CreateCustomerInteractionRequest createCustomerInteraction,string jwt)
+        {
+            GetCustomerInteractionResponse interactionResponse = _mcfClient.CreateCustomerInteractionRecord(createCustomerInteraction, jwt);
+           
+
+            return  interactionResponse;
+        }
         /// <summary>
         /// Returns CustomerProfileModel based customer and customer contact information retrieved from Cassandra
         /// </summary>

@@ -185,5 +185,13 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// <param name="businesPartnerequest"></param>
         /// <returns></returns>
         Task<CreateBusinessPartnerMcfResponse> CreateBusinessPartner(CreateBusinesspartnerMcfRequest businesPartnerequest);
+
+        /// <summary>
+        /// Creates a Customer Interaction Record
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="jwt"></param>
+        /// <returns></returns>
+        GetCustomerInteractionResponse CreateCustomerInteractionRecord(CreateCustomerInteractionRequest request, string jwt);
     }
 }
