@@ -138,7 +138,7 @@ namespace PSE.Customer.V1.Logic
                 Phone = request?.Phone?.Number,
                 PhoneType = GetPhoneType(request?.Phone),
                 Extension = request?.Phone?.Extension,
-                AddressType = GetAddressTye(request.AddressType),
+                AddressType = GetAddressTye(addressInfo.AddressType),
                 CareOf = addressInfo.COName,
                 Street = addressInfo.Street,
                 HouseNum = addressInfo.HouseNo,

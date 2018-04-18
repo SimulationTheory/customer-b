@@ -28,7 +28,7 @@ namespace PSE.Customer.V1.Clients.Address
         /// <returns></returns>
         public async Task<IRestResponse<McfAddressinfo>> ToMcfMailingAddressAsync(AddressDefinedType address)
         {
-            var request = new RestRequest($"/v{API_VERSION}/address/mailing/mcf", Method.POST);// TODO change the end point to sap-format
+            var request = new RestRequest($"/v{API_VERSION}/address/mailing/sap-format", Method.POST);// TODO change the end point to sap-format
             request.AddHeader("request-channel", "Web");
             var body = JsonConvert.SerializeObject(address);
 
