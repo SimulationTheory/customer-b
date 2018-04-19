@@ -16,17 +16,29 @@ using PSE.WebAPI.Core.Service;
 
 namespace PSE.Customer.V1.Controllers
 {
-
+    /// <summary>
+    /// API to facilitate customers moving, both new and existing customers
+    /// </summary>
+    /// <seealso cref="PSEController" />
     [ApiVersion("1.0")]
     [Produces("application/json")]
     [Authorize("ContractAccountValidator")]
     [Route("v{version:apiVersion}/customer/")]
     public class MoveInController : PSEController
     {
-
         private readonly ILogger<MoveInController> _logger;
         private readonly IMoveInLogic _moveInLogic;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MoveInController"/> class.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <param name="moveInLogic">The move in logic.</param>
+        /// <exception cref="ArgumentNullException">
+        /// logger
+        /// or
+        /// moveInLogic
+        /// </exception>
         public MoveInController(ILogger<MoveInController> logger, IMoveInLogic moveInLogic)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -42,7 +54,6 @@ namespace PSE.Customer.V1.Controllers
         [ProducesResponseType(typeof(ReconnectStatusResponse), 200)]
         public async Task<IActionResult> MoveInLatePayments(long contractAccountId)
         {
-
             IActionResult result;
 
             try
@@ -74,9 +85,6 @@ namespace PSE.Customer.V1.Controllers
         [ProducesResponseType(typeof(MoveInLatePaymentsResponse), 200)]
         public async Task<IActionResult> MoveInLatePayments([FromQuery]bool reconnectFlag)
         {
-
-            
-
             IActionResult result = Ok(new MoveInLatePaymentsResponse()
             {
 
@@ -98,6 +106,7 @@ namespace PSE.Customer.V1.Controllers
         }
 
         #region Start/Stop/Transfer Endpoints
+
         /// <summary>
         /// Search BP given customer firstname, MiddleName and Last Name
         /// </summary>
@@ -275,7 +284,7 @@ namespace PSE.Customer.V1.Controllers
 
             try
             {
-                //Get the parnet Bp Id from the JWt
+                //Get the parnet Bp Id from the JWT
                 //TODO remove below Mock data
                 var bprelationshipsresponse = new BpRelationshipResponse()
                 {
@@ -309,7 +318,6 @@ namespace PSE.Customer.V1.Controllers
 
             try
             {
-                
                 result = Ok();
             }
             catch (Exception ex)
@@ -325,7 +333,7 @@ namespace PSE.Customer.V1.Controllers
         #region Business Partner ID Type
 
         /// <summary>
-        /// Get All ID types and values for a Given BP
+        /// Gets all ID types but not values for a BP
         /// </summary>
         /// <returns>returns IndentifierResponse</returns>
         [ProducesResponseType(typeof(IndentifierResponse), 200)]
@@ -335,15 +343,15 @@ namespace PSE.Customer.V1.Controllers
             IActionResult result;
             try
             {
-                //Get Bp from JWt
+                //Get Bp from JWT
                 //TODO remove below Mock data
                 var identifieResponse = new IndentifierResponse()
                 {
                     Identifiers = new List<IdentifierModel>()
                     {
-                        new IdentifierModel(){IdentifierType = IdentifierType.ZDOB, IdentifierValue="02/02/1978"},
-                        new IdentifierModel(){IdentifierType = IdentifierType.ZLAST4, IdentifierValue="1010"},
-                        new IdentifierModel(){IdentifierType = IdentifierType.ZDNAC, IdentifierValue="X"}
+                        new IdentifierModel(){IdentifierType = IdentifierType.ZDOB},
+                        new IdentifierModel(){IdentifierType = IdentifierType.ZLAST4},
+                        new IdentifierModel(){IdentifierType = IdentifierType.ZDNAC}
                     }
                 };
                 result = Ok(identifieResponse);
@@ -359,23 +367,23 @@ namespace PSE.Customer.V1.Controllers
         }
 
         /// <summary>
-        /// Get ID type and value for a Given BP
+        /// Get ID type but not value for a BP
         /// </summary>
         /// <returns>returns IndentifierResponse</returns>
         [ProducesResponseType(typeof(IndentifierResponse), 200)]
         [HttpGet("bp-id-type/{type}")]
-        public async Task<IActionResult> GetIdType(IdentifierType type)
+        public async Task<IActionResult> GetIdType([FromBody] IdentifierType type)
         {
             IActionResult result;
             try
             {
-                //Get Bp from JWt
+                //Get Bp from JWT
                 //TODO remove below Mock data
                 var identifieResponse = new IndentifierResponse()
                 {
                     Identifiers = new List<IdentifierModel>()
                     {
-                        new IdentifierModel(){IdentifierType = IdentifierType.ZDOB, IdentifierValue="02/02/1978"}
+                        new IdentifierModel(){IdentifierType = IdentifierType.ZDOB}
                     }
                 };
                 result = Ok(identifieResponse);
@@ -391,16 +399,16 @@ namespace PSE.Customer.V1.Controllers
         }
 
         /// <summary>
-        /// Create Identifier type for a bp
+        /// Create identifier for a BP
         /// </summary>
         /// <param name="identifierRequest"></param>
         /// <returns>returns BPSearchResponse</returns>
         [ProducesResponseType(typeof(OkResult), StatusCodes.Status200OK)]
         [HttpPost("bp-id-type")]
-        public async Task<IActionResult> CreateIDType(IdentifierRequest identifierRequest)
+        public async Task<IActionResult> CreateIdType([FromBody] IdentifierRequest identifierRequest)
         {
             IActionResult result;
-            _logger.LogInformation($"CreateIDType({nameof(identifierRequest)}: {identifierRequest.ToJson()})");
+            _logger.LogInformation($"CreateIdType({nameof(identifierRequest)}: {identifierRequest.ToJson()})");
 
             try
             {
@@ -417,16 +425,44 @@ namespace PSE.Customer.V1.Controllers
         }
 
         /// <summary>
-        /// Create Identifier type for a bp
+        /// Update identifier for a BP
         /// </summary>
         /// <param name="identifierRequest"></param>
         /// <returns>returns BPSearchResponse</returns>
         [ProducesResponseType(typeof(OkResult), StatusCodes.Status200OK)]
         [HttpPut("bp-id-type")]
-        public async Task<IActionResult> UpdateIDType(IdentifierRequest identifierRequest)
+        public async Task<IActionResult> UpdateIdType([FromBody] IdentifierRequest identifierRequest)
         {
             IActionResult result;
-            _logger.LogInformation($"UpdateIDType({nameof(identifierRequest)}: {identifierRequest.ToJson()})");
+            _logger.LogInformation($"UpdateIdType({nameof(identifierRequest)}: {identifierRequest.ToJson()})");
+
+            try
+            {
+                result = Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unable to update IDentifier Type for a BP", ex.Message);
+
+                result = ex.ToActionResult();
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Validate identifier for a BP (i.e. does value match what is in SAP)
+        /// (Anonymous call)
+        /// </summary>
+        /// <param name="identifierRequest"></param>
+        /// <returns>returns BPSearchResponse</returns>
+        [ProducesResponseType(typeof(OkResult), StatusCodes.Status200OK)]
+        [HttpPut("bp-id-type")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ValidateIdType([FromBody] IdentifierRequest identifierRequest)
+        {
+            IActionResult result;
+            _logger.LogInformation($"ValidateIdType({nameof(identifierRequest)}: {identifierRequest.ToJson()})");
 
             try
             {

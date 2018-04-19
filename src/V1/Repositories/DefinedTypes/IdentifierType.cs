@@ -3,7 +3,7 @@
 namespace PSE.Customer.V1.Repositories.DefinedTypes
 {
     /// <summary>
-    /// Represents Identifier types
+    /// Represents identifier types such as last 4 SSN, drivers license number, etc.
     /// </summary>
     public enum IdentifierType
     {

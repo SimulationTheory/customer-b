@@ -140,7 +140,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             var identifier = new IdentifierRequest();
 
             // Act
-            var response = controller.CreateIDType(identifier);
+            var response = controller.CreateIdType(identifier);
 
             // Assert
             response.Result.ShouldBeOfType<OkResult>();
@@ -158,7 +158,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             var identifier = new IdentifierRequest();
 
             // Act
-            var response = controller.UpdateIDType(identifier);
+            var response = controller.UpdateIdType(identifier);
 
             // Assert
             response.Result.ShouldBeOfType<OkResult>();
