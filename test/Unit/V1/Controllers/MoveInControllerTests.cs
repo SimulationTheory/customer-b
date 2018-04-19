@@ -133,7 +133,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         #region CreateIDType Tests
 
         [TestMethod]
-        public void CreateIDType_ValidAccountAndType_SavedSuccessfully()
+        public void CreateIdType_ValidAccountAndType_SavedSuccessfully()
         {
             // Arrange
             var controller = GetController();
@@ -148,10 +148,10 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
 
         #endregion
 
-        #region UpdateIDType Tests
+        #region UpdateIdType Tests
 
         [TestMethod]
-        public void UpdateIDType_ValidAccountAndType_SavedSuccessfully()
+        public void UpdateIdType_ValidAccountAndType_SavedSuccessfully()
         {
             // Arrange
             var controller = GetController();
@@ -162,6 +162,48 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
 
             // Assert
             response.Result.ShouldBeOfType<OkResult>();
+        }
+
+        #endregion
+
+        #region ValidateIdType Tests
+
+        [TestMethod]
+        public void ValidateType_ValidAccountAndType_TrueReturned()
+        {
+            // Arrange
+            var controller = GetController();
+            var identifier = new IdentifierRequest
+            {
+                IdentifierType = IdentifierType.ZLAST4,
+                IdentifierNo = "1234"
+            };
+
+            // Act
+            var response = controller.ValidateIdType(identifier);
+
+            // Assert
+            response.Result.ShouldBeOfType(typeof(OkObjectResult));
+            var result = (ValidateIdTypeResponse) ((OkObjectResult)response.Result).Value;
+            result.ShouldNotBeNull();
+            result.PiiMatch.ShouldBe("Y");
+        }
+
+        [TestMethod]
+        public void ValidateType_InvalidAccountAndType_FalseReturned()
+        {
+            // Arrange
+            var controller = GetController();
+            var identifier = new IdentifierRequest();
+
+            // Act
+            var response = controller.ValidateIdType(identifier);
+
+            // Assert
+            response.Result.ShouldBeOfType(typeof(OkObjectResult));
+            var result = (ValidateIdTypeResponse)((OkObjectResult)response.Result).Value;
+            result.ShouldNotBeNull();
+            result.PiiMatch.ShouldBe("N");
         }
 
         #endregion
@@ -192,6 +234,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
 
             // Assert
             var result = ((OkObjectResult)response.Result).Value as GetInvalidMoveinDatesResponse;
+            result.ShouldNotBeNull();
             result.InvalidMoveinDates.ShouldNotBeNull();
             result.InvalidMoveinDates.Count.ShouldBe(5);
         }

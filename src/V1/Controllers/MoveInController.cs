@@ -455,8 +455,8 @@ namespace PSE.Customer.V1.Controllers
         /// (Anonymous call)
         /// </summary>
         /// <param name="identifierRequest"></param>
-        /// <returns>returns BPSearchResponse</returns>
-        [ProducesResponseType(typeof(OkResult), StatusCodes.Status200OK)]
+        /// <returns>returns ValidateIdTypeResponse with Y or N</returns>
+        [ProducesResponseType(typeof(ValidateIdTypeResponse), StatusCodes.Status200OK)]
         [HttpPut("bp-id-type")]
         [AllowAnonymous]
         public async Task<IActionResult> ValidateIdType([FromBody] IdentifierRequest identifierRequest)
@@ -466,7 +466,11 @@ namespace PSE.Customer.V1.Controllers
 
             try
             {
-                result = Ok();
+                result = Ok(new ValidateIdTypeResponse
+                {
+                    PiiMatch = identifierRequest.IdentifierType == IdentifierType.ZLAST4 &&
+                               identifierRequest.IdentifierNo == "1234" ? "Y" : "N"
+                });
             }
             catch (Exception ex)
             {
