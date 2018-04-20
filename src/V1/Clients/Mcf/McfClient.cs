@@ -577,11 +577,10 @@ namespace PSE.Customer.V1.Clients.Mcf
                 var config = _coreOptions.Configuration;
                 var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
                 var client = restUtility.GetRestClient(config.McfEndpoint);
-                var request = //new RestRequest("/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/FactoryCalHolidaysSet?$filter=HolidayCalendar eq 'Z1' and FactoryCalendar eq 'Z1'and DateFrom eq datetime'2018-03-01T00:00:00' and DateTo eq datetime'2018-03-19T00:00:00'&$expand=HolidaysNav&$format=json", Method.GET);
-                new RestRequest("/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/FactoryCalHolidaysSet" +
-                "?$filter=HolidayCalendar eq 'Z1' and FactoryCalendar eq 'Z1'and DateFrom eq " +
-                $"datetime'{invalidMoveinDatesRequest.DateFrom.ToString(McfDateFormat)}' and DateTo eq datetime'{invalidMoveinDatesRequest.DateTo.ToString(McfDateFormat)}'" +
-                "&$expand=HolidaysNav&$format=json", Method.GET);
+                var request = new RestRequest("/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/FactoryCalHolidaysSet" +
+                    "?$filter=HolidayCalendar eq 'Z1' and FactoryCalendar eq 'Z1'and DateFrom eq " +
+                    $"datetime'{invalidMoveinDatesRequest.DateFrom.ToString(McfDateFormat)}' and DateTo eq datetime'{invalidMoveinDatesRequest.DateTo.ToString(McfDateFormat)}'" +
+                    "&$expand=HolidaysNav&$format=json", Method.GET);
 
                 // Add anon bypass auth
                 var mcfUserName = string.Empty;
