@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -9,6 +10,7 @@ using Moq;
 using PSE.Customer.Tests.Unit.TestObjects;
 using PSE.Customer.V1.Controllers;
 using PSE.Customer.V1.Logic.Interfaces;
+using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Request;
 using PSE.Customer.V1.Response;
@@ -29,19 +31,6 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             return new MoveInController(LoggerMock?.Object, MoveInLogicMock.Object);
         }
 
-        // Likely needed later.  Delete if not needed by 04/21
-        private static void ArrangeUserClaims(ControllerBase controller, IEnumerable<Claim> claims)
-        {
-            controller.ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    User = new ClaimsPrincipal(new ClaimsIdentity(claims, "someAuthTypeName"))
-                }
-            };
-        }
-
-        // Likely needed later.  Delete if not needed by 04/21
         private static void ArrangeController(ControllerBase controller, TestUser user)
         {
             if (controller.ControllerContext != null)
@@ -98,7 +87,22 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         public void GetAllIdTypes_ValidAccount_ReturnsValues()
         {
             // Arrange
+            var user = TestHelper.PaDev1;
+            MoveInLogicMock.
+                Setup(x => x.GetAllIdTypes(It.IsAny<long>())).
+                Returns(Task.FromResult(new List<IdentifierModel>
+                {
+                    new IdentifierModel
+                    {
+                        IdentifierType = IdentifierType.ZLAST4
+                    },
+                    new IdentifierModel
+                    {
+                        IdentifierType = IdentifierType.ZDOB
+                    }
+                }));
             var controller = GetController();
+            ArrangeController(controller, user);
 
             // Act
             var response = controller.GetAllIdTypes();
@@ -106,7 +110,9 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             // Assert
             var result = (OkObjectResult)response.Result;
             var idResponse = (IndentifierResponse) result.Value;
-            idResponse.Identifiers.Count.ShouldBeGreaterThan(0);
+            idResponse.Identifiers.Count.ShouldBe(2);
+            idResponse.Identifiers[0].IdentifierType.ShouldBe(IdentifierType.ZLAST4);
+            idResponse.Identifiers[1].IdentifierType.ShouldBe(IdentifierType.ZDOB);
         }
 
         #endregion
@@ -117,7 +123,18 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         public void GetIdType_ValidAccount_ReturnsValue()
         {
             // Arrange
+            var user = TestHelper.PaDev1;
+            MoveInLogicMock.
+                Setup(x => x.GetIdType(It.IsAny<long>(), It.IsAny<IdentifierType>())).
+                Returns(Task.FromResult(new List<IdentifierModel>
+                {
+                    new IdentifierModel
+                    {
+                        IdentifierType = IdentifierType.ZDOB
+                    }
+                }));
             var controller = GetController();
+            ArrangeController(controller, user);
 
             // Act
             var response = controller.GetIdType(IdentifierType.ZDOB);
@@ -125,12 +142,12 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             // Assert
             var result = (OkObjectResult)response.Result;
             var idResponse = (IndentifierResponse)result.Value;
-            idResponse.Identifiers.Count.ShouldBeGreaterThan(0);
+            idResponse.Identifiers.Count.ShouldBe(1);
         }
 
         #endregion
 
-        #region CreateIDType Tests
+        #region CreateIdType Tests
 
         [TestMethod]
         public void CreateIdType_ValidAccountAndType_SavedSuccessfully()
@@ -172,6 +189,10 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         public void ValidateType_ValidAccountAndType_TrueReturned()
         {
             // Arrange
+            var user = TestHelper.PaDev1;
+            MoveInLogicMock.
+                Setup(x => x.ValidateIdType(It.IsAny<long>(), It.IsAny<IdentifierRequest>())).
+                Returns(Task.FromResult(true));
             var controller = GetController();
             var identifier = new IdentifierRequest
             {
@@ -180,7 +201,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             };
 
             // Act
-            var response = controller.ValidateIdType(identifier);
+            var response = controller.ValidateIdType(user.BpNumber, identifier);
 
             // Assert
             response.Result.ShouldBeOfType(typeof(OkObjectResult));
@@ -193,11 +214,15 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         public void ValidateType_InvalidAccountAndType_FalseReturned()
         {
             // Arrange
+            var user = TestHelper.PaDev1;
+            MoveInLogicMock.
+                Setup(x => x.ValidateIdType(It.IsAny<long>(), It.IsAny<IdentifierRequest>())).
+                Returns(Task.FromResult(false));
             var controller = GetController();
             var identifier = new IdentifierRequest();
 
             // Act
-            var response = controller.ValidateIdType(identifier);
+            var response = controller.ValidateIdType(user.BpNumber, identifier);
 
             // Assert
             response.Result.ShouldBeOfType(typeof(OkObjectResult));

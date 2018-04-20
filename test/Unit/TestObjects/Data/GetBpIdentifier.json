@@ -1,0 +1,19 @@
+﻿{
+    "d": {
+        "__metadata": {
+            "id": "http://ssapngdn2apv1.puget.com:8002/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/IdentifierSet(AccountID='',Identifiertype='',Identifierno='')",
+            "uri": "http://ssapngdn2apv1.puget.com:8002/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/IdentifierSet(AccountID='',Identifiertype='',Identifierno='')",
+            "type": "ZCRM_UTILITIES_UMC_PSE_SRV.Identifier"
+        },
+        "AccountID": "1000001179",
+        "Idinstitute": "FAST",
+        "Identifiertype": "ZDNAC",
+        "Identrydate": "/Date(1518270000000)/",
+        "Identifierno": "X",
+        "Idvalidfromdate": "/Date(1518480000000)/",
+        "Idvalidtodate": "/Date(253402214400000)/",
+        "Country": "UNITED STATES",
+        "Countryiso": "USA",
+        "Region": "004"
+    }
+}

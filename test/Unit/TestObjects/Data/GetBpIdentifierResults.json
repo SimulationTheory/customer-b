@@ -1,0 +1,57 @@
+﻿{
+    "d": {
+        "results": [
+            {
+                "__metadata": {
+                    "id": "http://ssapngdn2apv1.puget.com:8002/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/IdentifierSet(AccountID='1000001179',Identifiertype='ZDOB',Identifierno='02%2F02%2F1978')",
+                    "uri": "http://ssapngdn2apv1.puget.com:8002/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/IdentifierSet(AccountID='1000001179',Identifiertype='ZDOB',Identifierno='02%2F02%2F1978')",
+                    "type": "ZCRM_UTILITIES_UMC_PSE_SRV.Identifier"
+                },
+                "AccountID": "1000001179",
+                "Idinstitute": "",
+                "Identifiertype": "ZDOB",
+                "Identrydate": null,
+                "Identifierno": "02/02/1978",
+                "Idvalidfromdate": null,
+                "Idvalidtodate": null,
+                "Country": "",
+                "Countryiso": "",
+                "Region": ""
+            },
+            {
+                "__metadata": {
+                    "id": "http://ssapngdn2apv1.puget.com:8002/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/IdentifierSet(AccountID='1000001179',Identifiertype='ZLAST4',Identifierno='1010')",
+                    "uri": "http://ssapngdn2apv1.puget.com:8002/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/IdentifierSet(AccountID='1000001179',Identifiertype='ZLAST4',Identifierno='1010')",
+                    "type": "ZCRM_UTILITIES_UMC_PSE_SRV.Identifier"
+                },
+                "AccountID": "1000001179",
+                "Idinstitute": "",
+                "Identifiertype": "ZLAST4",
+                "Identrydate": null,
+                "Identifierno": "1010",
+                "Idvalidfromdate": null,
+                "Idvalidtodate": null,
+                "Country": "",
+                "Countryiso": "",
+                "Region": ""
+            },
+            {
+                "__metadata": {
+                    "id": "http://ssapngdn2apv1.puget.com:8002/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/IdentifierSet(AccountID='1000001179',Identifiertype='ZDNAC',Identifierno='X')",
+                    "uri": "http://ssapngdn2apv1.puget.com:8002/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/IdentifierSet(AccountID='1000001179',Identifiertype='ZDNAC',Identifierno='X')",
+                    "type": "ZCRM_UTILITIES_UMC_PSE_SRV.Identifier"
+                },
+                "AccountID": "1000001179",
+                "Idinstitute": "",
+                "Identifiertype": "ZDNAC",
+                "Identrydate": null,
+                "Identifierno": "X",
+                "Idvalidfromdate": "/Date(1518480000000)/",
+                "Idvalidtodate": "/Date(253402214400000)/",
+                "Country": "",
+                "Countryiso": "",
+                "Region": ""
+            }
+        ]
+    }
+}

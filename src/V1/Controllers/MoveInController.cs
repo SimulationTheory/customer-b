@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -12,6 +13,7 @@ using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Request;
 using PSE.Customer.V1.Response;
 using PSE.WebAPI.Core.Exceptions;
+using PSE.WebAPI.Core.Exceptions.Types;
 using PSE.WebAPI.Core.Service;
 
 namespace PSE.Customer.V1.Controllers
@@ -341,24 +343,20 @@ namespace PSE.Customer.V1.Controllers
         public async Task<IActionResult> GetAllIdTypes()
         {
             IActionResult result;
+            _logger.LogInformation("GetAllIdTypes()");
+
             try
             {
-                //Get Bp from JWT
-                //TODO remove below Mock data
-                var identifieResponse = new IndentifierResponse()
+                // Get BP from user's authorization claims
+                var bpId = GetBpIdFromClaims();
+                result = Ok(new IndentifierResponse
                 {
-                    Identifiers = new List<IdentifierModel>()
-                    {
-                        new IdentifierModel(){IdentifierType = IdentifierType.ZDOB},
-                        new IdentifierModel(){IdentifierType = IdentifierType.ZLAST4},
-                        new IdentifierModel(){IdentifierType = IdentifierType.ZDNAC}
-                    }
-                };
-                result = Ok(identifieResponse);
+                    Identifiers = await _moveInLogic.GetAllIdTypes(bpId)
+                });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unable to Get All ID types and values for BP", ex.Message);
+                _logger.LogError(ex, "Unable to Get All ID types and values for BP");
 
                 result = ex.ToActionResult();
             }
@@ -369,24 +367,23 @@ namespace PSE.Customer.V1.Controllers
         /// <summary>
         /// Get ID type but not value for a BP
         /// </summary>
+        /// <param name="type">Represents identifier types such as last 4 SSN, drivers license number, etc.</param>
         /// <returns>returns IndentifierResponse</returns>
         [ProducesResponseType(typeof(IndentifierResponse), 200)]
         [HttpGet("bp-id-type/{type}")]
-        public async Task<IActionResult> GetIdType([FromBody] IdentifierType type)
+        public async Task<IActionResult> GetIdType([FromRoute] IdentifierType type)
         {
             IActionResult result;
+            _logger.LogInformation($"GetIdType({nameof(type)}: {type.ToJson()})");
+
             try
             {
-                //Get Bp from JWT
-                //TODO remove below Mock data
-                var identifieResponse = new IndentifierResponse()
+                // Get BP from user's authorization claims
+                var bpId = GetBpIdFromClaims();
+                result = Ok(new IndentifierResponse
                 {
-                    Identifiers = new List<IdentifierModel>()
-                    {
-                        new IdentifierModel(){IdentifierType = IdentifierType.ZDOB}
-                    }
-                };
-                result = Ok(identifieResponse);
+                    Identifiers = await _moveInLogic.GetIdType(bpId, type)
+                });
             }
             catch (Exception ex)
             {
@@ -408,6 +405,7 @@ namespace PSE.Customer.V1.Controllers
         public async Task<IActionResult> CreateIdType([FromBody] IdentifierRequest identifierRequest)
         {
             IActionResult result;
+            // !!! JMC - should these be logged?
             _logger.LogInformation($"CreateIdType({nameof(identifierRequest)}: {identifierRequest.ToJson()})");
 
             try
@@ -430,10 +428,11 @@ namespace PSE.Customer.V1.Controllers
         /// <param name="identifierRequest"></param>
         /// <returns>returns BPSearchResponse</returns>
         [ProducesResponseType(typeof(OkResult), StatusCodes.Status200OK)]
-        [HttpPut("bp-id-type")]
+        [HttpPost("bp-id-type")]
         public async Task<IActionResult> UpdateIdType([FromBody] IdentifierRequest identifierRequest)
         {
             IActionResult result;
+            // !!! JMC - should these be logged?
             _logger.LogInformation($"UpdateIdType({nameof(identifierRequest)}: {identifierRequest.ToJson()})");
 
             try
@@ -454,22 +453,23 @@ namespace PSE.Customer.V1.Controllers
         /// Validate identifier for a BP (i.e. does value match what is in SAP)
         /// (Anonymous call)
         /// </summary>
+        /// <param name="bpId">Business Partner ID</param>
         /// <param name="identifierRequest"></param>
         /// <returns>returns ValidateIdTypeResponse with Y or N</returns>
         [ProducesResponseType(typeof(ValidateIdTypeResponse), StatusCodes.Status200OK)]
-        [HttpPut("bp-id-type")]
+        [HttpPut("bp-id-type/{bpId}")]
         [AllowAnonymous]
-        public async Task<IActionResult> ValidateIdType([FromBody] IdentifierRequest identifierRequest)
+        public async Task<IActionResult> ValidateIdType([FromRoute]long bpId, [FromBody] IdentifierRequest identifierRequest)
         {
             IActionResult result;
-            _logger.LogInformation($"ValidateIdType({nameof(identifierRequest)}: {identifierRequest.ToJson()})");
+            // !!! JMC - should these be logged?
+            _logger.LogInformation($"ValidateIdType({nameof(bpId)}: {bpId.ToJson()}, {nameof(identifierRequest)}: {identifierRequest.ToJson()})");
 
             try
             {
                 result = Ok(new ValidateIdTypeResponse
                 {
-                    PiiMatch = identifierRequest.IdentifierType == IdentifierType.ZLAST4 &&
-                               identifierRequest.IdentifierNo == "1234" ? "Y" : "N"
+                    PiiMatch = await _moveInLogic.ValidateIdType(bpId, identifierRequest) ? "Y" : "N"
                 });
             }
             catch (Exception ex)
@@ -494,6 +494,34 @@ namespace PSE.Customer.V1.Controllers
                 ? HttpContext.Request.Headers["Authorization"].ToString()
                 : null;
         #endregion
+
+        #endregion
+
+        #region Private methods
+
+        /// <summary>
+        /// Gets the Business Partner ID (bpId) from an authenticated users claims
+        /// </summary>
+        /// <returns>bpId as a long if it can be parsed, otherwise an exception is throws</returns>
+        /// <exception cref="UnauthorizedAccessException">custom:bp is not found</exception>
+        /// <exception cref="InternalServerException">custom:bp has some value other than a long value</exception>
+        private long GetBpIdFromClaims()
+        {
+            _logger.LogInformation("GetBpIdFromClaims()");
+            _logger.LogDebug($"Claims: {User?.Claims}");
+            var bp = User?.Claims?.FirstOrDefault(x => x.Type.Equals("custom:bp"))?.Value;
+            if (string.IsNullOrWhiteSpace(bp))
+            {
+                throw new UnauthorizedAccessException($"{bp} should be Long data type");
+            }
+
+            if (!long.TryParse(bp, out var bpId))
+            {
+                throw new InternalServerException($"{bp} should be Long data type");
+            }
+
+            return bpId;
+        }
 
         #endregion
     }

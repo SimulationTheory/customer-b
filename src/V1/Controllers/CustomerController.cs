@@ -1,28 +1,27 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Linq;
+using System.Net;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 using PSE.Customer.Configuration;
+using PSE.Customer.Extensions;
+using PSE.Customer.V1.Clients.Mcf.Request;
+using PSE.Customer.V1.Clients.Mcf.Response;
 using PSE.Customer.V1.Logic.Interfaces;
 using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Response;
-using PSE.WebAPI.Core.Service;
-using System;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using System.Text.RegularExpressions;
-using PSE.Customer.Extensions;
-using Microsoft.Extensions.Primitives;
-using Microsoft.AspNetCore.Http;
 using PSE.WebAPI.Core.Exceptions;
 using PSE.WebAPI.Core.Exceptions.Types;
-using PSE.Customer.V1.Clients.Mcf.Request;
-using PSE.Customer.V1.Clients.Mcf.Response;
-using PSE.RestUtility.Core.Mcf;
+using PSE.WebAPI.Core.Service;
 
 namespace PSE.Customer.V1.Controllers
 {
@@ -432,6 +431,7 @@ namespace PSE.Customer.V1.Controllers
 
             return result;
         }
+
         #region Private methods
 
         /// <summary>
@@ -439,7 +439,7 @@ namespace PSE.Customer.V1.Controllers
         /// </summary>
         /// <returns>bpId as a long if it can be parsed, otherwise an exception is throws</returns>
         /// <exception cref="UnauthorizedAccessException">custom:bp is not found</exception>
-        /// <exception cref="InvalidRequestException">custom:bp has some value other than a long value</exception>
+        /// <exception cref="InternalServerException">custom:bp has some value other than a long value</exception>
         private long GetBpIdFromClaims()
         {
             _logger.LogInformation("LoadBpIdFromClaims()");

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using PSE.Customer.V1.Clients.Mcf.Models;
 using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
@@ -81,7 +80,7 @@ namespace PSE.Customer.Extensions
             var model = new AddressDefinedType
             {
                 AddressLine1 = string.IsNullOrEmpty(source.POBox) ? $"{source.HouseNo?.Trim()} {source.Street?.Trim()}" :  source.POBox,
-                AddressLine2 =  source?.HouseNo2?.Trim(), 
+                AddressLine2 =  source.HouseNo2?.Trim(), 
                 City = source.City.Trim(),
                 PostalCode = !string.IsNullOrEmpty(source.POBoxPostalCode) ? source.POBoxPostalCode.Trim()
                                                  : source.PostalCode?.Trim(),

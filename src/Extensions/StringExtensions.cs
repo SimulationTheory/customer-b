@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
+using PSE.WebAPI.Core.Service.Enums;
+using PSE.WebAPI.Core.Service.Interfaces;
 
 namespace PSE.Customer.Extensions
 {
@@ -36,6 +38,49 @@ namespace PSE.Customer.Extensions
         public static string ToJson(this object serializableObject, Formatting formatting = Formatting.Indented)
         {
             return JsonConvert.SerializeObject(serializableObject, formatting);
+        }
+
+        /// <summary>
+        /// TODO: Add JsonIgnore attribute to interface and remove this class
+        /// </summary>
+        public class RequestContextAdapterFormatHelper
+        {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="RequestContextAdapterFormatHelper"/> class.
+            /// </summary>
+            /// <param name="requstContext">The requst context.</param>
+            public RequestContextAdapterFormatHelper(IRequestContextAdapter requstContext)
+            {
+                RequestChannel = requstContext.RequestChannel;
+                UserId = requstContext.UserId;
+            }
+
+            /// <summary>
+            /// Gets the request channel.
+            /// </summary>
+            /// <value>
+            /// The request channel.
+            /// </value>
+            public RequestChannelEnum RequestChannel { get; }
+
+            /// <summary>
+            /// Gets the user identifier.
+            /// </summary>
+            /// <value>
+            /// The user identifier.
+            /// </value>
+            public Guid UserId { get; }
+        }
+
+        /// <summary>
+        /// Helper method to convert object to JSON (e.g. for logging objects)
+        /// </summary>
+        /// <param name="requstContext">The serializable object.</param>
+        /// <param name="formatting">The formatting style (defaults to indented)</param>
+        /// <returns>The object formatted as a JSON string</returns>
+        public static string ToJson(this IRequestContextAdapter requstContext, Formatting formatting = Formatting.Indented)
+        {
+            return ToJson(new RequestContextAdapterFormatHelper(requstContext), formatting);
         }
     }
 }

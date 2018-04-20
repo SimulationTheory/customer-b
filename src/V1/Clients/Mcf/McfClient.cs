@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using PSE.Customer.Configuration;
 using PSE.Customer.Extensions;
 using PSE.Customer.V1.Clients.Mcf.Interfaces;
@@ -19,15 +20,8 @@ using PSE.RestUtility.Core.Mcf;
 using PSE.WebAPI.Core.Configuration;
 using PSE.WebAPI.Core.Configuration.Interfaces;
 using PSE.WebAPI.Core.Exceptions.Types;
+using PSE.WebAPI.Core.Service.Interfaces;
 using RestSharp;
-using PSE.Customer.Configuration;
-using PSE.WebAPI.Core.Configuration;
-using PSE.WebAPI.Core.Exceptions.Types;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Newtonsoft.Json.Linq;
 
 namespace PSE.Customer.V1.Clients.Mcf
 {
@@ -38,6 +32,7 @@ namespace PSE.Customer.V1.Clients.Mcf
     {
         //For sending dates in Mcf requests
         private const string McfDateFormat = "yyyy-MM-ddThh:mm:ss";
+        private readonly IRequestContextAdapter _requestContext;
         private readonly ICoreOptions _coreOptions;
         private readonly ILogger<McfClient> _logger;
         private readonly string _environment;
@@ -45,13 +40,15 @@ namespace PSE.Customer.V1.Clients.Mcf
         /// <summary>
         /// Initializes a new instance of the <see cref="McfClient"/> class.
         /// </summary>
+        /// <param name="requestContext"></param>
         /// <param name="coreOptions">The core options.</param>
         /// <param name="logger">The logger.</param>
         /// <exception cref="ArgumentNullException">
         /// coreOptions or logger
         /// </exception>
-        public McfClient(ICoreOptions coreOptions, ILogger<McfClient> logger)
+        public McfClient(IRequestContextAdapter requestContext, ICoreOptions coreOptions, ILogger<McfClient> logger)
         {
+            _requestContext = requestContext ?? throw new ArgumentNullException(nameof(requestContext));
             _coreOptions = coreOptions ?? throw new ArgumentNullException(nameof(coreOptions));
             _logger = logger ?? throw new ArgumentNullException(nameof(coreOptions));
 
@@ -738,9 +735,42 @@ namespace PSE.Customer.V1.Clients.Mcf
             return response;
         }
 
+        /// <inheritdoc />
+        public McfResponse<McfResponseResults<BpIdentifier>> GetAllIdentifiers(string bpId)
+        {
+            McfResponse<McfResponseResults<BpIdentifier>> response = null;
 
+            try
+            {
+                //var requestBody = request.ToJson(Formatting.None);
+                _logger.LogInformation($"GetAllIdentifiers({bpId}); {_requestContext.ToJson()}");
+                var config = _coreOptions.Configuration;
+                var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
+                var cookies = restUtility.GetMcfCookies(_requestContext.JWT).Result;
+
+                var url = $"sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/Accounts('{bpId}')/Identifier";
+                var restRequest = new RestRequest(url, Method.GET);
+                restRequest.AddCookies(cookies);
+                restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
+                restRequest.AddHeader("Accept", "application/json");
+
+                _logger.LogInformation("Making MCF call");
+                var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
+                var restResponse = client.Execute(restRequest);
+
+                response = JsonConvert.DeserializeObject<McfResponse<McfResponseResults<BpIdentifier>>>(restResponse.Content);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                throw;
+            }
+
+            return response;
+        }
 
         #region Private methods
+
         //TODO Merge the GetCustomerMcfCredentials and SetMcfAnonCredentials once we verify we can use the UMC_ANM_SRV user for all anonymous
         private void SetMcfAnonCredentials(ref string userName, ref string password)
         {
@@ -772,7 +802,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                 password = parameters.FirstOrDefault(x => x.Key.Equals(mcfCustomerUserPasswordParamName)).Value;
             }
         }
-       
+
         #endregion
     }
 }

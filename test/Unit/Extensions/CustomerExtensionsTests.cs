@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PSE.Customer.Extensions;
-using PSE.Customer.Tests.Integration.TestObjects;
 using PSE.Customer.V1.Clients.Mcf.Models;
 using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
@@ -9,6 +8,7 @@ using Shouldly;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using PSE.Customer.Tests.Unit.TestObjects;
 
 namespace PSE.Customer.Tests.Unit.Extensions
 {
@@ -197,6 +197,7 @@ namespace PSE.Customer.Tests.Unit.Extensions
             model.MailingAddress.ShouldBe(customerContactEntity.MailingAddress);
 
             var firstPhone = model.Phones.FirstOrDefault();
+            firstPhone.ShouldNotBeNull();
             firstPhone.Number.ShouldBe(customerContactEntity.Phones["cell"].Number);
             firstPhone.Extension.ShouldBe(customerContactEntity.Phones["cell"].Extension);
 

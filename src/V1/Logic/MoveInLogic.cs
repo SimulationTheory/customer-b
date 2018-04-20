@@ -1,18 +1,19 @@
-﻿using PSE.Customer.V1.Logic.Interfaces;
-using System;
-using Microsoft.Extensions.Logging;
-using PSE.Customer.V1.Clients.Mcf.Interfaces;
-using PSE.Customer.V1.Models;
-using PSE.Customer.V1.Response;
-using System.Threading.Tasks;
-using PSE.Customer.V1.Request;
-using PSE.Customer.V1.Clients.Mcf.Request;
-using PSE.Customer.V1.Clients.Address.Interfaces;
-using PSE.Customer.V1.Clients.Mcf.Models;
-using PSE.Customer.V1.Repositories.DefinedTypes;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using PSE.Customer.V1.Clients.Address.Interfaces;
+using PSE.Customer.V1.Clients.Mcf.Interfaces;
 using PSE.Customer.V1.Clients.Mcf.Models;
+using PSE.Customer.V1.Clients.Mcf.Request;
+using PSE.Customer.V1.Logic.Extensions;
+using PSE.Customer.V1.Logic.Interfaces;
+using PSE.Customer.V1.Models;
+using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Request;
+using PSE.Customer.V1.Response;
 
 namespace PSE.Customer.V1.Logic
 {
@@ -29,7 +30,6 @@ namespace PSE.Customer.V1.Logic
             _mcfClient = mcfClient;
             _addressApi = addressApi ?? throw new ArgumentNullException(nameof(addressApi));
         }
-
 
         /// <inheritdoc />
         public ReconnectStatusResponse GetMoveInLatePayment(long contractAccountId, string jwt)
@@ -48,7 +48,6 @@ namespace PSE.Customer.V1.Logic
             return reconnectStatus;
         }
 
-
         //public ReconnectionResponse GetReconnectAmountDueAndCa(string contractAccountId)
         //{
 
@@ -56,7 +55,6 @@ namespace PSE.Customer.V1.Logic
 
 
         //}
-
 
         /// <summary>
         /// Calls Addres APi to get MCf address and then calls MCF to create Business partner
@@ -256,6 +254,50 @@ namespace PSE.Customer.V1.Logic
             }
 
             return dates;
+        }
+
+        /// <inheritdoc />
+        public Task<List<IdentifierModel>> GetAllIdTypes(long bpId)
+        {
+            var usersIdentifierModels = new List<IdentifierModel>();
+
+            var response = _mcfClient.GetAllIdentifiers(bpId.ToString());
+            if (response?.Result != null)
+            {
+                usersIdentifierModels = response.Result.ToModel();
+            }
+
+            return Task.FromResult(usersIdentifierModels);
+        }
+
+        /// <inheritdoc />
+        public Task<List<IdentifierModel>> GetIdType(long bpId, IdentifierType type)
+        {
+            var usersIdentifierModels = new List<IdentifierModel>();
+
+            var response = _mcfClient.GetAllIdentifiers(bpId.ToString());
+            if (response?.Result?.Results != null)
+            {
+                var validIds = response.Result.ToModel();
+                var matchingType = validIds.FirstOrDefault(x => x.IdentifierType == type);
+                if (matchingType != null)
+                {
+                    usersIdentifierModels.Add(matchingType);
+                }
+            }
+
+            return Task.FromResult(usersIdentifierModels);
+        }
+
+        /// <inheritdoc />
+        public Task<bool> ValidateIdType(long bpId, IdentifierRequest identifierRequest)
+        {
+            var response = _mcfClient.GetAllIdentifiers(bpId.ToString());
+            var validIdentifier = response?.Result?.Results?.FirstOrDefault(x =>
+                x.IdentifierType == identifierRequest.IdentifierType.ToString() &&
+                x.IdentifierNo == identifierRequest.IdentifierNo);
+
+            return Task.FromResult(validIdentifier != null);
         }
     }
 }

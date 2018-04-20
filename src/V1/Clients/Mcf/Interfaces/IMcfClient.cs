@@ -4,7 +4,6 @@ using PSE.Customer.V1.Request;
 using PSE.Customer.V1.Models;
 using PSE.RestUtility.Core.Mcf;
 using System.Threading.Tasks;
-using System;
 using PSE.Customer.V1.Clients.Mcf.Models;
 
 namespace PSE.Customer.V1.Clients.Mcf.Interfaces
@@ -193,5 +192,12 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// <param name="jwt"></param>
         /// <returns></returns>
         GetCustomerInteractionResponse CreateCustomerInteractionRecord(CreateCustomerInteractionRequest request, string jwt);
+
+        /// <summary>
+        /// Gets all personal identifiers for the business partner.
+        /// </summary>
+        /// <param name="bpId">The business partner identifier.</param>
+        /// <returns>Collection of zero or more business partner identifiers</returns>
+        McfResponse<McfResponseResults<BpIdentifier>> GetAllIdentifiers(string bpId);
     }
 }

@@ -21,7 +21,7 @@ using PSE.Customer.V1.Repositories.Entities;
 using PSE.Customer.V1.Repositories.Interfaces;
 using PSE.Test.Core;
 using PSE.WebAPI.Core.Configuration.Interfaces;
-using PSE.WebAPI.Core.Startup;
+using PSE.WebAPI.Core.Service.Interfaces;
 using Shouldly;
 
 namespace PSE.Customer.Tests.Integration.Extensions
@@ -56,7 +56,8 @@ namespace PSE.Customer.Tests.Integration.Extensions
                         .AddTransient<CustomerController>()
                         .AddTransient<MoveInController>()
                         .AddSingleton(CoreHelper.GetMemoryDistributedCache())
-                        .AddSingleton(CoreHelper.GetMemoryCache());
+                        .AddSingleton(CoreHelper.GetMemoryCache())
+                        .AddScoped<IRequestContextAdapter, TestRequestContextAdapter>();
 
                     // Act
                     var servicesReturned = services.AddRepositories(logger);

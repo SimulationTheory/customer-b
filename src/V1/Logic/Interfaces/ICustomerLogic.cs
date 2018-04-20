@@ -1,14 +1,9 @@
 ﻿using System.Collections.Generic;
-using PSE.Customer.V1.Models;
 using System.Threading.Tasks;
-using PSE.Customer.V1.Repositories.DefinedTypes;
-using PSE.Customer.V1.Clients.Mcf.Models;
-using PSE.Customer.V1.Clients.Mcf.Response;
 using PSE.Customer.V1.Clients.Mcf.Request;
-using PSE.RestUtility.Core.Mcf;
 using PSE.Customer.V1.Clients.Mcf.Response;
-using System;
-using PSE.Customer.V1.Request;
+using PSE.Customer.V1.Models;
+using PSE.Customer.V1.Repositories.DefinedTypes;
 
 namespace PSE.Customer.V1.Logic.Interfaces
 {
@@ -102,14 +97,9 @@ namespace PSE.Customer.V1.Logic.Interfaces
         /// <summary>
         /// Upserts the standard mailing address.
         /// </summary>
-        /// <param name="bpId">The bp identifier.</param>
         /// <param name="createCustomerInteraction">The address.</param>
         /// <param name="jwt">The JWT.</param>
         /// <returns></returns>
         Task<GetCustomerInteractionResponse> CreateCustomerInteractionRecord(CreateCustomerInteractionRequest createCustomerInteraction, string jwt);
-
-
-        
-    }  
-    
+    }
 }

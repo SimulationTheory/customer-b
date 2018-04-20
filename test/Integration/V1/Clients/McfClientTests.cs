@@ -11,7 +11,6 @@ using PSE.Cassandra.Core.Extensions;
 using PSE.Customer.Extensions;
 using PSE.Customer.Tests.Integration.TestObjects;
 using PSE.Customer.V1.Clients.Authentication.Interfaces;
-using PSE.Customer.V1.Clients.Extensions;
 using PSE.Customer.V1.Clients.Mcf;
 using PSE.Customer.V1.Clients.Mcf.Enums;
 using PSE.Customer.V1.Clients.Mcf.Interfaces;
@@ -21,6 +20,7 @@ using PSE.Customer.V1.Clients.Mcf.Response;
 using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.RestUtility.Core.Mcf;
 using PSE.WebAPI.Core.Configuration.Interfaces;
+using PSE.WebAPI.Core.Service.Interfaces;
 using Shouldly;
 
 namespace PSE.Customer.Tests.Integration.V1.Clients
@@ -33,6 +33,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         private ServiceProvider Provider { get; set; }
         private IAuthenticationApi AuthClient { get; set; }
         private IMcfClient McfClient { get; set; }
+        private TestRequestContextAdapter UserContext { get; set; }
 
         [TestInitialize]
         public void TestInitialize()
@@ -40,6 +41,9 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             // Arrange
             if (Provider == null)
             {
+                // Set up a container that ApiUsers can simulate a context
+                UserContext = new TestRequestContextAdapter();
+
                 // Load the service collection
                 AutoMapper.Mapper.Reset();
                 var services = TestHelper.GetServiceCollection();
@@ -47,7 +51,8 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
                 var logger = loggerFactory.CreateLogger<Startup>();
 
                 services.AddRepositories(logger)
-                    .AddClientProxies();
+                    .AddClientProxies()
+                    .AddSingleton<IRequestContextAdapter>(UserContext);
 
                 // Initialize the provider so that objects can be created by IOC
                 Provider = services.BuildServiceProvider();
@@ -64,13 +69,28 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         #region Constructor Tests
 
         [TestMethod]
+        public void Constructor_RequestContextIsNull_ExceptionThrown()
+        {
+            // Arrange
+            McfClient client = null;
+
+            // Act
+            Action action = () => client = new McfClient(null, new Mock<ICoreOptions>().Object, new Mock<ILogger<McfClient>>().Object);
+
+            // Assert
+            client.ShouldBeNull();
+            action.ShouldThrow<ArgumentNullException>().
+                ParamName.ShouldBe("requestContext");
+        }
+
+        [TestMethod]
         public void Constructor_CoreOptionsIsNull_ExceptionThrown()
         {
             // Arrange
             McfClient client = null;
 
             // Act
-            Action action = () => client = new McfClient(null, new Mock<ILogger<McfClient>>().Object);
+            Action action = () => client = new McfClient(new Mock<IRequestContextAdapter>().Object, null, new Mock<ILogger<McfClient>>().Object);
 
             // Assert
             client.ShouldBeNull();
@@ -85,7 +105,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             McfClient client = null;
 
             // Act
-            Action action = () => client = new McfClient(new Mock<ICoreOptions>().Object, null);
+            Action action = () => client = new McfClient(new Mock<IRequestContextAdapter>().Object, new Mock<ICoreOptions>().Object, null);
 
             // Assert
             client.ShouldBeNull();
@@ -216,7 +236,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
 
         #endregion
 
-        #region CreateBusinessPartnerMobilePhone Tests
+        #region CreateBusinessPartnerAddressPhone Tests
 
         [TestMethod]
         [Ignore("The phone here is created for each call, so run it manually to avoid large numbers on test server.")]
@@ -257,53 +277,35 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
 
         #endregion
 
+        #region Business Partner Identifier Tests
+
+        [TestMethod]
+        public async Task GetAllIdentifiers_AccountWithIdentifier_AllIdentifiers()
+        {
+            // Arrange
+            var user = TestHelper.ActivePaUser;
+            var loginResponse = await AuthClient.GetJwtToken(user.Username, "Start@123");
+            user.SetJwtEncodedString(loginResponse.Data.JwtAccessToken);
+            UserContext.SetUser(user);
+
+            // Act
+            var response = McfClient.GetAllIdentifiers(user.BPNumber.ToString());
+
+            // Assert
+            response.ShouldNotBeNull();
+            var results = response.Result.Results.ToList();
+            results[0].AccountId.ShouldBe(user.BPNumber.ToString());
+            results[0].IdentifierType.ShouldNotBeEmpty();
+
+            var lastFour = results.First(x => x.IdentifierType == "ZLAST4");
+            lastFour.IdentifierNo.ShouldBe("9999");
+        }
+
+        #endregion
+
         #region GetPaymentArrangement Tests
 
         [TestMethod]
-        public void GetPaymentArrangement_AccountWithArrangement_CanParseTestData()
-        {
-            // Arrange
-            var testData = TestData.PaymentArrangementData.ActivePaUserFakeGetData;
-
-            // Act
-            var response = JsonConvert.DeserializeObject<McfResponse<PaymentArrangementResponse>>(testData);
-
-            response.Result.ShouldBeOfType<PaymentArrangementResponse>();
-            response.Result.Results.Count.ShouldBeGreaterThanOrEqualTo(1);
-
-            var paResult = response.Result.Results[0];
-            paResult.ContractAccountID.ShouldBe("200019410436");
-            paResult.NoOfPaymentsPermitted.ShouldBe("000");
-            paResult.PaStatus.ShouldBe("D");
-            paResult.InstallmentPlanNumber.ShouldBe("");
-            paResult.InstallmentPlanType.ShouldBe("");
-            paResult.PaymentArrangementNav.Results.Count.ShouldBeGreaterThan(0);
-
-            var arrangement = paResult.PaymentArrangementNav.Results[0];
-            arrangement.InstallmentPlanNumber.ShouldBe("400000002557");
-            arrangement.InstallmentPlanType.ShouldBe("05");
-            arrangement.NoOfInstallments.ShouldBe("002");
-            arrangement.InstallmentPlansNav.Results.Count.ShouldBeGreaterThan(0);
-
-            // First payment is payed so amount open is zero.  Second payment, unpaid amount is amount due.
-            var firstPayment = arrangement.InstallmentPlansNav.Results[0];
-            firstPayment.AmountDue.ShouldBe(500m);
-            firstPayment.AmountOpen.ShouldBe(0);
-            firstPayment.DueDate.ShouldBe("/Date(1518652800000)/");
-
-            firstPayment.DueDate.Between("(", ")").ShouldBe("1518652800000");
-            var dueDate = firstPayment.DueDate.Between("(", ")").FromUnixTimeSeconds();
-            dueDate.ShouldNotBeNull();
-            dueDate.Value.ShouldBe(new DateTime(2018, 2, 15, 0, 0, 0));
-
-            var secondPayment = arrangement.InstallmentPlansNav.Results[1];
-            secondPayment.AmountDue.ShouldBe(228.51m);
-            secondPayment.AmountOpen.ShouldBe(228.51m);
-            secondPayment.DueDate.ShouldBe("/Date(1519862400000)/");
-        }
-
-        [TestMethod]
-        [Ignore("This is failing locally, but was not yesterday")]
         public async Task GetPaymentArrangement_AccountWithArrangement_CanGetArrangementData()
         {
             // Arrange
@@ -314,7 +316,10 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             user.JwtEncodedString.ShouldNotBeNullOrWhiteSpace();
             user.BPNumber.ShouldNotBe(0);
 
+            // Act
             var response = McfClient.GetPaymentArrangement(user.JwtEncodedString, user.ContractAccountId);
+
+            // Assert
             response.Result.ShouldNotBeNull();
         }
 
@@ -513,6 +518,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         }
 
         #endregion
+
         #region CreateInteractionRecords Tests
         [TestMethod]
         public async Task CreateCustomerInteractionRecord_CanCreateRecord()
@@ -548,7 +554,6 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             Assert.IsNotNull(response.InteractionRecordID);
         }
         #endregion
-
 
         #region CreateAddress Tests
 
@@ -600,3 +605,4 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         #endregion
     }
 }
+
