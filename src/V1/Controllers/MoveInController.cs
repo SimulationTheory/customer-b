@@ -25,7 +25,7 @@ namespace PSE.Customer.V1.Controllers
     [ApiVersion("1.0")]
     [Produces("application/json")]
     [Authorize("ContractAccountValidator")]
-    [Route("v{version:apiVersion}/customer/")]
+    [Route("v{version:apiVersion}/customer")]
     public class MoveInController : PSEController
     {
         private readonly ILogger<MoveInController> _logger;
@@ -428,7 +428,7 @@ namespace PSE.Customer.V1.Controllers
         /// <param name="identifierRequest"></param>
         /// <returns>returns BPSearchResponse</returns>
         [ProducesResponseType(typeof(OkResult), StatusCodes.Status200OK)]
-        [HttpPost("bp-id-type")]
+        [HttpPut("bp-id-type")]
         public async Task<IActionResult> UpdateIdType([FromBody] IdentifierRequest identifierRequest)
         {
             IActionResult result;

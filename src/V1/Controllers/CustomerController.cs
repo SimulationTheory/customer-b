@@ -30,7 +30,7 @@ namespace PSE.Customer.V1.Controllers
     /// </summary>
     [ApiVersion("1.0")]
     [Produces("application/json")]
-    [Route("v{version:apiVersion}/customer/")]
+    [Route("v{version:apiVersion}/customer")]
     public class CustomerController : PSEController
     {
         private readonly AppSettings _config;
