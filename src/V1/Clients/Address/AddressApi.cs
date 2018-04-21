@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Newtonsoft.Json;
 using PSE.Customer.V1.Clients.Address.Interfaces;
+using PSE.Customer.V1.Clients.Address.Models.Request;
 using PSE.Customer.V1.Clients.Mcf.Models;
-using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.WebAPI.Core.Configuration.Interfaces;
 using RestSharp;
 
@@ -26,9 +26,9 @@ namespace PSE.Customer.V1.Clients.Address
         /// </summary>
         /// <param name="address">The address.</param>
         /// <returns></returns>
-        public async Task<IRestResponse<McfAddressinfo>> ToMcfMailingAddressAsync(AddressDefinedType address)
+        public async Task<IRestResponse<McfAddressinfo>> ToMcfMailingAddressAsync(AddressDefinedTypeRequest address)
         {
-            var request = new RestRequest($"/v{API_VERSION}/address/mailing/sap-format", Method.POST);// TODO change the end point to sap-format
+            var request = new RestRequest($"/v{API_VERSION}/address/mailing/sap-format", Method.POST);
             request.AddHeader("request-channel", "Web");
             var body = JsonConvert.SerializeObject(address);
 

@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using PSE.Customer.V1.Clients.Address.Models.Request;
 using PSE.Customer.V1.Clients.Mcf.Models;
 using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
@@ -26,7 +27,7 @@ namespace PSE.Customer.V1.Request
 
         [JsonConverter(typeof(StringEnumConverter))]
         public McfAddressType AddressType { get; set; }
-        public AddressDefinedType Address { get; set; }
+        public AddressDefinedTypeRequest Address { get; set; }
 
     }
 }

@@ -29,7 +29,7 @@ namespace PSE.Customer.V1.Repositories.DefinedTypes
         [Required]
         public string PostalCode { get; set; }
 
-        //[DataMember(Name = "CareOf")]
+        [DataMember(Name = "care_of")]
         public string CareOf { get; set; }
     }
 }

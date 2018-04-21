@@ -20,6 +20,8 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using PSE.Customer.Tests.Unit.TestObjects;
 using PSE.Customer.V1.Clients.Mcf.Models;
+using PSE.Customer.V1.Clients.Address.Models.Request;
+using PSE.Customer.V1.Request;
 
 namespace PSE.Customer.Tests.Unit.V1.Controllers
 {
@@ -370,7 +372,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         public async Task PutMailingAddressAsync_ValidAddressAndClaim_ReturnsOk()
         {
             // Arrange
-            var address = new AddressDefinedType
+            var address = new UpdateMailingAddressRequest
             {
                 AddressLine1 = "The White House",
                 AddressLine2 = "1600 Pennsylvania Avenue NW",
@@ -380,7 +382,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
                 State = "WA"
             };
 
-            CustomerLogicMock.Setup(logic => logic.UpsertStandardMailingAddress(It.IsAny<long>(), It.IsAny<AddressDefinedType>(), It.IsAny<string>()))
+            CustomerLogicMock.Setup(logic => logic.UpsertStandardMailingAddress(It.IsAny<long>(), It.IsAny<UpdateMailingAddressModel>(), It.IsAny<string>()))
                 .Returns(() => 4131426);
 
             CustomerLogicMock.Setup(logic => logic.PutMailingAddressAsync(It.IsAny<AddressDefinedType>(), It.IsAny<long>()))
@@ -401,7 +403,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         public async Task PutMailingAddressAsync_InvalidAddress_Returns400BadRequest()
         {
             // Arrange
-            var address = new AddressDefinedType();
+            var address = new UpdateMailingAddressRequest();
             var controller = GetController();
             controller.ViewData.Model = address;
             controller.ViewData.ModelState.AddModelError("AddressLine1", "AddressLine1 is required");
@@ -420,7 +422,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         public async Task PutMailingAddressAsync_UnhandledException_Returns500InternalServerError()
         {
             // Arrange
-            var address = new AddressDefinedType
+            var address = new UpdateMailingAddressRequest
             {
                 AddressLine1 = "Bruce Wayne",
                 AddressLine2 = "1007 Mountain Drive",
@@ -429,7 +431,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
                 PostalCode = "10001"
             };
 
-            CustomerLogicMock.Setup(logic => logic.UpsertStandardMailingAddress(It.IsAny<long>(), It.IsAny<AddressDefinedType>(), It.IsAny<string>()))
+            CustomerLogicMock.Setup(logic => logic.UpsertStandardMailingAddress(It.IsAny<long>(), It.IsAny<UpdateMailingAddressModel>(), It.IsAny<string>()))
                 .Returns(() => 4131426);
 
             CustomerLogicMock.Setup(logic => logic.PutMailingAddressAsync(It.IsAny<AddressDefinedType>(), It.IsAny<long>()))

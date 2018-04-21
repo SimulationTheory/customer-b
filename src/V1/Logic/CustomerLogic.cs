@@ -24,10 +24,10 @@ using PSE.Customer.V1.Clients.Mcf.Enums;
 using PSE.Customer.V1.Clients.Mcf.Request;
 using PSE.Customer.V1.Clients.Mcf.Response;
 using PSE.RestUtility.Core.Mcf;
-using PSE.Customer.V1.Clients.Mcf.Models;
 using PSE.Customer.V1.Clients.Address.Interfaces;
-using PSE.Customer.V1.Request;
 using PSE.WebAPI.Core.Service.Enums;
+using AutoMapper;
+using PSE.Customer.V1.Clients.Address.Models.Request;
 
 namespace PSE.Customer.V1.Logic
 {
@@ -361,8 +361,7 @@ namespace PSE.Customer.V1.Logic
             var results = (isStandardOnly ? mcfResponse?.Result?.Results?
                                     .Where(x => x.AddressInfo.StandardFlag != null &&
                                                 x.AddressInfo.StandardFlag.Equals("x", StringComparison.OrdinalIgnoreCase))
-                                    : mcfResponse?.Result?.Results?
-                                    .Where(x => string.IsNullOrEmpty(x.AddressInfo.StandardFlag)))
+                                    : mcfResponse?.Result?.Results)
                                     .ToList();
 
             results?.ForEach(x=> mailingAddresses.Add(new MailingAddressesModel
@@ -385,43 +384,49 @@ namespace PSE.Customer.V1.Logic
         /// <param name="address">The address.</param>
         /// <param name="jwt">The JWT.</param>
         /// <returns></returns>
-        public long UpsertStandardMailingAddress(long bpId, AddressDefinedType address, string jwt)
+        public long UpsertStandardMailingAddress(long bpId, UpdateMailingAddressModel address, string jwt)
         {
-
             _logger.LogInformation($"UpsertStandardMailingAddress({nameof(bpId)}: {bpId}," +
                                    $"{nameof(address)}: {address.ToJson()})");
 
-            var addressResponse = _addressApi.ToMcfMailingAddressAsync(address).Result;
+            //Format To SaP Address From Cassandra
+            var addressFormatRequest= Mapper.Map<AddressDefinedTypeRequest>(address);
 
-            var addressInfo = addressResponse?.Data;
+            var addressResponse = _addressApi.ToMcfMailingAddressAsync(addressFormatRequest).Result;
 
-            var response = _mcfClient.GetStandardMailingAddress(jwt, bpId);
-
-            var addressId = response.Result.AddressID;
-
-            if(addressId != null)
+            if (addressResponse != null)
             {
-                var request = new UpdateAddressRequest
+                var addressInfo = addressResponse.Data;
+
+                var response = _mcfClient.GetStandardMailingAddress(jwt, bpId);
+
+                var addressId = response.Result.AddressID;
+
+                if (addressId != null)
                 {
-                     AccountID = bpId,
-                     AddressID = addressId.Value,
-                     AddressInfo = addressInfo
-                };
+                    var request = new UpdateAddressRequest
+                    {
+                        AccountID = bpId,
+                        AddressID = addressId.Value,
+                        AddressInfo = addressInfo
+                    };
 
-                UpdateStandardAddress(jwt, request);
-            }
-            else
-            {
-                var request = new CreateAddressRequest
+                    UpdateStandardAddress(jwt, request);
+                }
+                else
                 {
-                    AccountID = bpId,
-                    AddressInfo = addressInfo
-                };
+                    var request = new CreateAddressRequest
+                    {
+                        AccountID = bpId,
+                        AddressInfo = addressInfo
+                    };
 
-                addressId = CreateStandardAddress(jwt, request).Result.AddressID;
+                    addressId = CreateStandardAddress(jwt, request).Result.AddressID;
+                }
+
+                return addressId.Value; 
             }
-
-            return addressId.Value;
+            return default(long);
         }
 
         /// <summary>

@@ -5,6 +5,7 @@ using PSE.Cassandra.Core.Extensions;
 using PSE.Customer.Configuration.Keyspaces;
 using PSE.Customer.V1.Clients.Address;
 using PSE.Customer.V1.Clients.Address.Interfaces;
+using PSE.Customer.V1.Clients.Address.Models.Request;
 using PSE.Customer.V1.Clients.Authentication;
 using PSE.Customer.V1.Clients.Authentication.Interfaces;
 using PSE.Customer.V1.Clients.ClientProxy;
@@ -18,6 +19,7 @@ using PSE.Customer.V1.Repositories;
 using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Repositories.Entities;
 using PSE.Customer.V1.Repositories.Interfaces;
+using PSE.Customer.V1.Request;
 using PSE.Customer.V1.Response;
 using PSE.WebAPI.Core.Startup;
 using System;
@@ -57,6 +59,8 @@ namespace PSE.Customer.Extensions
             AutoMapper.Mapper.Initialize(cfg =>
             {
                 cfg.CreateMap<GetCustomerProfileResponse, CustomerProfileModel>();
+                cfg.CreateMap<UpdateMailingAddressRequest, UpdateMailingAddressModel>();
+                cfg.CreateMap<UpdateMailingAddressModel, AddressDefinedTypeRequest>();
             });
 
             return services;

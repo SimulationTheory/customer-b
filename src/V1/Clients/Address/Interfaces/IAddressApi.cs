@@ -1,6 +1,6 @@
-﻿using PSE.Customer.V1.Clients.ClientProxy.Interfaces;
+﻿using PSE.Customer.V1.Clients.Address.Models.Request;
+using PSE.Customer.V1.Clients.ClientProxy.Interfaces;
 using PSE.Customer.V1.Clients.Mcf.Models;
-using PSE.Customer.V1.Repositories.DefinedTypes;
 using RestSharp;
 using System.Threading.Tasks;
 
@@ -17,6 +17,6 @@ namespace PSE.Customer.V1.Clients.Address.Interfaces
         /// </summary>
         /// <param name="address">The address.</param>
         /// <returns></returns>
-        Task<IRestResponse<McfAddressinfo>> ToMcfMailingAddressAsync(AddressDefinedType address);
+        Task<IRestResponse<McfAddressinfo>> ToMcfMailingAddressAsync(AddressDefinedTypeRequest address);
     }
 }

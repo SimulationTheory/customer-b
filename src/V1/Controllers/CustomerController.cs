@@ -18,6 +18,7 @@ using PSE.Customer.V1.Clients.Mcf.Response;
 using PSE.Customer.V1.Logic.Interfaces;
 using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
+using PSE.Customer.V1.Request;
 using PSE.Customer.V1.Response;
 using PSE.WebAPI.Core.Exceptions;
 using PSE.WebAPI.Core.Exceptions.Types;
@@ -237,7 +238,7 @@ namespace PSE.Customer.V1.Controllers
         /// <returns>200 if successful, 400 if address is not valid, 500 if exception</returns>
         [ProducesResponseType(typeof(OkResult), 200)]
         [HttpPut("mailing-address")]
-        public async Task<IActionResult> PutMailingAddressAsync([FromBody] AddressDefinedType address)
+        public async Task<IActionResult> PutMailingAddressAsync([FromBody] UpdateMailingAddressRequest address)
         {
             _logger.LogInformation($"PutMailingAddressAsync({nameof(address)}: {address.ToJson()})");
 
@@ -246,14 +247,18 @@ namespace PSE.Customer.V1.Controllers
             if (ModelState.IsValid)
             {
                 try
-                {
+                {                  
 
                     if (HttpContext.Request.Headers.TryGetValue("Authorization", out StringValues jwt))
                     {
                         var bpId = GetBpIdFromClaims();
 
-                        _customerLogic.UpsertStandardMailingAddress(bpId, address, jwt);
+                        var model = Mapper.Map<UpdateMailingAddressModel>(address);
 
+                        //MCF Call
+                        _customerLogic.UpsertStandardMailingAddress(bpId, model, jwt);
+
+                        //Cassandra Update
                         await _customerLogic.PutMailingAddressAsync(address, bpId);
 
                         result = Ok();
@@ -351,7 +356,7 @@ namespace PSE.Customer.V1.Controllers
         }
 
         /// <summary>
-        ///  Gets BP Level Address of the authenticated user and store it into Redis
+        ///  Gets BP Level Addresses of the authenticated user and store it into Redis
         /// </summary>
         /// <param name="isStandardOnly"></param>
         /// <returns></returns>
