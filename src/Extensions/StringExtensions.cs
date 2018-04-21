@@ -52,7 +52,10 @@ namespace PSE.Customer.Extensions
             public RequestContextAdapterFormatHelper(IRequestContextAdapter requstContext)
             {
                 RequestChannel = requstContext.RequestChannel;
-                UserId = requstContext.UserId;
+                if (!string.IsNullOrWhiteSpace(requstContext.JWT))
+                {
+                    UserId = requstContext.UserId;
+                }
             }
 
             /// <summary>

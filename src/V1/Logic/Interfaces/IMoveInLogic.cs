@@ -52,9 +52,8 @@ namespace PSE.Customer.V1.Logic.Interfaces
         /// <summary>
         /// Validates the identifier by comparing to ID type user already has
         /// </summary>
-        /// <param name="bpId">The bp identifier.</param>
         /// <param name="identifierRequest">The identifier request.</param>
         /// <returns>true if identifierRequest matches an existing ID</returns>
-        Task<bool> ValidateIdType(long bpId, IdentifierRequest identifierRequest);
+        Task<bool> ValidateIdType(IdentifierRequest identifierRequest);
     }
 }

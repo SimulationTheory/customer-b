@@ -286,7 +286,7 @@ namespace PSE.Customer.V1.Clients.Mcf
             catch (Exception e)
             {
                 _logger.LogError(e, $"{e.Message} for {nameof(request)}: {request.ToJson(Formatting.None)}");
-                throw e;
+                throw;
             }
         }
 
@@ -407,7 +407,6 @@ namespace PSE.Customer.V1.Clients.Mcf
                 var restResponse = client.Execute(restRequest);
 
                 response = JsonConvert.DeserializeObject<McfResponse<McfResponseResults<GetAccountAddressesResponse>>>(restResponse.Content);
-
             }
             catch (Exception e)
             {
@@ -417,8 +416,8 @@ namespace PSE.Customer.V1.Clients.Mcf
 
             return response;
         }
-       
-             /// <summary>
+
+        /// <summary>
         /// Gets the Mailing Addresses For A Given CA
         /// </summary>
         /// <param name="jwt"></param>
@@ -426,7 +425,6 @@ namespace PSE.Customer.V1.Clients.Mcf
         /// <returns></returns>
         public McfResponse<GetContractAccountResponse> GetContractAccounMailingAddress(string jwt, long contractAccountId)
         {
-
             McfResponse<GetContractAccountResponse> response;
 
             try
@@ -444,7 +442,6 @@ namespace PSE.Customer.V1.Clients.Mcf
                 var restResponse = client.Execute(restRequest);
 
                 response = JsonConvert.DeserializeObject<McfResponse<GetContractAccountResponse>>(restResponse.Content);
-
             }
             catch (Exception e)
             {
@@ -497,12 +494,13 @@ namespace PSE.Customer.V1.Clients.Mcf
             catch (Exception e)
             {
                 _logger.LogError(e, $"{e.Message} for {nameof(request)}: {request.ToJson(Formatting.None)}");
-                throw e;
+                throw;
             }
 
             return response;
         }
-		/// <summary>
+
+        /// <summary>
         /// POSTs a new customer interaction record.
         /// </summary>
         /// <param name="jwt">Java Web Token for authentication</param>
@@ -512,7 +510,7 @@ namespace PSE.Customer.V1.Clients.Mcf
         /// OData URI:
         /// POST /sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/InteractionRecords
         /// </remarks>
-		public GetCustomerInteractionResponse CreateCustomerInteractionRecord(CreateCustomerInteractionRequest request, string jwt)
+        public GetCustomerInteractionResponse CreateCustomerInteractionRecord(CreateCustomerInteractionRequest request, string jwt)
         {
             GetCustomerInteractionResponse response = new GetCustomerInteractionResponse();
 
@@ -528,7 +526,6 @@ namespace PSE.Customer.V1.Clients.Mcf
                 {
                     var cookies = restUtility.GetMcfCookies(jwt).Result;
                     restRequest.AddCookies(cookies);
-                    restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
                 }
                 else
                 {
@@ -537,23 +534,23 @@ namespace PSE.Customer.V1.Clients.Mcf
                     var mcfUserPassword = string.Empty;
                     SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword);
                     restRequest.AddBasicCredentials(mcfUserName, mcfUserPassword);
-                    restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
-
                 }
-               // adding headers   
+
+                // adding headers
+                restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
                 restRequest.AddHeader("ContentType", "application/json");
                 restRequest.AddHeader("Accept", "application/json");
                 restRequest.AddParameter("application/json", requestBody, ParameterType.RequestBody);
-               // executing request and response       
-               var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
-               var restResponse = client.Execute(restRequest);
+
+                // executing request and response
+                var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
+                var restResponse = client.Execute(restRequest);
                 response.Success = restResponse.IsSuccessful.ToString();
                 if (response.Success == "True")
                 {
                     var responseValues = JObject.Parse(restResponse.Content);
                     response.InteractionRecordID = (string)responseValues["d"]["InteractionRecordID"];
                 }
-
             }
             catch (Exception e)
             {
@@ -636,12 +633,11 @@ namespace PSE.Customer.V1.Clients.Mcf
 
                 var client = restUtility.GetRestClient(config.McfEndpoint);
                 var restResponse = client.Execute(restRequest);
-                               
             }
             catch (Exception e)
             {
                 _logger.LogError(e, $"{e.Message} for {nameof(request)}: {request.ToJson(Formatting.None)}");
-                throw e;
+                throw;
             }
         }
 
@@ -674,12 +670,11 @@ namespace PSE.Customer.V1.Clients.Mcf
                     throw new BadRequestException(mcfResponse.Error.Message.Value);
                 } 
                 return mcfResponse.Result.Results.FirstOrDefault();
-
             }
             catch (Exception e)
             {
                 _logger.LogError(e, $"{e.Message} for {nameof(contractAccountId)}: {contractAccountId.ToJson(Formatting.None)}");
-                throw e;
+                throw;
             }
         }
 
@@ -729,7 +724,7 @@ namespace PSE.Customer.V1.Clients.Mcf
             catch (Exception e)
             {
                 _logger.LogError(e, $"{e.Message} for {nameof(request)}: {request.ToJson(Formatting.None)}");
-                throw e;
+                throw;
             }
 
             return response;
@@ -738,19 +733,30 @@ namespace PSE.Customer.V1.Clients.Mcf
         /// <inheritdoc />
         public McfResponse<McfResponseResults<BpIdentifier>> GetAllIdentifiers(string bpId)
         {
-            McfResponse<McfResponseResults<BpIdentifier>> response = null;
+            McfResponse<McfResponseResults<BpIdentifier>> response;
 
             try
             {
-                //var requestBody = request.ToJson(Formatting.None);
-                _logger.LogInformation($"GetAllIdentifiers({bpId}); {_requestContext.ToJson()}");
+                _logger.LogInformation($"GetAllIdentifiers({nameof(bpId)}: {bpId}); {_requestContext.ToJson()})");
                 var config = _coreOptions.Configuration;
                 var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
-                var cookies = restUtility.GetMcfCookies(_requestContext.JWT).Result;
 
                 var url = $"sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/Accounts('{bpId}')/Identifier";
                 var restRequest = new RestRequest(url, Method.GET);
-                restRequest.AddCookies(cookies);
+
+                if (string.IsNullOrWhiteSpace(_requestContext.JWT))
+                {
+                    // Add anon bypass auth
+                    var mcfUserName = string.Empty;
+                    var mcfUserPassword = string.Empty;
+                    SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword);
+                    restRequest.AddBasicCredentials(mcfUserName, mcfUserPassword);
+                }
+                else
+                {
+                    var cookies = restUtility.GetMcfCookies(_requestContext.JWT).Result;
+                    restRequest.AddCookies(cookies);
+                }
                 restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
                 restRequest.AddHeader("Accept", "application/json");
 
@@ -772,14 +778,12 @@ namespace PSE.Customer.V1.Clients.Mcf
         #region Private methods
 
         //TODO Merge the GetCustomerMcfCredentials and SetMcfAnonCredentials once we verify we can use the UMC_ANM_SRV user for all anonymous
+        // Note: making these "out" parameters rather than "ref" since these set not read
         private void SetMcfAnonCredentials(ref string userName, ref string password)
         {
+            _logger.LogInformation("SetMcfAnonCredentials()");
             var options = new CoreOptions(ServiceConfiguration.AppName);
             ICoreOptions _options = options;
-            string _environment = String.Empty;
-            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            _environment = string.IsNullOrEmpty(environment) ? "Development" : environment;
-
 
             var isLocal = (_environment?.Equals("Development") ?? true) || string.IsNullOrEmpty(_environment);
             var mcfCustomerUserNameParamName = $"/CI/MS/{_environment}/MCF/CustomerUserName";

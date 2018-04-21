@@ -12,12 +12,12 @@ namespace PSE.Customer.V1.Request
     public class IdentifierRequest : IAPIRequest
     {
         /// <summary>
-        /// Gets or sets the account identifier (business partner ID / BPID).
+        /// Gets or sets the business partner identifier.
         /// </summary>
         /// <value>
-        /// The account identifier (business partner ID / BPID).
+        /// The account business partner identifier.
         /// </value>
-        public string AccountId { get; set; }
+        public string BpId { get; set; }
 
         /// <summary>
         /// Represents identifier types such as last 4 SSN, drivers license number, etc.
@@ -39,22 +39,5 @@ namespace PSE.Customer.V1.Request
         /// The identifier value
         /// </value>
         public string IdentifierNo { get; set; }
-
-        /// <summary>
-        /// Gets or sets the identifier valid from date.
-        /// </summary>
-        /// <value>
-        /// The first date where the ID is valid.
-        /// </value>
-        public DateTime IdValidFromDate { get; set; }
-
-        /// <summary>
-        /// Gets or sets the identifier valid to date.
-        /// </summary>
-        /// <value>
-        /// The last date where the ID is valid.
-        /// </value>
-        public DateTime IdValidToDate { get; set; }
-
     }
 }

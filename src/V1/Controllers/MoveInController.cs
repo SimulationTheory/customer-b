@@ -453,23 +453,22 @@ namespace PSE.Customer.V1.Controllers
         /// Validate identifier for a BP (i.e. does value match what is in SAP)
         /// (Anonymous call)
         /// </summary>
-        /// <param name="bpId">Business Partner ID</param>
         /// <param name="identifierRequest"></param>
         /// <returns>returns ValidateIdTypeResponse with Y or N</returns>
         [ProducesResponseType(typeof(ValidateIdTypeResponse), StatusCodes.Status200OK)]
-        [HttpPut("bp-id-type/{bpId}")]
+        [HttpPost("bp-id-type/validate")]
         [AllowAnonymous]
-        public async Task<IActionResult> ValidateIdType([FromRoute]long bpId, [FromBody] IdentifierRequest identifierRequest)
+        public async Task<IActionResult> ValidateIdType([FromBody] IdentifierRequest identifierRequest)
         {
             IActionResult result;
             // !!! JMC - should these be logged?
-            _logger.LogInformation($"ValidateIdType({nameof(bpId)}: {bpId.ToJson()}, {nameof(identifierRequest)}: {identifierRequest.ToJson()})");
+            _logger.LogInformation($"ValidateIdType({nameof(identifierRequest)}: {identifierRequest.ToJson()})");
 
             try
             {
                 result = Ok(new ValidateIdTypeResponse
                 {
-                    PiiMatch = await _moveInLogic.ValidateIdType(bpId, identifierRequest) ? "Y" : "N"
+                    PiiMatch = await _moveInLogic.ValidateIdType(identifierRequest) ? "Y" : "N"
                 });
             }
             catch (Exception ex)

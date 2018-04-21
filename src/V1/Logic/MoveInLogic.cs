@@ -290,9 +290,9 @@ namespace PSE.Customer.V1.Logic
         }
 
         /// <inheritdoc />
-        public Task<bool> ValidateIdType(long bpId, IdentifierRequest identifierRequest)
+        public Task<bool> ValidateIdType(IdentifierRequest identifierRequest)
         {
-            var response = _mcfClient.GetAllIdentifiers(bpId.ToString());
+            var response = _mcfClient.GetAllIdentifiers(identifierRequest.BpId);
             var validIdentifier = response?.Result?.Results?.FirstOrDefault(x =>
                 x.IdentifierType == identifierRequest.IdentifierType.ToString() &&
                 x.IdentifierNo == identifierRequest.IdentifierNo);

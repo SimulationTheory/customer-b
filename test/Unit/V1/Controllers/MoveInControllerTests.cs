@@ -191,17 +191,18 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             // Arrange
             var user = TestHelper.PaDev1;
             MoveInLogicMock.
-                Setup(x => x.ValidateIdType(It.IsAny<long>(), It.IsAny<IdentifierRequest>())).
+                Setup(x => x.ValidateIdType(It.IsAny<IdentifierRequest>())).
                 Returns(Task.FromResult(true));
             var controller = GetController();
             var identifier = new IdentifierRequest
             {
+                BpId = user.BpNumber.ToString(),
                 IdentifierType = IdentifierType.ZLAST4,
-                IdentifierNo = "1234"
+                IdentifierNo = "9999"
             };
 
             // Act
-            var response = controller.ValidateIdType(user.BpNumber, identifier);
+            var response = controller.ValidateIdType(identifier);
 
             // Assert
             response.Result.ShouldBeOfType(typeof(OkObjectResult));
@@ -216,13 +217,18 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             // Arrange
             var user = TestHelper.PaDev1;
             MoveInLogicMock.
-                Setup(x => x.ValidateIdType(It.IsAny<long>(), It.IsAny<IdentifierRequest>())).
+                Setup(x => x.ValidateIdType(It.IsAny<IdentifierRequest>())).
                 Returns(Task.FromResult(false));
             var controller = GetController();
-            var identifier = new IdentifierRequest();
+            var identifier = new IdentifierRequest
+            {
+                BpId = user.BpNumber.ToString(),
+                IdentifierType = IdentifierType.ZLAST4,
+                IdentifierNo = "1234"
+            };
 
             // Act
-            var response = controller.ValidateIdType(user.BpNumber, identifier);
+            var response = controller.ValidateIdType(identifier);
 
             // Assert
             response.Result.ShouldBeOfType(typeof(OkObjectResult));
