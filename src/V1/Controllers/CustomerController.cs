@@ -234,13 +234,13 @@ namespace PSE.Customer.V1.Controllers
         /// <summary>
         /// Updates postal mail address for logged in user
         /// </summary>
-        /// <param name="address">Populated address to write to database</param>
+        /// <param name="request">Populated address to write to database</param>
         /// <returns>200 if successful, 400 if address is not valid, 500 if exception</returns>
         [ProducesResponseType(typeof(OkResult), 200)]
         [HttpPut("mailing-address")]
-        public async Task<IActionResult> PutMailingAddressAsync([FromBody] UpdateMailingAddressRequest address)
+        public async Task<IActionResult> PutMailingAddressAsync([FromBody] UpdateMailingAddressRequest request)
         {
-            _logger.LogInformation($"PutMailingAddressAsync({nameof(address)}: {address.ToJson()})");
+            _logger.LogInformation($"PutMailingAddressAsync({nameof(request)}: {request.ToJson()})");
 
             IActionResult result = BadRequest(ModelState);
 
@@ -253,15 +253,17 @@ namespace PSE.Customer.V1.Controllers
                     {
                         var bpId = GetBpIdFromClaims();
 
-                        var model = Mapper.Map<UpdateMailingAddressModel>(address);
+                        var model = Mapper.Map<UpdateMailingAddressModel>(request);
 
                         //MCF Call
-                        await _customerLogic.UpsertStandardMailingAddressAsync(bpId, model, jwt);
+                        var addressId = await _customerLogic.UpsertStandardMailingAddressAsync(bpId, model, jwt);
 
                         //Cassandra Update
+                        var address = request.ToBase();
+
                         await _customerLogic.PutMailingAddressAsync(address, bpId);
 
-                        result = Ok();
+                        result = Ok(addressId);
                     }
                     else
                     {

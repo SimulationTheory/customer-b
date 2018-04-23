@@ -395,7 +395,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             var results = await controller.PutMailingAddressAsync(address);
 
             // Assert
-            results.ShouldBeOfType<OkResult>();
+            results.ShouldBeOfType<OkObjectResult>();
         }
 
         [TestMethod]
