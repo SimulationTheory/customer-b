@@ -359,8 +359,7 @@ namespace PSE.Customer.V1.Logic
             var mcfResponse = _mcfClient.GetMailingAddresses(jwt, bpId);
 
             var results = (isStandardOnly ? mcfResponse?.Result?.Results?
-                                    .Where(x => x.AddressInfo.StandardFlag != null &&
-                                                x.AddressInfo.StandardFlag.Equals("x", StringComparison.OrdinalIgnoreCase))
+                                    .Where(x => x.AddressInfo.StandardAddress)
                                     : mcfResponse?.Result?.Results)
                                     .ToList();
 
@@ -384,7 +383,7 @@ namespace PSE.Customer.V1.Logic
         /// <param name="address">The address.</param>
         /// <param name="jwt">The JWT.</param>
         /// <returns></returns>
-        public long UpsertStandardMailingAddress(long bpId, UpdateMailingAddressModel address, string jwt)
+        public async Task<long> UpsertStandardMailingAddressAsync(long bpId, UpdateMailingAddressModel address, string jwt)
         {
             _logger.LogInformation($"UpsertStandardMailingAddress({nameof(bpId)}: {bpId}," +
                                    $"{nameof(address)}: {address.ToJson()})");
@@ -392,7 +391,7 @@ namespace PSE.Customer.V1.Logic
             //Format To SaP Address From Cassandra
             var addressFormatRequest= Mapper.Map<AddressDefinedTypeRequest>(address);
 
-            var addressResponse = _addressApi.ToMcfMailingAddressAsync(addressFormatRequest).Result;
+            var addressResponse = await _addressApi.ToMcfMailingAddressAsync(addressFormatRequest);
 
             if (addressResponse != null)
             {
@@ -492,14 +491,14 @@ namespace PSE.Customer.V1.Logic
         
         private void UpdateStandardAddress(string jwt, UpdateAddressRequest request)
         {
-            request.AddressInfo.StandardFlag = "X";
+            request.AddressInfo.StandardAddress = true;
 
             _mcfClient.UpdateAddress(jwt, request);
         }
 
         private McfResponse<CreateAddressResponse> CreateStandardAddress(string jwt, CreateAddressRequest request)
         {
-            request.AddressInfo.StandardFlag = "X";
+            request.AddressInfo.StandardAddress = true;
 
             return _mcfClient.CreateAddress(jwt, request);
         }

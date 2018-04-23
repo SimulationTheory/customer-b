@@ -256,7 +256,7 @@ namespace PSE.Customer.V1.Controllers
                         var model = Mapper.Map<UpdateMailingAddressModel>(address);
 
                         //MCF Call
-                        _customerLogic.UpsertStandardMailingAddress(bpId, model, jwt);
+                        await _customerLogic.UpsertStandardMailingAddressAsync(bpId, model, jwt);
 
                         //Cassandra Update
                         await _customerLogic.PutMailingAddressAsync(address, bpId);

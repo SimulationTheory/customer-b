@@ -382,8 +382,8 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
                 State = "WA"
             };
 
-            CustomerLogicMock.Setup(logic => logic.UpsertStandardMailingAddress(It.IsAny<long>(), It.IsAny<UpdateMailingAddressModel>(), It.IsAny<string>()))
-                .Returns(() => 4131426);
+            CustomerLogicMock.Setup(logic => logic.UpsertStandardMailingAddressAsync(It.IsAny<long>(), It.IsAny<UpdateMailingAddressModel>(), It.IsAny<string>()))
+                .Returns(() => Task.FromResult(4131426L));
 
             CustomerLogicMock.Setup(logic => logic.PutMailingAddressAsync(It.IsAny<AddressDefinedType>(), It.IsAny<long>()))
                 .Returns(() => Task.FromResult(HttpStatusCode.OK));
@@ -431,8 +431,8 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
                 PostalCode = "10001"
             };
 
-            CustomerLogicMock.Setup(logic => logic.UpsertStandardMailingAddress(It.IsAny<long>(), It.IsAny<UpdateMailingAddressModel>(), It.IsAny<string>()))
-                .Returns(() => 4131426);
+            CustomerLogicMock.Setup(logic => logic.UpsertStandardMailingAddressAsync(It.IsAny<long>(), It.IsAny<UpdateMailingAddressModel>(), It.IsAny<string>()))
+                .Returns(() => Task.FromResult(4131426L));
 
             CustomerLogicMock.Setup(logic => logic.PutMailingAddressAsync(It.IsAny<AddressDefinedType>(), It.IsAny<long>()))
                 .Throws(new ApplicationException("Batman is not available"));

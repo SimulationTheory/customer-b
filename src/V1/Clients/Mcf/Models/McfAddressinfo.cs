@@ -22,8 +22,8 @@ namespace PSE.Customer.V1.Clients.Mcf.Models
         /// <value>
         /// The standard flag.
         /// </value>
-        [JsonProperty("StandardFlag")]
-        public string StandardFlag { get; set; }
+        [JsonProperty("Standardaddress")]
+        public bool StandardAddress { get; set; }
 
         /// <summary>
         /// Gets or sets the valid from date.

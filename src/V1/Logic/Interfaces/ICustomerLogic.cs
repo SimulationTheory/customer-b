@@ -92,7 +92,7 @@ namespace PSE.Customer.V1.Logic.Interfaces
         /// <param name="address">The address.</param>
         /// <param name="jwt">The JWT.</param>
         /// <returns></returns>
-        long UpsertStandardMailingAddress(long bpId, UpdateMailingAddressModel address, string jwt);
+        Task<long> UpsertStandardMailingAddressAsync(long bpId, UpdateMailingAddressModel address, string jwt);
 
         /// <summary>
         /// Upserts the standard mailing address.
