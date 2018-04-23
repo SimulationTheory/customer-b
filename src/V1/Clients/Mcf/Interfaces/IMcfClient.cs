@@ -8,11 +8,21 @@ using PSE.Customer.V1.Clients.Mcf.Models;
 
 namespace PSE.Customer.V1.Clients.Mcf.Interfaces
 {
+    using PSE.WebAPI.Core.Service.Enums;
+
     /// <summary>
     /// Handles interaction with SAP via MCF calls
     /// </summary>
     public interface IMcfClient
     {
+        /// <summary>
+        /// Gets the business partner id and associated collection of IdType and Numbers.
+        /// </summary>
+        /// <param name="request">The search criteria for business partner search.</param>
+        /// <param name="requestChannel">The originating request channel.</param>
+        /// <returns>A business partner response object.</returns>
+        BpSearchResponse GetDuplicateBusinessPartnerIfExists(BpSearchRequest request, RequestChannelEnum requestChannel);
+
         /// <summary>
         /// GETs the contact information at the business partner level that does not have any location information.
         /// </summary>
@@ -174,7 +184,6 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// PUT /sap/opu/odata/sap//ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('CA#')
         /// </remarks>
         void FixAddressToContractAccount(string jwt, long contractAccountId, FixAddressToContractAccountRequest request);
-
 
         MoveInLatePaymentsResponse GetMoveInLatePaymentsResponse(long contractAccountId, string jwt);
 

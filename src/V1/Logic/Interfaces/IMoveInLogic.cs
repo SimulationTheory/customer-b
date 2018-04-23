@@ -1,10 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using PSE.Customer.V1.Clients.Mcf.Request;
 using PSE.Customer.V1.Models;
-using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Request;
 using PSE.Customer.V1.Response;
+using PSE.WebAPI.Core.Service.Enums;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using PSE.Customer.V1.Repositories.DefinedTypes;
 
 namespace PSE.Customer.V1.Logic.Interfaces
 {
@@ -55,5 +57,12 @@ namespace PSE.Customer.V1.Logic.Interfaces
         /// <param name="identifierRequest">The identifier request.</param>
         /// <returns>true if identifierRequest matches an existing ID</returns>
         Task<bool> ValidateIdType(IdentifierRequest identifierRequest);
+
+        /// <summary>
+        /// Checks for an existing Business Partner id.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        BpSearchModel GetDuplicateBusinessPartnerIfExists(BpSearchRequest request);
     }
 }

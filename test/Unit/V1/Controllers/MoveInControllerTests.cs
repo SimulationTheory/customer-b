@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PSE.Customer.Configuration;
 using PSE.Customer.Tests.Unit.TestObjects;
+using PSE.Customer.V1.Clients.Mcf.Request;
 using PSE.Customer.V1.Controllers;
 using PSE.Customer.V1.Logic.Interfaces;
 using PSE.Customer.V1.Models;
@@ -15,20 +14,29 @@ using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Request;
 using PSE.Customer.V1.Response;
 using Shouldly;
+using System;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace PSE.Customer.Tests.Unit.V1.Controllers
 {
+
     [TestClass]
     public class MoveInControllerTests
     {
         private Mock<ILogger<MoveInController>> LoggerMock { get; set; }
         private Mock<IMoveInLogic> MoveInLogicMock { get; set; }
+        private Mock<IOptions<AppSettings>> AppSettingsMock { get; set; }
 
         #region Helpers
 
         private MoveInController GetController()
         {
-            return new MoveInController(LoggerMock?.Object, MoveInLogicMock.Object);
+            return new MoveInController(
+                this.AppSettingsMock?.Object,
+                this.LoggerMock?.Object,
+                this.MoveInLogicMock?.Object);
         }
 
         private static void ArrangeController(ControllerBase controller, TestUser user)
@@ -55,6 +63,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         {
             LoggerMock = new Mock<ILogger<MoveInController>>();
             MoveInLogicMock = new Mock<IMoveInLogic>();
+            AppSettingsMock = new Mock<IOptions<AppSettings>>();
         }
 
         #endregion
@@ -109,7 +118,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
 
             // Assert
             var result = (OkObjectResult)response.Result;
-            var idResponse = (IndentifierResponse) result.Value;
+            var idResponse = (IndentifierResponse)result.Value;
             idResponse.Identifiers.Count.ShouldBe(2);
             idResponse.Identifiers[0].IdentifierType.ShouldBe(IdentifierType.ZLAST4);
             idResponse.Identifiers[1].IdentifierType.ShouldBe(IdentifierType.ZDOB);
@@ -206,7 +215,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
 
             // Assert
             response.Result.ShouldBeOfType(typeof(OkObjectResult));
-            var result = (ValidateIdTypeResponse) ((OkObjectResult)response.Result).Value;
+            var result = (ValidateIdTypeResponse)((OkObjectResult)response.Result).Value;
             result.ShouldNotBeNull();
             result.PiiMatch.ShouldBe("Y");
         }
@@ -269,5 +278,61 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             result.InvalidMoveinDates.ShouldNotBeNull();
             result.InvalidMoveinDates.Count.ShouldBe(5);
         }
+
+        #region GetDuplicateBusinessPartnerIfExists Tests
+        [TestMethod]
+        public void GetDuplicateBusinessPartnerIfExists_MissingParams_ReturnsBadRequest()
+        {
+            // Arrange
+            var controller = this.GetController();
+            var request = new BpSearchRequest()
+            {
+                FirstName = "Feng",
+            };
+
+            // Act
+            var response = controller.BpSearch(request).Result;
+
+            // Assert
+            response.ShouldBeOfType<BadRequestObjectResult>();
+
+        }
+
+        [TestMethod]
+        public void GetDuplicateBusinessPartnerIfExists_ExistingBP_Returns200Ok()
+        {
+            // Arrange
+            var controller = this.GetController();
+            var responseForExistingBp = new BpSearchModel()
+            {
+                MatchFound = true,
+                BpId = 1234567,
+                Reason = "Valid match.",
+                ReasonCode = "match",
+                BpSearchIdentifiers = new List<IdentifierModel>()
+                                            {
+                                                new IdentifierModel()
+                                                    {
+                                                        IdentifierType = IdentifierType.ZDOB,
+                                                        IdentifierValue = "01/01/1975"
+                                                    }
+                                            }
+            };
+            this.MoveInLogicMock.Setup(m => m.GetDuplicateBusinessPartnerIfExists(It.IsAny<BpSearchRequest>()))
+                .Returns(responseForExistingBp);
+            var request = new BpSearchRequest()
+            {
+                FirstName = "Feng",
+                LastName = "Chan"
+            };
+
+            // Act
+            var response = controller.BpSearch(request).Result;
+
+            // Assert
+            response.ShouldBeOfType<OkObjectResult>();
+        }
+
+        #endregion
     }
 }

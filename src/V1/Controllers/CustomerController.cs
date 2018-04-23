@@ -48,7 +48,7 @@ namespace PSE.Customer.V1.Controllers
         /// <param name="customerLogic">contains logic for customer controller</param>
         public CustomerController(
             IOptions<AppSettings> appSettings,
-            IDistributedCache cache, 
+            IDistributedCache cache,
             ILogger<CustomerController> logger,
             ICustomerLogic customerLogic)
         {
@@ -117,11 +117,11 @@ namespace PSE.Customer.V1.Controllers
         [AllowAnonymous]
         [ProducesResponseType(typeof(CustomerProfileModel), 200)]
         [HttpGet("profile")]
-       public async Task<IActionResult> GetCustomerProfileAsync(long bpId = 0)
+        public async Task<IActionResult> GetCustomerProfileAsync(long bpId = 0)
         {
             _logger.LogInformation("GetCustomerProfileAsync()");
             IActionResult result;
-            
+
             try
             {
                 if (HttpContext.Request.Headers.TryGetValue("Authorization", out StringValues jwt))
@@ -212,12 +212,12 @@ namespace PSE.Customer.V1.Controllers
 
                 //Updates Email and Phone after signup 
                 var jwt = await _customerLogic.GetJWTTokenAsync(webProfile.CustomerCredentials.UserName, webProfile.CustomerCredentials.Password);
-                if(!string.IsNullOrEmpty(jwt))
+                if (!string.IsNullOrEmpty(jwt))
                 {
                     await _customerLogic.PutEmailAddressAsync(jwt, webProfile.Email, bpId);
                     await _customerLogic.PutPhoneNumberAsync(jwt, webProfile.Phone, bpId);
                 }
-               
+
                 result = new OkResult();
             }
             catch (Exception e)
@@ -227,7 +227,7 @@ namespace PSE.Customer.V1.Controllers
                 result = e.ToActionResult();
             }
 
-            
+
             return result;
         }
 
@@ -273,7 +273,7 @@ namespace PSE.Customer.V1.Controllers
                     _logger.LogError(e.Message);
 
                     result = e.ToActionResult();
-                } 
+                }
             }
 
             return result;
@@ -373,7 +373,7 @@ namespace PSE.Customer.V1.Controllers
                 if (HttpContext.Request.Headers.TryGetValue("Authorization", out StringValues jwt))
                 {
                     var bpId = GetBpIdFromClaims();
-                    var customerAddresses = await _customerLogic.GetMailingAddressesAsync(bpId, isStandardOnly,jwt);
+                    var customerAddresses = await _customerLogic.GetMailingAddressesAsync(bpId, isStandardOnly, jwt);
 
                     if (customerAddresses != null)
                     {

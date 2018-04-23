@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using PSE.Customer.Configuration;
 using PSE.Customer.Extensions;
+using PSE.Customer.V1.Clients.Mcf.Request;
+using PSE.Customer.V1.Clients.Mcf.Response;
 using PSE.Customer.V1.Logic.Interfaces;
 using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
@@ -15,9 +15,14 @@ using PSE.Customer.V1.Response;
 using PSE.WebAPI.Core.Exceptions;
 using PSE.WebAPI.Core.Exceptions.Types;
 using PSE.WebAPI.Core.Service;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace PSE.Customer.V1.Controllers
 {
+    using System.Linq;
+
     /// <summary>
     /// API to facilitate customers moving, both new and existing customers
     /// </summary>
@@ -28,12 +33,14 @@ namespace PSE.Customer.V1.Controllers
     [Route("v{version:apiVersion}/customer")]
     public class MoveInController : PSEController
     {
+        private readonly AppSettings _config;
         private readonly ILogger<MoveInController> _logger;
         private readonly IMoveInLogic _moveInLogic;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MoveInController"/> class.
         /// </summary>
+        /// <param name="appSettings">application config information</param>
         /// <param name="logger">The logger.</param>
         /// <param name="moveInLogic">The move in logic.</param>
         /// <exception cref="ArgumentNullException">
@@ -41,8 +48,12 @@ namespace PSE.Customer.V1.Controllers
         /// or
         /// moveInLogic
         /// </exception>
-        public MoveInController(ILogger<MoveInController> logger, IMoveInLogic moveInLogic)
+        public MoveInController(
+            IOptions<AppSettings> appSettings,
+            ILogger<MoveInController> logger,
+            IMoveInLogic moveInLogic)
         {
+            _config = (appSettings ?? throw new ArgumentNullException(nameof(appSettings))).Value;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _moveInLogic = moveInLogic ?? throw new ArgumentNullException(nameof(moveInLogic));
         }
@@ -65,7 +76,6 @@ namespace PSE.Customer.V1.Controllers
                 var response = _moveInLogic.GetMoveInLatePayment(contractAccountId, jwt);
 
                 result = Ok(response);
-
             }
             catch (Exception e)
             {
@@ -110,46 +120,64 @@ namespace PSE.Customer.V1.Controllers
         #region Start/Stop/Transfer Endpoints
 
         /// <summary>
-        /// Search BP given customer firstname, MiddleName and Last Name
+        /// Search BP given both a customer first and last name, or given an organization name.
         /// </summary>
         /// <remarks>
-        /// Sample request:
+        /// Sample Request:
         /// GET /bpsearch
         /// {
         /// "FirstName":"Feng",
         /// "LastName": "Chan"
         /// }
+        /// Sample Request:
+        /// GET /bpsearch
+        /// {
+        /// "OrgName":"Company123",
+        /// }
         /// </remarks>
-        /// <param name="bpSearchRequest"></param>
-        /// <returns>returns BPSearchResponse</returns>
-        [ProducesResponseType(typeof(BPSearchResponse), 200)]
+        /// <param name="request">The business partner search criteria.<seealso cref="PSE.Customer.V1.Clients.Mcf.Request.BpSearchRequest" /></param>
+        /// <returns>A BPSearchResponse object.</returns>
+        [ProducesResponseType(typeof(BpSearchResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(NoContentResult), StatusCodes.Status204NoContent)]
         [HttpGet("bpsearch")]
         [AllowAnonymous]
-        public async Task<IActionResult> BpSearch(BPSearchRequest bpSearchRequest)
+        public async Task<IActionResult> BpSearch([FromQuery]BpSearchRequest request)
         {
-            IActionResult result;
-            _logger.LogInformation($"BpSearch({nameof(bpSearchRequest)}: {bpSearchRequest.ToJson()})");
+            this._logger.LogInformation($"BpSearch({nameof(request)}: {request.ToJson()})");
 
             try
             {
-                //TODO remove below Mock data
-                var bpsearchresponse = new BPSearchResponse()
+                // null check
+                if (request == null)
                 {
-                    BPId = "1222345789",
-                    FirstName = "Feng",
-                    LastName = "Chan",
-                    MatchPercent = "100"
-                };
-                result = Ok(bpsearchresponse);
+                    throw new ArgumentNullException($"The request was empty.");
+                }
+
+                // confirm that something has been included in the request
+                if ((request.FirstName == null || request.LastName == null)
+                    && (request.OrgName == null))
+                {
+                    return BadRequest(
+                        "The request must contain first and last name, or must contain organization name.");
+                }
+
+                // send call to logic class
+                var searchResponse = this._moveInLogic.GetDuplicateBusinessPartnerIfExists(request);
+
+                // view result from logic class
+                if (!searchResponse.MatchFound)
+                {
+                    this._logger.LogInformation(
+                        $"There is not a match for an existing Business Partner based on the information provided.");
+                }
+
+                return Ok(searchResponse);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unable to search BP for a customer", ex.Message);
-
-                result = ex.ToActionResult();
+                this._logger.LogError(ex, "Unable to search BP for a customer.", ex.Message);
+                return ex.ToActionResult();
             }
-
-            return result;
         }
 
         /// <summary>
@@ -215,8 +243,8 @@ namespace PSE.Customer.V1.Controllers
 
             try
             {
-                var resp = await _moveInLogic.CreateBusinessPartner(createBusinesspartnerRequest);  
-                if(resp.HttpStatusCode == System.Net.HttpStatusCode.BadRequest)
+                var resp = await _moveInLogic.CreateBusinessPartner(createBusinesspartnerRequest);
+                if (resp.HttpStatusCode == System.Net.HttpStatusCode.BadRequest)
                 {
                     return BadRequest();
                 }

@@ -6,10 +6,12 @@ using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using PSE.Customer.Configuration;
+using PSE.Customer.Tests.Unit.TestObjects;
 using PSE.Customer.V1.Controllers;
 using PSE.Customer.V1.Logic.Interfaces;
 using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
+using PSE.Customer.V1.Request;
 using PSE.Customer.V1.Response;
 using Shouldly;
 using System;
@@ -18,13 +20,10 @@ using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using PSE.Customer.Tests.Unit.TestObjects;
-using PSE.Customer.V1.Clients.Mcf.Models;
-using PSE.Customer.V1.Clients.Address.Models.Request;
-using PSE.Customer.V1.Request;
 
 namespace PSE.Customer.Tests.Unit.V1.Controllers
 {
+
     [TestClass]
     public class CustomerControllerTests
     {
@@ -233,8 +232,8 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         {
             //Arrange
             var target = GetController();
-             ArrangeUserClaims(target, new[]
-            {
+            ArrangeUserClaims(target, new[]
+           {
                 new Claim("custom:bp", "abc")
             });
 
@@ -445,7 +444,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
 
             // Assert
             results.ShouldBeOfType<ContentResult>();
-            var returnCode = (ContentResult) results;
+            var returnCode = (ContentResult)results;
             returnCode.StatusCode.ShouldBe(StatusCodes.Status500InternalServerError);
         }
 
@@ -597,7 +596,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         {
             //Arrange
             var user = TestHelper.PaDev1;
-            CustomerLogicMock.Setup(dlm => dlm.GetMailingAddressesAsync(It.IsAny<long>(), It.IsAny<bool>(),It.IsAny<string>()))
+            CustomerLogicMock.Setup(dlm => dlm.GetMailingAddressesAsync(It.IsAny<long>(), It.IsAny<bool>(), It.IsAny<string>()))
                 .Returns(() =>
                 {
                     var mailingAddresses = GetMailingAddresses();

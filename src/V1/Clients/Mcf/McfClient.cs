@@ -25,6 +25,8 @@ using RestSharp;
 
 namespace PSE.Customer.V1.Clients.Mcf
 {
+    using PSE.WebAPI.Core.Service.Enums;
+
     /// <summary>
     /// Handles interaction with SAP via MCF calls
     /// </summary>
@@ -54,6 +56,71 @@ namespace PSE.Customer.V1.Clients.Mcf
 
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             _environment = string.IsNullOrEmpty(environment) ? "Development" : environment;
+        }
+
+        /// <summary>
+        /// Checks for duplicate account.
+        /// </summary>
+        /// <param name="request">A BpSearchRequest to check for existing account.</param>
+        /// <param name="requestChannel">The channel from the originating request.</param>
+        /// <returns>Returns an McfResponse of type BpSearchResponse</returns>
+        public BpSearchResponse GetDuplicateBusinessPartnerIfExists(BpSearchRequest request, RequestChannelEnum requestChannel)
+        {
+            try
+            {
+                // Format and log request input
+                var requestBody = request.ToJson(Formatting.None);
+                this._logger.LogInformation($"GetDuplicateBusinessPartnerIfExists({nameof(request)}: {requestBody})");
+
+                var config = this._coreOptions.Configuration;
+                var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
+
+                var restRequest = new RestRequest(
+                    $"/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/BPSearchSet?$filter=" +
+                                                  $" Channel eq '{requestChannel.ToString()}'" +
+                                                  $" and FirstName eq '{request.FirstName}'" +
+                                                  $" and MiddleName eq '{request.MiddleName}'" +
+                                                  $" and LastName eq '{request.LastName}'" +
+                                                  $" and Phone eq '{request.Phone}'" +
+                                                  $" and Email eq '{request.Email}'" +
+                                                  $" and ServiceZip eq '{request.ServiceZip}'" +
+                                                  $" and OrgName eq '{request.OrgName}'" +
+                                                  $" and TaxID eq '{request.TaxID}'" +
+                                                  $" and UBI eq '{request.UBI}'" +
+                                                  $"&$expand=BPsearchIDinfoSet",
+                        Method.GET);
+
+                // Get and add credentials for Anonymous Service user account 
+                var mcfUserName = string.Empty;
+                var mcfUserPassword = string.Empty;
+                this.SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword);
+                restRequest.AddBasicCredentials(mcfUserName, mcfUserPassword);
+
+                // Add headers
+                restRequest.AddHeader("Accept", "application/json");
+
+                // Make call to mcf
+                var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
+                var restResponse = client.Execute(restRequest);
+
+                // Deserialize response
+                var mcfResponse = JsonConvert.DeserializeObject<McfResponse<McfResponseResults<BpSearchResponse>>>(restResponse.Content);
+
+                // Check for null result + an error. Lo
+                if (mcfResponse.Error != null && mcfResponse.Result == null)
+                {
+                    this._logger.LogError(mcfResponse.Error.Message.Value, mcfResponse.Error.InnerError);
+                    throw new BadRequestException(mcfResponse.Error.Message.Value);
+                }
+
+                var result = mcfResponse.Result.Results.FirstOrDefault();
+                return result;
+            }
+            catch (Exception e)
+            {
+                this._logger.LogError(e, $"{e.Message} for {nameof(request)}: {request.ToJson(Formatting.None)}");
+                throw e;
+            }
         }
 
         /// <summary>
@@ -214,6 +281,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                 restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
                 restRequest.AddHeader("ContentType", "application/json");
                 restRequest.AddHeader("Accept", "application/json");
+
                 restRequest.AddParameter("application/json", requestBody, ParameterType.RequestBody);
 
                 _logger.LogInformation("Making MCF call");
@@ -289,7 +357,6 @@ namespace PSE.Customer.V1.Clients.Mcf
                 throw;
             }
         }
-
 
         /// <summary>
         /// POSTs the mobile phone for the business partner
@@ -668,7 +735,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                 {
                     _logger.LogError(mcfResponse.Error.Message.Value);
                     throw new BadRequestException(mcfResponse.Error.Message.Value);
-                } 
+                }
                 return mcfResponse.Result.Results.FirstOrDefault();
             }
             catch (Exception e)
@@ -689,8 +756,6 @@ namespace PSE.Customer.V1.Clients.Mcf
 
                 var config = _coreOptions.Configuration;
                 var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
-              
-
                 var restRequest = new RestRequest($"/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/BusinessPartnerEasySet", Method.POST);
                 // Add basic auth for anon service account
                 var mcfUserName = string.Empty;
@@ -698,7 +763,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                 SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword);
                 restRequest.AddBasicCredentials(mcfUserName, mcfUserPassword);
                 restRequest.AddMcfRequestHeaders();
-                
+
                 restRequest.AddJsonBody<CreateBusinesspartnerMcfRequest>(request);
 
                 _logger.LogInformation("Making MCF call");
@@ -706,18 +771,17 @@ namespace PSE.Customer.V1.Clients.Mcf
                 var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
                 var cancellationTokenSource = new CancellationTokenSource();
                 var restResponse = await client.ExecuteTaskAsync(restRequest, cancellationTokenSource.Token);
-                if(!restResponse.IsSuccessful)
+                if (!restResponse.IsSuccessful)
                 {
                     var mcfResponse = JsonConvert.DeserializeObject<McfResponse<CreateBusinessPartnerMcfResponse>>(restResponse.Content);
                     if (mcfResponse.Error != null && mcfResponse.Result == null)
                     {
                         var errormessage = $"BusinessPartnerEasySet call to create Business partner was not successfull with Error {mcfResponse.Error?.Message?.Value}";
-                       _logger.LogError(errormessage);
+                        _logger.LogError(errormessage);
                         throw new Exception(errormessage);
                     }
-                   
                 }
-                
+
                 var mcfOkResponse = JsonConvert.DeserializeObject<McfResponse<CreateBusinessPartnerMcfResponse>>(restResponse.Content);
                 response = mcfOkResponse.Result;// mcfResponse.Result.Results.FirstOrDefault();
             }

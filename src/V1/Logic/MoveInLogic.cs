@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using PSE.Customer.V1.Clients.Address.Interfaces;
 using PSE.Customer.V1.Clients.Mcf.Interfaces;
 using PSE.Customer.V1.Clients.Mcf.Models;
@@ -14,21 +9,36 @@ using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Request;
 using PSE.Customer.V1.Response;
+using PSE.WebAPI.Core.Service.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PSE.Customer.V1.Logic
 {
+    /// <inheritdoc />
     public class MoveInLogic : IMoveInLogic
     {
         private readonly ILogger<MoveInLogic> _logger;
         private readonly IMcfClient _mcfClient;
         private static string coreLanguage = "EN";
         private readonly IAddressApi _addressApi;
+        private readonly IRequestContextAdapter _requestContext;
 
-        public MoveInLogic(ILogger<MoveInLogic> logger, IMcfClient mcfClient, IAddressApi addressApi)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MoveInLogic"/> class.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <param name="mcfClient">The mcfClient..</param>
+        /// <param name="addressApi">The addressApi.</param>
+        /// <param name="requestContext">The request context adapter.</param>
+        public MoveInLogic(ILogger<MoveInLogic> logger, IMcfClient mcfClient, IAddressApi addressApi, IRequestContextAdapter requestContext)
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _mcfClient = mcfClient;
-            _addressApi = addressApi ?? throw new ArgumentNullException(nameof(addressApi));
+            this._logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this._mcfClient = mcfClient ?? throw new ArgumentNullException(nameof(mcfClient));
+            this._addressApi = addressApi ?? throw new ArgumentNullException(nameof(addressApi));
+            this._requestContext = requestContext ?? throw new ArgumentNullException(nameof(requestContext));
         }
 
         /// <inheritdoc />
@@ -44,17 +54,64 @@ namespace PSE.Customer.V1.Logic
                 MinimumPaymentRequired = paymentResponse.MinPayment,
                 AmountLeftover = paymentResponse.MinPayment - paymentResponse.IncPayment
             };
-            
+
             return reconnectStatus;
         }
 
         //public ReconnectionResponse GetReconnectAmountDueAndCa(string contractAccountId)
         //{
-
         //    var paymentResponse = _mcfClient.GetMoveInLatePaymentsResponse(contractAccountId);
-
-
         //}
+
+        /// <inheritdoc />
+        /// <summary>
+        /// Checks for and returns business partner if an existing match is found.
+        /// </summary>
+        /// <param name="request">A business partner search request.</param>
+        /// <returns>A business partner search response</returns>
+        public BpSearchModel GetDuplicateBusinessPartnerIfExists(BpSearchRequest request)
+        {
+            try
+            {
+                this._logger.LogInformation($"GetDuplicateBusinessPartnerIfExists({nameof(request)}: {request})");
+                var mcfResponse = this._mcfClient.GetDuplicateBusinessPartnerIfExists(request, this._requestContext.RequestChannel);
+
+                // if these Threshhold and Unique conditions are met
+                // we can return the response and bpid
+                //      unique = 1 (good bp to use)
+                //      threshold = x(true..has been met)
+                if (mcfResponse != null)
+                {
+                    var response = new BpSearchModel();
+
+                    if (mcfResponse.Threshhold.ToUpper().Contains("X") && Convert.ToInt32(mcfResponse.Unique) == 1)
+                    {
+                        response.MatchFound = true;
+                        response.BpId = Convert.ToInt64(mcfResponse.BpId);
+                        response.BpSearchIdentifiers = mcfResponse.BpSearchIdInfoSet.Results.ToList();
+                        response.Reason = mcfResponse.Reason;
+                        response.ReasonCode = mcfResponse.ReasonCode;
+                    }
+                    else
+                    {
+                        response.MatchFound = false;
+                        response.Reason = string.IsNullOrEmpty(mcfResponse.Reason) ? "The threshhold for a match was not met." : mcfResponse.Reason;
+                        var resultCount = mcfResponse.BpSearchIdInfoSet.Results.ToList().Count;
+                        response.ReasonCode = string.IsNullOrEmpty(mcfResponse.ReasonCode) ? $"{resultCount} records returned as a possible match." : mcfResponse.Reason;
+                    }
+
+                    return response;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
 
         /// <summary>
         /// Calls Addres APi to get MCf address and then calls MCF to create Business partner
@@ -71,11 +128,11 @@ namespace PSE.Customer.V1.Logic
                 var addressResponse = await _addressApi.ToMcfMailingAddressAsync(address);
                 var createBpresponse = ValidateAddress(addressResponse);
 
-                if(createBpresponse != null)
+                if (createBpresponse != null)
                 {
                     return createBpresponse;
                 }
-                
+
                 var addressInfo = addressResponse?.Data;
                 var businessPartnerMcfrequest = GetBusinessPartnerMcfRequest(request, addressInfo);
                 var mcfResp = await _mcfClient.CreateBusinessPartner(businessPartnerMcfrequest);
@@ -83,7 +140,7 @@ namespace PSE.Customer.V1.Logic
                 {
                     BpId = mcfResp.PartnerId
                 };
-                
+
                 return resp;
             }
 
@@ -92,7 +149,7 @@ namespace PSE.Customer.V1.Logic
                 _logger.LogError(ex, "Failed to create Buiness Partner");
                 throw ex;
             }
-           
+
         }
 
         private CreateBusinesspartnerResponse ValidateAddress(RestSharp.IRestResponse<McfAddressinfo> addressResponse)
@@ -109,7 +166,7 @@ namespace PSE.Customer.V1.Logic
                         ErrorMessage = message,
                         HttpStatusCode = System.Net.HttpStatusCode.BadRequest
 
-                    };                
+                    };
                 }
                 else
                 {
@@ -218,7 +275,7 @@ namespace PSE.Customer.V1.Logic
         private string GetPartnerCategory(PartnerCategoryType partnerCategory)
         {
             string category = string.Empty;
-            switch(partnerCategory)
+            switch (partnerCategory)
             {
                 case PartnerCategoryType.Residential:
                     category = "1";

@@ -26,6 +26,11 @@ using Shouldly;
 
 namespace PSE.Customer.Tests.Integration.Extensions
 {
+    using Microsoft.AspNetCore.Http;
+
+    using PSE.WebAPI.Core.Service;
+    using PSE.WebAPI.Core.Service.Interfaces;
+
     [TestClass]
     public class ServiceCollectionExtensionsTests
     {
@@ -55,6 +60,8 @@ namespace PSE.Customer.Tests.Integration.Extensions
                     services.AddClientProxies()
                         .AddTransient<CustomerController>()
                         .AddTransient<MoveInController>()
+                        .AddScoped<IRequestContextAdapter, RequestContextAdapter>()
+                        .AddScoped<IHttpContextAccessor, HttpContextAccessor>()
                         .AddSingleton(CoreHelper.GetMemoryDistributedCache())
                         .AddSingleton(CoreHelper.GetMemoryCache())
                         .AddScoped<IRequestContextAdapter, TestRequestContextAdapter>();

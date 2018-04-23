@@ -6,7 +6,9 @@
   {
     "Key": "/CI/MS/Development/MCF/CustomerUserPassword",
     "Value": "nM7O=GH$"
+  },
+  {
+    "Key": "/CI/MS/Development/UserPool",
+    "Value": "us-west-2_Zfg0fUSpS"
   }
 ]
-
-

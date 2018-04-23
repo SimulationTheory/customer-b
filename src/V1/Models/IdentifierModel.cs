@@ -26,5 +26,8 @@ namespace PSE.Customer.V1.Models
         /// </value>
         [JsonConverter(typeof(StringEnumConverter))]
         public IdentifierType IdentifierType { get; set; }
+
+        [JsonProperty("Idnumber")]
+        public string IdentifierValue { get; set; }
     }
 }

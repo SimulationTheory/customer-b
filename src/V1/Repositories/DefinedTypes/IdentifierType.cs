@@ -8,7 +8,7 @@ namespace PSE.Customer.V1.Repositories.DefinedTypes
     public enum IdentifierType
     {
         // ReSharper disable InconsistentNaming
-
+        
         /// <summary>
         /// Date of birth
         /// </summary>
@@ -38,6 +38,12 @@ namespace PSE.Customer.V1.Repositories.DefinedTypes
         /// </summary>
         [EnumMember(Value = "ZLAST4")]
         ZLAST4,
+        
+        /// <summary>
+        /// Email Address.
+        /// </summary>
+        [EnumMember(Value = "ZMAIL")]
+        ZMAIL,
 
         /// <summary>
         /// Military ID

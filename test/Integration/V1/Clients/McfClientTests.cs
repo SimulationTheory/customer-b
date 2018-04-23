@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -22,6 +18,10 @@ using PSE.RestUtility.Core.Mcf;
 using PSE.WebAPI.Core.Configuration.Interfaces;
 using PSE.WebAPI.Core.Service.Interfaces;
 using Shouldly;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PSE.Customer.Tests.Integration.V1.Clients
 {

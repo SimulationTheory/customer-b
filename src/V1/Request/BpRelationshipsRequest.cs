@@ -3,13 +3,18 @@ using System;
 
 namespace PSE.Customer.V1.Request
 {
+    using Newtonsoft.Json;
+
     public class BpRelationshipsRequest : IAPIRequest
     {
     }
 
     public class BpRelationshipRequest : IAPIRequest
     {
+        [JsonProperty("AccountID1")]
         public string ParenttBpId { get; set; }
+
+        [JsonProperty]
         public string BpId { get; set; }
         public string Message { get; set; }
         public string Defaultrelationship { get; set; }
