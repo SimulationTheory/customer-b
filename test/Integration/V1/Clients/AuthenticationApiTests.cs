@@ -6,7 +6,6 @@ using PSE.Customer.Tests.Integration.TestObjects;
 using PSE.Customer.V1.Clients.Authentication;
 using PSE.Customer.V1.Clients.Authentication.Interfaces;
 using PSE.Customer.V1.Clients.Authentication.Models.Response;
-using PSE.Customer.V1.Clients.ClientProxy.Interfaces;
 using PSE.Customer.V1.Response;
 using PSE.WebAPI.Core.Configuration;
 using PSE.WebAPI.Core.Configuration.Interfaces;
@@ -22,7 +21,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
 
         private Mock<ICoreOptions> CoreOptionsMock { get; set; }
 
-        private IAuthenticationApi GetApi(IApiUser apiUser = null)
+        private IAuthenticationApi GetApi()
         {
             var api = new AuthenticationApi(CoreOptionsMock?.Object);
             return api;

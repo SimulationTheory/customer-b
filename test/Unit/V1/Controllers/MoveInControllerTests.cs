@@ -34,9 +34,9 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         private MoveInController GetController()
         {
             return new MoveInController(
-                this.AppSettingsMock?.Object,
-                this.LoggerMock?.Object,
-                this.MoveInLogicMock?.Object);
+                AppSettingsMock?.Object,
+                LoggerMock?.Object,
+                MoveInLogicMock?.Object);
         }
 
         private static void ArrangeController(ControllerBase controller, TestUser user)
@@ -118,7 +118,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
 
             // Assert
             var result = (OkObjectResult)response.Result;
-            var idResponse = (IndentifierResponse)result.Value;
+            var idResponse = (GetBpIdTypeResponse)result.Value;
             idResponse.Identifiers.Count.ShouldBe(2);
             idResponse.Identifiers[0].IdentifierType.ShouldBe(IdentifierType.ZLAST4);
             idResponse.Identifiers[1].IdentifierType.ShouldBe(IdentifierType.ZDOB);
@@ -150,7 +150,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
 
             // Assert
             var result = (OkObjectResult)response.Result;
-            var idResponse = (IndentifierResponse)result.Value;
+            var idResponse = (GetBpIdTypeResponse)result.Value;
             idResponse.Identifiers.Count.ShouldBe(1);
         }
 
@@ -159,17 +159,17 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         #region CreateIdType Tests
 
         [TestMethod]
-        public void CreateIdType_ValidAccountAndType_SavedSuccessfully()
+        public async Task CreateIdType_ValidAccountAndType_SavedSuccessfully()
         {
             // Arrange
             var controller = GetController();
             var identifier = new IdentifierRequest();
 
             // Act
-            var response = controller.CreateIdType(identifier);
+            var response = await controller.CreateIdType(identifier);
 
             // Assert
-            response.Result.ShouldBeOfType<OkResult>();
+            response.ShouldBeOfType<OkObjectResult>();
         }
 
         #endregion
@@ -187,7 +187,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             var response = controller.UpdateIdType(identifier);
 
             // Assert
-            response.Result.ShouldBeOfType<OkResult>();
+            response.ShouldBeOfType<OkResult>();
         }
 
         #endregion
@@ -284,7 +284,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         public void GetDuplicateBusinessPartnerIfExists_MissingParams_ReturnsBadRequest()
         {
             // Arrange
-            var controller = this.GetController();
+            var controller = GetController();
             var request = new BpSearchRequest()
             {
                 FirstName = "Feng",
@@ -302,7 +302,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         public void GetDuplicateBusinessPartnerIfExists_ExistingBP_Returns200Ok()
         {
             // Arrange
-            var controller = this.GetController();
+            var controller = GetController();
             var responseForExistingBp = new BpSearchModel()
             {
                 MatchFound = true,
@@ -318,7 +318,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
                                                     }
                                             }
             };
-            this.MoveInLogicMock.Setup(m => m.GetDuplicateBusinessPartnerIfExists(It.IsAny<BpSearchRequest>()))
+            MoveInLogicMock.Setup(m => m.GetDuplicateBusinessPartnerIfExists(It.IsAny<BpSearchRequest>()))
                 .Returns(responseForExistingBp);
             var request = new BpSearchRequest()
             {

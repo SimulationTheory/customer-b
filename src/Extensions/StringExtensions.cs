@@ -30,14 +30,16 @@ namespace PSE.Customer.Extensions
         }
 
         /// <summary>
-        /// Helper method to convert object to JSON (e.g. for logging objects)
+        /// Helper method to convert object to JSON
         /// </summary>
         /// <param name="serializableObject">The serializable object.</param>
         /// <param name="formatting">The formatting style (defaults to indented)</param>
+        /// <param name="nullValueHandling">How to serialze null values (defaults to ignore)</param>
         /// <returns>The object formatted as a JSON string</returns>
-        public static string ToJson(this object serializableObject, Formatting formatting = Formatting.Indented)
+        public static string ToJson(this object serializableObject, Formatting formatting = Formatting.Indented, NullValueHandling nullValueHandling = NullValueHandling.Ignore)
         {
-            return JsonConvert.SerializeObject(serializableObject, formatting);
+            return JsonConvert.SerializeObject(serializableObject, formatting,
+                new JsonSerializerSettings { NullValueHandling = nullValueHandling });
         }
 
         /// <summary>

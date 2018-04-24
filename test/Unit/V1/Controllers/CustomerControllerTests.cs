@@ -1,4 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
@@ -14,12 +20,6 @@ using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Request;
 using PSE.Customer.V1.Response;
 using Shouldly;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace PSE.Customer.Tests.Unit.V1.Controllers
 {
@@ -332,7 +332,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             //Assert
             actual.ShouldNotBeNull();
             actual.ShouldBeOfType<StatusCodeResult>();
-            (actual as StatusCodeResult).StatusCode.ShouldBe((int)HttpStatusCode.NoContent);
+            ((StatusCodeResult)actual).StatusCode.ShouldBe((int)HttpStatusCode.NoContent);
         }
 
         [TestMethod]
@@ -616,8 +616,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             var response = ((OkObjectResult)actual).Value as GetMailingAddressesResponse;
             response.ShouldNotBeNull();
             response.MailingAddresses.ToList().Count.ShouldBeGreaterThan(0);
-            response.MailingAddresses.First().Address.AddressLine1.ToString().ShouldBe("SE 166th St");
-
+            response.MailingAddresses.First().Address.AddressLine1.ShouldBe("SE 166th St");
         }
 
         [TestMethod]
@@ -626,11 +625,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             //Arrange
             var user = TestHelper.PaDev1;
             CustomerLogicMock.Setup(dlm => dlm.GetMailingAddressesAsync(It.IsAny<long>(), It.IsAny<bool>(), It.IsAny<string>()))
-                .Returns(() =>
-                {
-                    IEnumerable<MailingAddressesModel> mailingAddresses = null;
-                    return Task.FromResult(mailingAddresses);
-                });
+                .Returns(() => Task.FromResult((IEnumerable<MailingAddressesModel>) null));
             var controller = GetController();
 
             ArrangeController(controller, user);
@@ -650,8 +645,10 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         {
             //Arrange
             var target = GetController();
-            target.ControllerContext = new ControllerContext();
-            target.ControllerContext.HttpContext = new DefaultHttpContext();
+            target.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+            };
             target.ControllerContext.HttpContext.Request.Headers["Authorization"] = "";
 
             //Act

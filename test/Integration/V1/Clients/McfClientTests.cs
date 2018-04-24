@@ -1,4 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -18,10 +23,6 @@ using PSE.RestUtility.Core.Mcf;
 using PSE.WebAPI.Core.Configuration.Interfaces;
 using PSE.WebAPI.Core.Service.Interfaces;
 using Shouldly;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace PSE.Customer.Tests.Integration.V1.Clients
 {
@@ -280,7 +281,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         #region Business Partner Identifier Tests
 
         [TestMethod]
-        public async Task GetAllIdentifiers_AccountWithIdentifier_AllIdentifiers()
+        public async Task GetAllIdentifiers_AccountWithIdentifier_AllIdentifiersReturned()
         {
             // Arrange
             var user = TestHelper.ActivePaUser;
@@ -297,8 +298,207 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             results[0].AccountId.ShouldBe(user.BPNumber.ToString());
             results[0].IdentifierType.ShouldNotBeEmpty();
 
-            var lastFour = results.First(x => x.IdentifierType == "ZLAST4");
-            lastFour.IdentifierNo.ShouldBe("9999");
+            var lastFour = results.First(x => x.IdentifierType == IdentifierType.ZLAST4.ToString());
+            var expectedValueMatch = lastFour.IdentifierNo == "9999" || lastFour.IdentifierNo == "1111";
+            expectedValueMatch.ShouldBeTrue();
+        }
+
+        [TestMethod]
+        public async Task CreateIdentifier_IdentifierDoesNotExist_IdentifierCreated()
+        {
+            // Arrange
+            var user = TestHelper.GeorgeShazel;
+            var loginResponse = await AuthClient.GetJwtToken(user.Username, "Start@123");
+            user.SetJwtEncodedString(loginResponse.Data.JwtAccessToken);
+            UserContext.SetUser(user);
+            var bpNumber = user.BPNumber.ToString();
+
+            var identifier = new BpIdentifier
+            {
+                AccountId = bpNumber,
+                IdentifierType = IdentifierType.ZPASWD.ToString(),
+                IdentifierNo = "a4rFr3dKOPe"
+            };
+
+            var password = GetIdentifierData(bpNumber, IdentifierType.ZPASWD);
+            if (password != null)
+            {
+                McfClient.DeleteIdentifier(identifier);
+            }
+
+            // Act
+            var response = McfClient.CreateIdentifier(identifier);
+
+            // Assert
+            response.ShouldNotBeNull();
+            response.Result.ShouldNotBeNull();
+            response.Result.AccountId.ShouldBe(identifier.AccountId);
+            response.Result.IdentifierType.ShouldBe(identifier.IdentifierType);
+            response.Result.IdentifierNo.ShouldBe(identifier.IdentifierNo);
+        }
+
+        [TestMethod]
+        [Ignore("Anonymous user not yet supported for this call.")]
+        public async Task CreateIdentifier_NotAuthenticatedIdentifierDoesNotExist_IdentifierCreated()
+        {
+            // Arrange
+            var user = TestHelper.GeorgeShazel;
+            var loginResponse = await AuthClient.GetJwtToken(user.Username, "Start@123");
+            user.SetJwtEncodedString(loginResponse.Data.JwtAccessToken);
+            UserContext.SetUser(user);
+            var bpNumber = user.BPNumber.ToString();
+
+            var identifier = new BpIdentifier
+            {
+                AccountId = bpNumber,
+                IdentifierType = IdentifierType.ZPASWD.ToString(),
+                IdentifierNo = "zi1py786lOP"
+            };
+
+            var password = GetIdentifierData(bpNumber, IdentifierType.ZPASWD);
+            if (password != null)
+            {
+                McfClient.DeleteIdentifier(identifier);
+            }
+
+            // Next call should be unauthorized
+            UserContext.JWT = null;
+
+            // Act
+            var response = McfClient.CreateIdentifier(identifier);
+
+            // Assert
+            response.ShouldNotBeNull();
+            response.Result.ShouldNotBeNull();
+        }
+
+        [TestMethod]
+        public async Task CreateIdentifier_IdentifierAlreadyExists_BadRequest()
+        {
+            // Arrange
+            var user = TestHelper.ActivePaUser;
+            var loginResponse = await AuthClient.GetJwtToken(user.Username, "Start@123");
+            user.SetJwtEncodedString(loginResponse.Data.JwtAccessToken);
+            UserContext.SetUser(user);
+            var bpNumber = user.BPNumber.ToString();
+
+            var startSocial = GetLast4Social(bpNumber);
+
+            var identifier = new BpIdentifier
+            {
+                AccountId = bpNumber,
+                IdentifierType = IdentifierType.ZLAST4.ToString(),
+                IdentifierNo = startSocial
+            };
+
+            // Act
+            var response = McfClient.CreateIdentifier(identifier);
+
+            // Assert
+            response.ShouldNotBeNull();
+            response.Result.ShouldBeNull();
+            response.Error.Message.Value.ShouldContain("Already exists");
+        }
+
+        [TestMethod]
+        [Ignore]
+        public async Task UpdateIdentifier_IdentifierJustCreated_IdentifierUpdated()
+        {
+            // Arrange
+            var user = TestHelper.GeorgeShazel;
+            var loginResponse = await AuthClient.GetJwtToken(user.Username, "Start@123");
+            user.SetJwtEncodedString(loginResponse.Data.JwtAccessToken);
+            UserContext.SetUser(user);
+            var bpNumber = user.BPNumber.ToString();
+
+            var identifier = new BpIdentifier
+            {
+                AccountId = bpNumber,
+                IdentifierType = IdentifierType.ZPASWD.ToString(),
+                IdentifierNo = "Li0nOOjgfui"
+            };
+
+            var password = GetIdentifierData(bpNumber, IdentifierType.ZPASWD);
+            if (password != null)
+            {
+                McfClient.DeleteIdentifier(identifier);
+            }
+
+            McfClient.CreateIdentifier(identifier);
+
+            // Act
+            var response = McfClient.UpdateIdentifier(identifier);
+
+            // Assert
+            response.ShouldNotBeNull();
+            response.HttpStatusCode.ShouldBe(HttpStatusCode.Created);
+        }
+
+        [TestMethod]
+        [Ignore("currently failing")]
+        public async Task UpdateIdentifier_AccountWithIdentifier_IdentifierChangesSaved()
+        {
+            // Arrange
+            var user = TestHelper.ActivePaUser;
+            var loginResponse = await AuthClient.GetJwtToken(user.Username, "Start@123");
+            user.SetJwtEncodedString(loginResponse.Data.JwtAccessToken);
+            UserContext.SetUser(user);
+            var bpNumber = user.BPNumber.ToString();
+
+            var startSocial = GetLast4Social(bpNumber);
+
+            var identifier = new BpIdentifier
+            {
+                AccountId = bpNumber,
+                IdentifierType = IdentifierType.ZLAST4.ToString(),
+                IdentifierNo = startSocial == "9999" ? "1111" : "9999"
+            };
+
+            // Act
+            var response = McfClient.UpdateIdentifier(identifier);
+
+            // Assert
+            response.ShouldNotBeNull();
+            response.HttpStatusCode.ShouldBe(HttpStatusCode.OK);
+            GetLast4Social(bpNumber).ShouldBe(identifier.IdentifierNo);
+        }
+
+        [TestMethod]
+        public async Task UpdateIdentifier_AccountWithMissingIdentifier_ReturnsNoContent()
+        {
+            // Arrange
+            var user = TestHelper.ActiveMaUser;
+            var loginResponse = await AuthClient.GetJwtToken(user.Username, "Start@123");
+            user.SetJwtEncodedString(loginResponse.Data.JwtAccessToken);
+            UserContext.SetUser(user);
+            var bpNumber = user.BPNumber.ToString();
+
+            var identifier = new BpIdentifier
+            {
+                AccountId = bpNumber,
+                IdentifierType = IdentifierType.ZDNAC.ToString(),
+                IdentifierNo = "450930044"
+            };
+
+            // Act
+            var response = McfClient.UpdateIdentifier(identifier);
+
+            // Assert
+            response.ShouldNotBeNull();
+            response.HttpStatusCode.ShouldBe(HttpStatusCode.NoContent);
+        }
+
+        private string GetIdentifierData(string bpNumber, IdentifierType type)
+        {
+            var response = McfClient.GetAllIdentifiers(bpNumber);
+            var results = response.Result.Results.ToList();
+            var identifier = results.FirstOrDefault(x => x.IdentifierType == type.ToString());
+            return identifier?.IdentifierNo;
+        }
+
+        private string GetLast4Social(string bpNumber)
+        {
+            return GetIdentifierData(bpNumber, IdentifierType.ZLAST4);
         }
 
         #endregion
@@ -533,7 +733,6 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             user.BPNumber.ShouldNotBe(0);
             CreateCustomerInteractionRequest newInteraction = new CreateCustomerInteractionRequest()
             {
-
                 AccountID = "1001840105",
                 Description = "High Bill Call",
                 PremiseID = 7000006028,
@@ -606,4 +805,3 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         #endregion
     }
 }
-

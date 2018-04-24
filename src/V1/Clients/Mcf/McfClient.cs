@@ -70,9 +70,9 @@ namespace PSE.Customer.V1.Clients.Mcf
             {
                 // Format and log request input
                 var requestBody = request.ToJson(Formatting.None);
-                this._logger.LogInformation($"GetDuplicateBusinessPartnerIfExists({nameof(request)}: {requestBody})");
+                _logger.LogInformation($"GetDuplicateBusinessPartnerIfExists({nameof(request)}: {requestBody})");
 
-                var config = this._coreOptions.Configuration;
+                var config = _coreOptions.Configuration;
                 var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
 
                 var restRequest = new RestRequest(
@@ -93,7 +93,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                 // Get and add credentials for Anonymous Service user account 
                 var mcfUserName = string.Empty;
                 var mcfUserPassword = string.Empty;
-                this.SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword);
+                SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword);
                 restRequest.AddBasicCredentials(mcfUserName, mcfUserPassword);
 
                 // Add headers
@@ -109,7 +109,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                 // Check for null result + an error. Lo
                 if (mcfResponse.Error != null && mcfResponse.Result == null)
                 {
-                    this._logger.LogError(mcfResponse.Error.Message.Value, mcfResponse.Error.InnerError);
+                    _logger.LogError(mcfResponse.Error.Message.Value, mcfResponse.Error.InnerError);
                     throw new BadRequestException(mcfResponse.Error.Message.Value);
                 }
 
@@ -118,7 +118,7 @@ namespace PSE.Customer.V1.Clients.Mcf
             }
             catch (Exception e)
             {
-                this._logger.LogError(e, $"{e.Message} for {nameof(request)}: {request.ToJson(Formatting.None)}");
+                _logger.LogError(e, $"{e.Message} for {nameof(request)}: {request.ToJson(Formatting.None)}");
                 throw e;
             }
         }
@@ -832,7 +832,143 @@ namespace PSE.Customer.V1.Clients.Mcf
             }
             catch (Exception e)
             {
-                _logger.LogError(e, e.Message);
+                _logger.LogError(e, $"Failed to get all identifiers {{{bpId}}}");
+                throw;
+            }
+
+            return response;
+        }
+
+        /// <inheritdoc />
+        public McfStatusCodeResponse<BpIdentifier> CreateIdentifier(BpIdentifier identifier)
+        {
+            McfStatusCodeResponse<BpIdentifier> response;
+            var paramLogInfo = identifier.ToJsonNoPii();
+
+            try
+            {
+                _logger.LogInformation($"CreateIdentifier({nameof(identifier)}: {paramLogInfo}); {_requestContext.ToJson()})");
+                var config = _coreOptions.Configuration;
+                var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
+
+                var url = "/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/IdentifierSet";
+                var restRequest = new RestRequest(url, Method.POST);
+
+                if (string.IsNullOrWhiteSpace(_requestContext.JWT))
+                {
+                    // Add anon bypass auth
+                    var mcfUserName = string.Empty;
+                    var mcfUserPassword = string.Empty;
+                    SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword);
+                    restRequest.AddBasicCredentials(mcfUserName, mcfUserPassword);
+                }
+                else
+                {
+                    var cookies = restUtility.GetMcfCookies(_requestContext.JWT).Result;
+                    restRequest.AddCookies(cookies);
+                }
+
+                restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
+                restRequest.AddHeader("ContentType", "application/json");
+                restRequest.AddHeader("Accept", "application/json");
+                var requestBody = identifier.ToJson(Formatting.None);
+                restRequest.AddParameter("application/json", requestBody, ParameterType.RequestBody);
+
+                _logger.LogInformation("Making MCF call");
+                var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
+                var restResponse = client.Execute(restRequest);
+
+                response = JsonConvert.DeserializeObject<McfStatusCodeResponse<BpIdentifier>>(restResponse.Content);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"CreateIdentifier({paramLogInfo}) failed");
+                throw;
+            }
+
+            return response;
+        }
+
+        /// <inheritdoc />
+        public McfStatusCodeResponse UpdateIdentifier(BpIdentifier identifier)
+        {
+            var response = new McfStatusCodeResponse();
+            var paramLogInfo = identifier.ToJsonNoPii();
+
+            try
+            {
+                _logger.LogInformation($"UpdateIdentifier({nameof(identifier)}: {paramLogInfo}); {_requestContext.ToJson()})");
+                var config = _coreOptions.Configuration;
+                var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
+
+                var url = "/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/IdentifierSet(" +
+                          $"AccountID='{identifier.AccountId}',Identifiertype='{identifier.IdentifierType}',Identifierno='{identifier.IdentifierNo.ToUpper()}')";
+                var restRequest = new RestRequest(url, Method.PUT);
+
+                var cookies = restUtility.GetMcfCookies(_requestContext.JWT).Result;
+                restRequest.AddCookies(cookies);
+
+                restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
+                restRequest.AddHeader("ContentType", "application/json");
+                restRequest.AddHeader("Accept", "application/json");
+                var requestBody = identifier.ToJson(Formatting.None);
+                restRequest.AddParameter("application/json", requestBody, ParameterType.RequestBody);
+
+                _logger.LogInformation("Making MCF call");
+                var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
+                var restResponse = client.Execute(restRequest);
+
+                if (!restResponse.IsSuccessful)
+                {
+                    response = JsonConvert.DeserializeObject<McfStatusCodeResponse>(restResponse.Content);
+                }
+                response.HttpStatusCode = restResponse.StatusCode;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"UpdateIdentifier({paramLogInfo}) failed");
+                throw;
+            }
+
+            return response;
+        }
+
+        /// <inheritdoc />
+        public McfStatusCodeResponse DeleteIdentifier(BpIdentifier identifier)
+        {
+            var response = new McfStatusCodeResponse();
+            var paramLogInfo = identifier.ToJsonNoPii();
+
+            try
+            {
+                _logger.LogInformation($"DeleteIdentifier({nameof(identifier)}: {paramLogInfo}); {_requestContext.ToJson()})");
+                var config = _coreOptions.Configuration;
+                var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
+
+                var url = "/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/IdentifierSet(" +
+                          $"AccountID='{identifier.AccountId}',Identifiertype='{identifier.IdentifierType}',Identifierno='{identifier.IdentifierNo.ToUpper()}')";
+                var restRequest = new RestRequest(url, Method.DELETE);
+
+                var cookies = restUtility.GetMcfCookies(_requestContext.JWT).Result;
+                restRequest.AddCookies(cookies);
+
+                restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
+                restRequest.AddHeader("ContentType", "application/json");
+                restRequest.AddHeader("Accept", "application/json");
+
+                _logger.LogInformation("Making MCF call");
+                var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
+                var restResponse = client.Execute(restRequest);
+
+                if (!restResponse.IsSuccessful)
+                {
+                    response = JsonConvert.DeserializeObject<McfStatusCodeResponse>(restResponse.Content);
+                }
+                response.HttpStatusCode = restResponse.StatusCode;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"DeleteIdentifier({paramLogInfo}) failed");
                 throw;
             }
 

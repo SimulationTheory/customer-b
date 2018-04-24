@@ -20,14 +20,12 @@ namespace PSE.Customer.V1.Logic.Interfaces
         /// <returns></returns>
         ReconnectStatusResponse GetMoveInLatePayment(long contractAccountId, string jwt);
 
-
         /// <summary>
         /// Create a Business Partner
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
         Task<CreateBusinesspartnerResponse> CreateBusinessPartner(CreateBusinesspartnerRequest request);
-
 
         /// <summary>
         /// Gets the invalid movein dates for a given date range from MCF.
@@ -50,6 +48,18 @@ namespace PSE.Customer.V1.Logic.Interfaces
         /// <param name="type">Represents identifier types such as last 4 SSN, drivers license number, etc.</param>
         /// <returns>Array of zero or one ID types for BP</returns>
         Task<List<IdentifierModel>> GetIdType(long bpId, IdentifierType type);
+
+        /// <summary>
+        /// Creates one ID type for a BP
+        /// </summary>
+        /// <param name="identifierRequest">Identifier types such as last 4 SSN, drivers license number, etc.</param>
+        Task<CreateBpIdTypeResponse> CreateIdType(IdentifierRequest identifierRequest);
+
+        /// <summary>
+        /// Updates one ID type for a BP
+        /// </summary>
+        /// <param name="identifierRequest">Identifier types such as last 4 SSN, drivers license number, etc.</param>
+        void UpdateIdType(IdentifierRequest identifierRequest);
 
         /// <summary>
         /// Validates the identifier by comparing to ID type user already has

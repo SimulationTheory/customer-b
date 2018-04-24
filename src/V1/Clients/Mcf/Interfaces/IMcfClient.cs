@@ -208,5 +208,26 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// <param name="bpId">The business partner identifier.</param>
         /// <returns>Collection of zero or more business partner identifiers</returns>
         McfResponse<McfResponseResults<BpIdentifier>> GetAllIdentifiers(string bpId);
+
+        /// <summary>
+        /// Creates an identifier for the business partner
+        /// </summary>
+        /// <param name="identifier">The identifier with updated values</param>
+        /// <returns>Status code or error message</returns>
+        McfStatusCodeResponse<BpIdentifier> CreateIdentifier(BpIdentifier identifier);
+
+        /// <summary>
+        /// Updates an identifier for the business partner
+        /// </summary>
+        /// <param name="identifier">The identifier with updated values</param>
+        /// <returns>Status code or error message</returns>
+        McfStatusCodeResponse UpdateIdentifier(BpIdentifier identifier);
+
+        /// <summary>
+        /// Deletes an identifier for the business partner
+        /// </summary>
+        /// <param name="identifier">The identifier with updated values</param>
+        /// <returns>Status code or error message</returns>
+        McfStatusCodeResponse DeleteIdentifier(BpIdentifier identifier);
     }
 }

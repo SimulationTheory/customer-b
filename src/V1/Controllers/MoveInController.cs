@@ -143,7 +143,7 @@ namespace PSE.Customer.V1.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> BpSearch([FromQuery]BpSearchRequest request)
         {
-            this._logger.LogInformation($"BpSearch({nameof(request)}: {request.ToJson()})");
+            _logger.LogInformation($"BpSearch({nameof(request)}: {request.ToJson()})");
 
             try
             {
@@ -162,12 +162,12 @@ namespace PSE.Customer.V1.Controllers
                 }
 
                 // send call to logic class
-                var searchResponse = this._moveInLogic.GetDuplicateBusinessPartnerIfExists(request);
+                var searchResponse = _moveInLogic.GetDuplicateBusinessPartnerIfExists(request);
 
                 // view result from logic class
                 if (!searchResponse.MatchFound)
                 {
-                    this._logger.LogInformation(
+                    _logger.LogInformation(
                         $"There is not a match for an existing Business Partner based on the information provided.");
                 }
 
@@ -175,7 +175,7 @@ namespace PSE.Customer.V1.Controllers
             }
             catch (Exception ex)
             {
-                this._logger.LogError(ex, "Unable to search BP for a customer.", ex.Message);
+                _logger.LogError(ex, "Unable to search BP for a customer.", ex.Message);
                 return ex.ToActionResult();
             }
         }
@@ -366,7 +366,7 @@ namespace PSE.Customer.V1.Controllers
         /// Gets all ID types but not values for a BP
         /// </summary>
         /// <returns>returns IndentifierResponse</returns>
-        [ProducesResponseType(typeof(IndentifierResponse), 200)]
+        [ProducesResponseType(typeof(GetBpIdTypeResponse), 200)]
         [HttpGet("bp-id-types")]
         public async Task<IActionResult> GetAllIdTypes()
         {
@@ -377,7 +377,7 @@ namespace PSE.Customer.V1.Controllers
             {
                 // Get BP from user's authorization claims
                 var bpId = GetBpIdFromClaims();
-                result = Ok(new IndentifierResponse
+                result = Ok(new GetBpIdTypeResponse
                 {
                     Identifiers = await _moveInLogic.GetAllIdTypes(bpId)
                 });
@@ -397,7 +397,7 @@ namespace PSE.Customer.V1.Controllers
         /// </summary>
         /// <param name="type">Represents identifier types such as last 4 SSN, drivers license number, etc.</param>
         /// <returns>returns IndentifierResponse</returns>
-        [ProducesResponseType(typeof(IndentifierResponse), 200)]
+        [ProducesResponseType(typeof(GetBpIdTypeResponse), 200)]
         [HttpGet("bp-id-type/{type}")]
         public async Task<IActionResult> GetIdType([FromRoute] IdentifierType type)
         {
@@ -408,7 +408,7 @@ namespace PSE.Customer.V1.Controllers
             {
                 // Get BP from user's authorization claims
                 var bpId = GetBpIdFromClaims();
-                result = Ok(new IndentifierResponse
+                result = Ok(new GetBpIdTypeResponse
                 {
                     Identifiers = await _moveInLogic.GetIdType(bpId, type)
                 });
@@ -428,8 +428,9 @@ namespace PSE.Customer.V1.Controllers
         /// </summary>
         /// <param name="identifierRequest"></param>
         /// <returns>returns BPSearchResponse</returns>
-        [ProducesResponseType(typeof(OkResult), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(CreateBpIdTypeResponse), StatusCodes.Status200OK)]
         [HttpPost("bp-id-type")]
+        [AllowAnonymous]
         public async Task<IActionResult> CreateIdType([FromBody] IdentifierRequest identifierRequest)
         {
             IActionResult result;
@@ -438,7 +439,7 @@ namespace PSE.Customer.V1.Controllers
 
             try
             {
-                result = Ok();
+                result = Ok(await _moveInLogic.CreateIdType(identifierRequest));
             }
             catch (Exception ex)
             {
@@ -457,7 +458,7 @@ namespace PSE.Customer.V1.Controllers
         /// <returns>returns BPSearchResponse</returns>
         [ProducesResponseType(typeof(OkResult), StatusCodes.Status200OK)]
         [HttpPut("bp-id-type")]
-        public async Task<IActionResult> UpdateIdType([FromBody] IdentifierRequest identifierRequest)
+        public IActionResult UpdateIdType([FromBody] IdentifierRequest identifierRequest)
         {
             IActionResult result;
             // !!! JMC - should these be logged?
@@ -465,6 +466,7 @@ namespace PSE.Customer.V1.Controllers
 
             try
             {
+                _moveInLogic.UpdateIdType(identifierRequest);
                 result = Ok();
             }
             catch (Exception ex)
@@ -501,7 +503,7 @@ namespace PSE.Customer.V1.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unable to update IDentifier Type for a BP", ex.Message);
+                _logger.LogError(ex, "Unable to validate IDentifier Type for a BP", ex.Message);
 
                 result = ex.ToActionResult();
             }

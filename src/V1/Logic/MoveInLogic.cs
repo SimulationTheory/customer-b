@@ -1,4 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using PSE.Customer.Extensions;
 using PSE.Customer.V1.Clients.Address.Interfaces;
 using PSE.Customer.V1.Clients.Mcf.Interfaces;
 using PSE.Customer.V1.Clients.Mcf.Models;
@@ -9,11 +14,9 @@ using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Request;
 using PSE.Customer.V1.Response;
+using PSE.RestUtility.Core.Mcf;
+using PSE.WebAPI.Core.Exceptions.Types;
 using PSE.WebAPI.Core.Service.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace PSE.Customer.V1.Logic
 {
@@ -35,10 +38,10 @@ namespace PSE.Customer.V1.Logic
         /// <param name="requestContext">The request context adapter.</param>
         public MoveInLogic(ILogger<MoveInLogic> logger, IMcfClient mcfClient, IAddressApi addressApi, IRequestContextAdapter requestContext)
         {
-            this._logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            this._mcfClient = mcfClient ?? throw new ArgumentNullException(nameof(mcfClient));
-            this._addressApi = addressApi ?? throw new ArgumentNullException(nameof(addressApi));
-            this._requestContext = requestContext ?? throw new ArgumentNullException(nameof(requestContext));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _mcfClient = mcfClient ?? throw new ArgumentNullException(nameof(mcfClient));
+            _addressApi = addressApi ?? throw new ArgumentNullException(nameof(addressApi));
+            _requestContext = requestContext ?? throw new ArgumentNullException(nameof(requestContext));
         }
 
         /// <inheritdoc />
@@ -73,8 +76,8 @@ namespace PSE.Customer.V1.Logic
         {
             try
             {
-                this._logger.LogInformation($"GetDuplicateBusinessPartnerIfExists({nameof(request)}: {request})");
-                var mcfResponse = this._mcfClient.GetDuplicateBusinessPartnerIfExists(request, this._requestContext.RequestChannel);
+                _logger.LogInformation($"GetDuplicateBusinessPartnerIfExists({nameof(request)}: {request})");
+                var mcfResponse = _mcfClient.GetDuplicateBusinessPartnerIfExists(request, _requestContext.RequestChannel);
 
                 // if these Threshhold and Unique conditions are met
                 // we can return the response and bpid
@@ -147,7 +150,7 @@ namespace PSE.Customer.V1.Logic
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to create Buiness Partner");
-                throw ex;
+                throw;
             }
 
         }
@@ -155,7 +158,7 @@ namespace PSE.Customer.V1.Logic
         private CreateBusinesspartnerResponse ValidateAddress(RestSharp.IRestResponse<McfAddressinfo> addressResponse)
         {
             CreateBusinesspartnerResponse response = null;
-            if (!addressResponse.IsSuccessful && addressResponse?.Data == null)
+            if (!addressResponse.IsSuccessful && addressResponse.Data == null)
             {
                 var message = $"Address validator service failed with the error {addressResponse.Content}";
                 _logger.LogError(message);
@@ -165,7 +168,6 @@ namespace PSE.Customer.V1.Logic
                     {
                         ErrorMessage = message,
                         HttpStatusCode = System.Net.HttpStatusCode.BadRequest
-
                     };
                 }
                 else
@@ -347,10 +349,54 @@ namespace PSE.Customer.V1.Logic
         }
 
         /// <inheritdoc />
+        public Task<CreateBpIdTypeResponse> CreateIdType(IdentifierRequest identifierRequest)
+        {
+            var bpIdentifier = new BpIdentifier(identifierRequest);
+            var response = new CreateBpIdTypeResponse();
+
+            var mcfResponse = _mcfClient.CreateIdentifier(bpIdentifier);
+            if (mcfResponse == null)
+            {
+                const string uiFailureMessage = "Failed to create business partner identifier";
+                _logger.LogError($"{ uiFailureMessage }: {identifierRequest.ToJson()}");
+                throw new InternalServerException(uiFailureMessage);
+            }
+
+            response.HttpStatusCode = mcfResponse.HttpStatusCode;
+            if (mcfResponse.Error != null)
+            {
+                const string uiFailureMessage = "Failed to create business partner identifier";
+                _logger.LogError($"{ mcfResponse.Error.ToJson() }: {identifierRequest.ToJson()}");
+                response.ErrorMessage = uiFailureMessage;
+            }
+            else
+            {
+                response.BpIdType = mcfResponse.Result.ToModel();
+            }
+
+            return Task.FromResult(response);
+        }
+
+        /// <inheritdoc />
+        public void UpdateIdType(IdentifierRequest identifierRequest)
+        {
+            var bpIdentifier = new BpIdentifier(identifierRequest);
+            _mcfClient.UpdateIdentifier(bpIdentifier);
+        }
+
+        /// <inheritdoc />
         public Task<bool> ValidateIdType(IdentifierRequest identifierRequest)
         {
             var response = _mcfClient.GetAllIdentifiers(identifierRequest.BpId);
-            var validIdentifier = response?.Result?.Results?.FirstOrDefault(x =>
+            if (response == null || response.Error != null)
+            {
+                const string uiFailureMessage = "Failed to get business partner identifiers";
+                var responseErrorMessage = response?.Error != null ? response.Error.ToJson() : uiFailureMessage;
+                _logger.LogError($"{ responseErrorMessage }: {identifierRequest.ToJson()}");
+                throw new InternalServerException(uiFailureMessage);
+            }
+
+            var validIdentifier = response.Result?.Results?.FirstOrDefault(x =>
                 x.IdentifierType == identifierRequest.IdentifierType.ToString() &&
                 x.IdentifierNo == identifierRequest.IdentifierNo);
 

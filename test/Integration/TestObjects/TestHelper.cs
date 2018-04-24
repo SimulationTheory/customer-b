@@ -70,6 +70,15 @@ namespace PSE.Customer.Tests.Integration.TestObjects
             ContractAccountId = 200019410436
         };
 
+        public static readonly TestUser GeorgeShazel = new TestUser
+        {
+            BPNumber = 1002261170,
+            Email = "alantester@alantester.com",
+            Username = "georgeshazel",
+            ContractAccountId = 220008971636,
+            JwtEncodedString = "eyJraWQiOiJSRGlmUFwvbEQ0Q0VVNXJadEJQeWdFSDI5S1haNThoOUtwXC9hRWxzK2t3bUE9IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJkN2JjMzJmMS1lNjg5LTQwNjItODM2Zi1hY2Q2YWQxMDFiOGQiLCJhdWQiOiI2dGpzc2ZyaGh0cGw1dnRsYWN1bTdjdHVjbyIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwidG9rZW5fdXNlIjoiaWQiLCJhdXRoX3RpbWUiOjE1MjQ1MTkxMTcsImlzcyI6Imh0dHBzOlwvXC9jb2duaXRvLWlkcC51cy13ZXN0LTIuYW1hem9uYXdzLmNvbVwvdXMtd2VzdC0yX1pmZzBmVVNwUyIsImN1c3RvbTpicCI6IjEwMDIyNjExNzAiLCJjb2duaXRvOnVzZXJuYW1lIjoiZTQxNjBmOWMtZTNlNS00MDM0LWJmYWEtZDVjZWMwZGM5MzM2IiwiZXhwIjoxNTI0NTIyNzE3LCJpYXQiOjE1MjQ1MTkxMTcsImVtYWlsIjoiYWxhbnRlc3RlckBhbGFudGVzdGVyLmNvbSJ9.Bez4X3FZYJFxTpxza8We9xerp5VyY5LDpzY5PJNDobeYqx-pfvML0QfAFlWEUx6TDwUXgn46i8LFEeEqJ61HIuAQepX9XAAZFrIaZNyBsc8ulSKH7huUbVtJh70C3a9GOBWAH0VtYUD6UcEclwroUbaW-854V11JAZBv-49lDUMFVMz5OW1QEKZd_BVtpnx4NyZm5YfzgrLYjkjrxnY3koaVjhggc5N98PHlar5b2Oi7zCeuhb1N70n_UClaZSbAlzEZLzTJZDQ_zzzlwyxr_3bg7t2icyFLX-PkUv9c7HlBn575dV7XnbtAhHynMa9Mc4KoU0jNesixm0d_vkNfsg"
+        };
+
         /// <summary>
         /// Account that is supposed to have an mailing addresses 
         /// </summary>
@@ -77,8 +86,10 @@ namespace PSE.Customer.Tests.Integration.TestObjects
         {
             Username = "testuser6",
             Email = "testpaactive02@test.com",
-            ContractAccountId = 220007739539
+            ContractAccountId = 220007739539,
+            BPNumber = 1002785285
         };
+
         /// <summary>
         /// Account for creating a user interaction record 
         /// </summary>
@@ -86,8 +97,8 @@ namespace PSE.Customer.Tests.Integration.TestObjects
         {
             Username = "donaldmcconnell",
             BPNumber = 1001840105
-                   
         };
+
         /// <summary>
         /// Gets the core options.
         /// </summary>
@@ -95,11 +106,8 @@ namespace PSE.Customer.Tests.Integration.TestObjects
         public static ICoreOptions GetCoreOptions()
         {
             var options = new CoreOptions(ServiceConfiguration.AppName);
-
             return options;
         }
-
-      
 
         /// <summary>
         /// Gets a new service collection with logging enabled and ApplicationLifetime registered.

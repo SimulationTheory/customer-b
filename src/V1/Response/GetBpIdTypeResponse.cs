@@ -1,6 +1,6 @@
-﻿using PSE.Customer.V1.Models;
+﻿using System.Collections.Generic;
+using PSE.Customer.V1.Models;
 using PSE.WebAPI.Core.Interfaces;
-using System.Collections.Generic;
 
 namespace PSE.Customer.V1.Response
 {
@@ -8,7 +8,7 @@ namespace PSE.Customer.V1.Response
     /// A set of one or more identifiers for a business partner
     /// </summary>
     /// <seealso cref="PSE.WebAPI.Core.Interfaces.IAPIResponse" />
-    public class IndentifierResponse : IAPIResponse
+    public class GetBpIdTypeResponse : IAPIResponse
     {
         /// <summary>
         /// Gets or sets the identifier types.

@@ -31,10 +31,10 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
         [TestInitialize]
         public void TestInitalize()
         {
-            this._mcfClientMock = new Mock<IMcfClient>();
-            this._loggerMock = new Mock<ILogger<MoveInLogic>>();
-            this._addressApi = new Mock<IAddressApi>();
-            this._requestContextMock = new Mock<IRequestContextAdapter>();
+            _mcfClientMock = new Mock<IMcfClient>();
+            _loggerMock = new Mock<ILogger<MoveInLogic>>();
+            _addressApi = new Mock<IAddressApi>();
+            _requestContextMock = new Mock<IRequestContextAdapter>();
         }
 
         [TestMethod]
@@ -55,10 +55,10 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
                     });
 
             var target = new MoveInLogic(
-                this._loggerMock.Object, 
-                this._mcfClientMock.Object, 
-                this._addressApi.Object,
-                this._requestContextMock.Object);
+                _loggerMock.Object, 
+                _mcfClientMock.Object, 
+                _addressApi.Object,
+                _requestContextMock.Object);
 
             //Act
             var actual = target.GetMoveInLatePayment(contractAccount, jwt);
@@ -77,10 +77,10 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
                 .Returns(sampleResponse);
 
             var target = new MoveInLogic(
-                this._loggerMock.Object, 
-                this._mcfClientMock.Object, 
-                this._addressApi.Object,
-                this._requestContextMock.Object);
+                _loggerMock.Object, 
+                _mcfClientMock.Object, 
+                _addressApi.Object,
+                _requestContextMock.Object);
 
             //Act
             var request = new GetInvalidMoveinDatesRequest
@@ -99,7 +99,7 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
         public void GetDuplicateBusinessPartnerIfExists_ReturnsBpSearchModel_GivenExistingBP()
         {
             //Arrange
-            this._mcfClientMock.Setup(mcm => mcm.GetDuplicateBusinessPartnerIfExists(It.IsAny<BpSearchRequest>(), It.IsAny<RequestChannelEnum>()))
+            _mcfClientMock.Setup(mcm => mcm.GetDuplicateBusinessPartnerIfExists(It.IsAny<BpSearchRequest>(), It.IsAny<RequestChannelEnum>()))
                 .Returns(
                     () => new BpSearchResponse()
                     {
@@ -123,10 +123,10 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
                     });
 
             var target = new MoveInLogic(
-                this._loggerMock.Object,
-                this._mcfClientMock.Object,
-                this._addressApi.Object,
-                this._requestContextMock.Object);
+                _loggerMock.Object,
+                _mcfClientMock.Object,
+                _addressApi.Object,
+                _requestContextMock.Object);
 
             //Act
             var actual = target.GetDuplicateBusinessPartnerIfExists(new BpSearchRequest());
@@ -139,7 +139,7 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
         public void GetDuplicateBusinessPartnerIfExists_ReturnsNull_IfMatchNotFound()
         {
             //Arrange
-            this._mcfClientMock.Setup(mcm => mcm.GetDuplicateBusinessPartnerIfExists(It.IsAny<BpSearchRequest>(), It.IsAny<RequestChannelEnum>()))
+            _mcfClientMock.Setup(mcm => mcm.GetDuplicateBusinessPartnerIfExists(It.IsAny<BpSearchRequest>(), It.IsAny<RequestChannelEnum>()))
                 .Returns(
                     () => new BpSearchResponse()
                     {
@@ -163,10 +163,10 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
                     });
 
             var target = new MoveInLogic(
-                this._loggerMock.Object,
-                this._mcfClientMock.Object,
-                this._addressApi.Object,
-                this._requestContextMock.Object);
+                _loggerMock.Object,
+                _mcfClientMock.Object,
+                _addressApi.Object,
+                _requestContextMock.Object);
 
             //Act
             var actual = target.GetDuplicateBusinessPartnerIfExists(new BpSearchRequest());

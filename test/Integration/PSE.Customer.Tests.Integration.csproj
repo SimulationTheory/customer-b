@@ -21,6 +21,9 @@
     <Content Include="..\..\src\localConfiguration.json" Link="localConfiguration.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\..\src\localParameterStore.json" Link="localParameterStore.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

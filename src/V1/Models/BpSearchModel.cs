@@ -16,7 +16,7 @@ namespace PSE.Customer.V1.Models
 
         public BpSearchModel()
         {
-            this.BpSearchIdentifiers = new List<IdentifierModel>();
+            BpSearchIdentifiers = new List<IdentifierModel>();
         }
     }
 }
