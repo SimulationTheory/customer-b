@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using PSE.Customer.V1.Clients.Mcf.Models;
-using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Response;
 using PSE.RestUtility.Core.Mcf;
@@ -51,14 +50,14 @@ namespace PSE.Customer.V1.Logic.Extensions
         /// <param name="source">The source.</param>
         /// <returns>A list containing all valid identifiers</returns>
         /// <exception cref="ArgumentNullException">source</exception>
-        public static List<IdentifierModel> ToModel(this McfResponseResults<BpIdentifier> source)
+        public static List<IdentifierType> ToModel(this McfResponseResults<BpIdentifier> source)
         {
             if (source == null)
             {
                 throw new ArgumentNullException(nameof(source));
             }
 
-            var list = new List<IdentifierModel>();
+            var list = new List<IdentifierType>();
 
             if (source.Results != null)
             {
@@ -66,10 +65,7 @@ namespace PSE.Customer.V1.Logic.Extensions
                 {
                     if (Enum.TryParse(result.IdentifierType, out IdentifierType idType))
                     {
-                        list.Add(new IdentifierModel
-                        {
-                            IdentifierType = idType
-                        });
+                        list.Add(idType);
                     }
                 }
             }

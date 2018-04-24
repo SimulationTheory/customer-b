@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using PSE.Customer.V1.Models;
 using PSE.WebAPI.Core.Interfaces;
+using PSE.Customer.V1.Repositories.DefinedTypes;
 
 namespace PSE.Customer.V1.Response
 {
@@ -16,6 +16,6 @@ namespace PSE.Customer.V1.Response
         /// <value>
         /// The identifier types.
         /// </value>
-        public List<IdentifierModel> Identifiers { get; set; }
+        public List<IdentifierType> Identifiers { get; set; }
     }
 }

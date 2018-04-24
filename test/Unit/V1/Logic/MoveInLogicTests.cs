@@ -16,11 +16,10 @@ using Shouldly;
 using System;
 using System.Collections.Generic;
 using PSE.Customer.V1.Clients.Device.Interfaces;
+using PSE.WebAPI.Core.Service.Interfaces;
 
 namespace PSE.Customer.Tests.Unit.V1.Logic
 {
-    using PSE.WebAPI.Core.Service.Interfaces;
-
     [TestClass]
     public class MoveInLogicTests
     {

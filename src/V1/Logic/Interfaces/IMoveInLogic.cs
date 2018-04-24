@@ -47,7 +47,7 @@ namespace PSE.Customer.V1.Logic.Interfaces
         /// </summary>
         /// <param name="bpId">Business partner ID</param>
         /// <returns>Array of zero or more ID types for BP</returns>
-        Task<List<IdentifierModel>> GetAllIdTypes(long bpId);
+        Task<List<IdentifierType>> GetAllIdTypes(long bpId);
 
         /// <summary>
         /// Gets all ID types but not values for a BP
@@ -55,7 +55,7 @@ namespace PSE.Customer.V1.Logic.Interfaces
         /// <param name="bpId">Business partner ID</param>
         /// <param name="type">Represents identifier types such as last 4 SSN, drivers license number, etc.</param>
         /// <returns>Array of zero or one ID types for BP</returns>
-        Task<List<IdentifierModel>> GetIdType(long bpId, IdentifierType type);
+        Task<List<IdentifierType>> GetIdType(long bpId, IdentifierType type);
 
         /// <summary>
         /// Creates one ID type for a BP
