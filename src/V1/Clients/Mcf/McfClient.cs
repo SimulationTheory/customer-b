@@ -21,13 +21,12 @@ using PSE.RestUtility.Core.Mcf;
 using PSE.WebAPI.Core.Configuration;
 using PSE.WebAPI.Core.Configuration.Interfaces;
 using PSE.WebAPI.Core.Exceptions.Types;
+using PSE.WebAPI.Core.Service.Enums;
 using PSE.WebAPI.Core.Service.Interfaces;
 using RestSharp;
 
 namespace PSE.Customer.V1.Clients.Mcf
 {
-    using PSE.WebAPI.Core.Service.Enums;
-
     /// <summary>
     /// Handles interaction with SAP via MCF calls
     /// </summary>

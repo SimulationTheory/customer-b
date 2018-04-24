@@ -6,11 +6,10 @@ using PSE.RestUtility.Core.Mcf;
 using System.Threading.Tasks;
 using PSE.Customer.V1.Clients.Mcf.Models;
 using PSE.Customer.V1.Response;
+using PSE.WebAPI.Core.Service.Enums;
 
 namespace PSE.Customer.V1.Clients.Mcf.Interfaces
 {
-    using PSE.WebAPI.Core.Service.Enums;
-
     /// <summary>
     /// Handles interaction with SAP via MCF calls
     /// </summary>

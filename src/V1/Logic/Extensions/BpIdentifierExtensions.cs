@@ -50,14 +50,14 @@ namespace PSE.Customer.V1.Logic.Extensions
         /// <param name="source">The source.</param>
         /// <returns>A list containing all valid identifiers</returns>
         /// <exception cref="ArgumentNullException">source</exception>
-        public static List<IdentifierType> ToModel(this McfResponseResults<BpIdentifier> source)
+        public static List<IdentifierTypeResponse> ToModel(this McfResponseResults<BpIdentifier> source)
         {
             if (source == null)
             {
                 throw new ArgumentNullException(nameof(source));
             }
 
-            var list = new List<IdentifierType>();
+            var list = new List<IdentifierTypeResponse>();
 
             if (source.Results != null)
             {
@@ -65,7 +65,10 @@ namespace PSE.Customer.V1.Logic.Extensions
                 {
                     if (Enum.TryParse(result.IdentifierType, out IdentifierType idType))
                     {
-                        list.Add(idType);
+                        list.Add(new IdentifierTypeResponse
+                        {
+                            IdentifierType = idType
+                        });
                     }
                 }
             }

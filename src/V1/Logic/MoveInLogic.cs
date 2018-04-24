@@ -387,9 +387,9 @@ namespace PSE.Customer.V1.Logic
         }
 
         /// <inheritdoc />
-        public Task<List<IdentifierType>> GetAllIdTypes(long bpId)
+        public Task<List<IdentifierTypeResponse>> GetAllIdTypes(long bpId)
         {
-            var usersIdentifierModels = new List<IdentifierType>();
+            var usersIdentifierModels = new List<IdentifierTypeResponse>();
 
             var response = _mcfClient.GetAllIdentifiers(bpId.ToString());
             if (response?.Result != null)
@@ -401,17 +401,18 @@ namespace PSE.Customer.V1.Logic
         }
 
         /// <inheritdoc />
-        public Task<List<IdentifierType>> GetIdType(long bpId, IdentifierType type)
+        public Task<List<IdentifierTypeResponse>> GetIdType(long bpId, IdentifierType type)
         {
-            var usersIdentifierModels = new List<IdentifierType>();
+            var usersIdentifierModels = new List<IdentifierTypeResponse>();
 
             var response = _mcfClient.GetAllIdentifiers(bpId.ToString());
             if (response?.Result?.Results != null)
             {
                 var validIds = response.Result.ToModel();
-                if (validIds.Contains(type))
+                var matchingType = validIds.FirstOrDefault(x => x.IdentifierType == type);
+                if (matchingType != null)
                 {
-                    usersIdentifierModels.Add(type);
+                    usersIdentifierModels.Add(matchingType);
                 }
             }
 

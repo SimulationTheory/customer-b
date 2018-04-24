@@ -99,10 +99,16 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             var user = TestHelper.PaDev1;
             MoveInLogicMock.
                 Setup(x => x.GetAllIdTypes(It.IsAny<long>())).
-                Returns(Task.FromResult(new List<IdentifierType>
+                Returns(Task.FromResult(new List<IdentifierTypeResponse>
                 {
-                    IdentifierType.ZLAST4,
-                    IdentifierType.ZDOB
+                    new IdentifierTypeResponse
+                    {
+                        IdentifierType = IdentifierType.ZLAST4
+                    },
+                    new IdentifierTypeResponse
+                    {
+                        IdentifierType = IdentifierType.ZDOB
+                    }
                 }));
             var controller = GetController();
             ArrangeController(controller, user);
@@ -114,8 +120,8 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             var result = (OkObjectResult)response.Result;
             var idResponse = (GetBpIdTypeResponse)result.Value;
             idResponse.Identifiers.Count.ShouldBe(2);
-            idResponse.Identifiers[0].ShouldBe(IdentifierType.ZLAST4);
-            idResponse.Identifiers[1].ShouldBe(IdentifierType.ZDOB);
+            idResponse.Identifiers[0].IdentifierType.ShouldBe(IdentifierType.ZLAST4);
+            idResponse.Identifiers[1].IdentifierType.ShouldBe(IdentifierType.ZDOB);
         }
 
         #endregion
@@ -129,9 +135,12 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             var user = TestHelper.PaDev1;
             MoveInLogicMock.
                 Setup(x => x.GetIdType(It.IsAny<long>(), It.IsAny<IdentifierType>())).
-                Returns(Task.FromResult(new List<IdentifierType>
+                Returns(Task.FromResult(new List<IdentifierTypeResponse>
                 {
-                    IdentifierType.ZDOB
+                    new IdentifierTypeResponse
+                    {
+                        IdentifierType = IdentifierType.ZDOB
+                    }
                 }));
             var controller = GetController();
             ArrangeController(controller, user);

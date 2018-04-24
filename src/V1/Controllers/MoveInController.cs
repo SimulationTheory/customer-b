@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -21,8 +22,6 @@ using PSE.WebAPI.Core.Service;
 
 namespace PSE.Customer.V1.Controllers
 {
-    using System.Linq;
-
     /// <summary>
     /// API to facilitate customers moving, both new and existing customers
     /// </summary>

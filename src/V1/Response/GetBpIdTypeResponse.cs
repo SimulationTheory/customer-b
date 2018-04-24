@@ -16,6 +16,6 @@ namespace PSE.Customer.V1.Response
         /// <value>
         /// The identifier types.
         /// </value>
-        public List<IdentifierType> Identifiers { get; set; }
+        public List<IdentifierTypeResponse> Identifiers { get; set; }
     }
 }

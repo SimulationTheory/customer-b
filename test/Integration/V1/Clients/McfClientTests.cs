@@ -321,7 +321,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             };
 
             var password = GetIdentifierData(bpNumber, IdentifierType.ZPASWD);
-            if (password != null)
+            if (!string.IsNullOrEmpty(password))
             {
                 McfClient.DeleteIdentifier(identifier);
             }
