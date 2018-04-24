@@ -1,7 +1,4 @@
 ﻿using Newtonsoft.Json;
-using PSE.Customer.V1.Clients.Mcf.Models;
-using PSE.RestUtility.Core.Interfaces;
-using PSE.RestUtility.Core.Mcf;
 
 namespace PSE.Customer.V1.Clients.Mcf.Models
 {

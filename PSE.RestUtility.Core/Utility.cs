@@ -51,7 +51,7 @@ namespace PSE.RestUtility.Core
         /// <param name="jwtToken"></param>
         /// <returns></returns>
         // ReSharper disable once InconsistentNaming
-        public TokenCookies GetMcfCookies(string jwtToken)
+        public TokenCookies GetMcfCookies(string jwtToken, string channel)
         {
             TokenCookies cookies = null;
 
@@ -63,9 +63,7 @@ namespace PSE.RestUtility.Core
                 var client = GetRestClient(_loadBalancerUrl, true);
                 var request = new RestRequest("/v1.0/authentication/mcf-token", Method.GET);
                 request.AddHeader("Authorization", jwtToken);
-                // TODO: Need to get this from somewhere...
-                request.AddHeader("request-channel", "Web");
-
+                request.AddHeader("request-channel", channel);
                 var result = client.Execute(request);
 
                 cookiesJson = result.Content;

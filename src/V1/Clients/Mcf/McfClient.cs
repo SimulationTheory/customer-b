@@ -15,6 +15,7 @@ using PSE.Customer.V1.Clients.Mcf.Request;
 using PSE.Customer.V1.Clients.Mcf.Response;
 using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Request;
+using PSE.Customer.V1.Response;
 using PSE.RestUtility.Core.Extensions;
 using PSE.RestUtility.Core.Mcf;
 using PSE.WebAPI.Core.Configuration;
@@ -38,6 +39,7 @@ namespace PSE.Customer.V1.Clients.Mcf
         private readonly ICoreOptions _coreOptions;
         private readonly ILogger<McfClient> _logger;
         private readonly string _environment;
+        private readonly string _requestChannel;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="McfClient"/> class.
@@ -53,7 +55,7 @@ namespace PSE.Customer.V1.Clients.Mcf
             _requestContext = requestContext ?? throw new ArgumentNullException(nameof(requestContext));
             _coreOptions = coreOptions ?? throw new ArgumentNullException(nameof(coreOptions));
             _logger = logger ?? throw new ArgumentNullException(nameof(coreOptions));
-
+            _requestChannel = requestContext.RequestChannel.ToString();
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             _environment = string.IsNullOrEmpty(environment) ? "Development" : environment;
         }
@@ -141,7 +143,7 @@ namespace PSE.Customer.V1.Clients.Mcf
             {
                 var config = _coreOptions.Configuration;
                 var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
-                var cookies = restUtility.GetMcfCookies(jwt).Result;
+                var cookies = restUtility.GetMcfCookies(jwt, _requestChannel).Result;
 
                 var restRequest = new RestRequest(
                     $"/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/Accounts('{bpId}')?$expand=AccountAddressIndependentEmails," +
@@ -183,7 +185,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                 _logger.LogInformation($"CreateBusinessPartnerEmail(jwt, {nameof(request)}: {request.ToJson(Formatting.None)})");
                 var config = _coreOptions.Configuration;
                 var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
-                var cookies = restUtility.GetMcfCookies(jwt).Result;
+                var cookies = restUtility.GetMcfCookies(jwt, _requestChannel).Result;
 
                 const string url = "/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/AccountAddressIndependentEmails";
                 _logger.LogInformation($"{url}");
@@ -228,7 +230,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                 _logger.LogInformation($"CreateBusinessPartnerMobilePhone(jwt, {nameof(request)}: {requestBody})");
                 var config = _coreOptions.Configuration;
                 var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
-                var cookies = restUtility.GetMcfCookies(jwt).Result;
+                var cookies = restUtility.GetMcfCookies(jwt, _requestChannel).Result;
 
                 const string url = "sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/AccountAddressIndependentPhones";
                 var restRequest = new RestRequest(url, Method.POST);
@@ -273,7 +275,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                 _logger.LogInformation($"CreateAddressDependantPhone(jwt, {nameof(request)}: {requestBody})");
                 var config = _coreOptions.Configuration;
                 var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
-                var cookies = restUtility.GetMcfCookies(jwt).Result;
+                var cookies = restUtility.GetMcfCookies(jwt, _requestChannel).Result;
 
                 const string url = "/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/AccountAddressDependentPhones";
                 var restRequest = new RestRequest(url, Method.POST);
@@ -337,7 +339,7 @@ namespace PSE.Customer.V1.Clients.Mcf
 
                 var config = _coreOptions.Configuration;
                 var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
-                var cookies = restUtility.GetMcfCookies(jwt).Result;
+                var cookies = restUtility.GetMcfCookies(jwt, _requestChannel).Result;
 
                 var restRequest = new RestRequest($"/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/AccountAddresses(AccountID='{bpId}',AddressID='{addressId}')", Method.PUT);
                 restRequest.AddCookies(cookies);
@@ -357,6 +359,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                 throw;
             }
         }
+
 
         /// <summary>
         /// POSTs the mobile phone for the business partner
@@ -387,7 +390,7 @@ namespace PSE.Customer.V1.Clients.Mcf
             {
                 var config = _coreOptions.Configuration;
                 var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
-                var cookies = restUtility.GetMcfCookies(jwt).Result;
+                var cookies = restUtility.GetMcfCookies(jwt, _requestChannel).Result;
 
                 var restRequest = new RestRequest(
                     $"/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('{contractAccountId}')/PaymentArrangement?" +
@@ -428,7 +431,7 @@ namespace PSE.Customer.V1.Clients.Mcf
             {
                 var config = _coreOptions.Configuration;
                 var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
-                var cookies = restUtility.GetMcfCookies(jwt).Result;
+                var cookies = restUtility.GetMcfCookies(jwt, _requestChannel).Result;
 
                 var restRequest = new RestRequest($"/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/Accounts('{bpId}')/StandardAccountAddress?$format=json", Method.GET);
                 restRequest.AddCookies(cookies);
@@ -463,7 +466,7 @@ namespace PSE.Customer.V1.Clients.Mcf
             {
                 var config = _coreOptions.Configuration;
                 var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
-                var cookies = restUtility.GetMcfCookies(jwt).Result;
+                var cookies = restUtility.GetMcfCookies(jwt, _requestChannel).Result;
 
                 var restRequest = new RestRequest($"/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/Accounts('{bpId}')/AccountAddresses?$format=json", Method.GET);
                 restRequest.AddCookies(cookies);
@@ -498,7 +501,7 @@ namespace PSE.Customer.V1.Clients.Mcf
             {
                 var config = _coreOptions.Configuration;
                 var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
-                var cookies = restUtility.GetMcfCookies(jwt).Result;
+                var cookies = restUtility.GetMcfCookies(jwt, _requestChannel).Result;
 
                 var restRequest = new RestRequest($"/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts(ContractAccountID='{contractAccountId}')?$format=json", Method.GET);
                 restRequest.AddCookies(cookies);
@@ -542,7 +545,7 @@ namespace PSE.Customer.V1.Clients.Mcf
 
                 var config = _coreOptions.Configuration;
                 var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
-                var cookies = restUtility.GetMcfCookies(jwt).Result;
+                var cookies = restUtility.GetMcfCookies(jwt, _requestChannel).Result;
 
                 var restRequest = new RestRequest($"/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/AccountAddresses", Method.POST);
                 restRequest.AddCookies(cookies);
@@ -591,7 +594,7 @@ namespace PSE.Customer.V1.Clients.Mcf
              
                 if (jwt != null)
                 {
-                    var cookies = restUtility.GetMcfCookies(jwt).Result;
+                    var cookies = restUtility.GetMcfCookies(jwt, _requestChannel).Result;
                     restRequest.AddCookies(cookies);
                 }
                 else
@@ -687,7 +690,7 @@ namespace PSE.Customer.V1.Clients.Mcf
 
                 var config = _coreOptions.Configuration;
                 var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
-                var cookies = restUtility.GetMcfCookies(jwt).Result;
+                var cookies = restUtility.GetMcfCookies(jwt, _requestChannel).Result;
 
                 var restRequest = new RestRequest($"/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/ContractAccounts('{contractAccountId}')", Method.PUT);
                 restRequest.AddCookies(cookies);
@@ -722,7 +725,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                 _logger.LogInformation($"GetMoveInLatePaymentsResponse(jwt, {nameof(contractAccountId)}: {contractAccountId}");
                 var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
                 var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
-                var cookies = restUtility.GetMcfCookies(jwt);
+                var cookies = restUtility.GetMcfCookies(jwt, _requestChannel);
 
                 var restRequest = new RestRequest($"/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/LatePaymentsSet?$filter=AccountNo eq '{contractAccountId}' and Reconnect eq ''", Method.GET);
                 restRequest.AddCookies(cookies.Result);
@@ -818,7 +821,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                 }
                 else
                 {
-                    var cookies = restUtility.GetMcfCookies(_requestContext.JWT).Result;
+                    var cookies = restUtility.GetMcfCookies(_requestContext.JWT, _requestChannel).Result;
                     restRequest.AddCookies(cookies);
                 }
                 restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
@@ -864,7 +867,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                 }
                 else
                 {
-                    var cookies = restUtility.GetMcfCookies(_requestContext.JWT).Result;
+                    var cookies = restUtility.GetMcfCookies(_requestContext.JWT, _requestChannel).Result;
                     restRequest.AddCookies(cookies);
                 }
 
@@ -905,7 +908,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                           $"AccountID='{identifier.AccountId}',Identifiertype='{identifier.IdentifierType}',Identifierno='{identifier.IdentifierNo.ToUpper()}')";
                 var restRequest = new RestRequest(url, Method.PUT);
 
-                var cookies = restUtility.GetMcfCookies(_requestContext.JWT).Result;
+                var cookies = restUtility.GetMcfCookies(_requestContext.JWT, _requestChannel).Result;
                 restRequest.AddCookies(cookies);
 
                 restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
@@ -949,7 +952,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                           $"AccountID='{identifier.AccountId}',Identifiertype='{identifier.IdentifierType}',Identifierno='{identifier.IdentifierNo.ToUpper()}')";
                 var restRequest = new RestRequest(url, Method.DELETE);
 
-                var cookies = restUtility.GetMcfCookies(_requestContext.JWT).Result;
+                var cookies = restUtility.GetMcfCookies(_requestContext.JWT, _requestChannel).Result;
                 restRequest.AddCookies(cookies);
 
                 restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
@@ -973,6 +976,38 @@ namespace PSE.Customer.V1.Clients.Mcf
             }
 
             return response;
+        }
+
+        public MoveInResponse PostLateMoveIn(CreateMoveInRequest request, string jwt)
+        {
+            var config = _coreOptions.Configuration;
+            _logger.LogInformation($"PostMoveIn(jwt, {nameof(request)}: {request}");
+            var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
+            var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
+            var cookies = restUtility.GetMcfCookies(jwt, _requestChannel);
+            var body = JsonConvert.SerializeObject(request);
+
+            var restRequest = new RestRequest("/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/ContractItems", Method.POST);
+            restRequest.AddCookies(cookies.Result);
+            restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
+            restRequest.AddHeader("ContentType", "application/json");
+            restRequest.AddHeader("Accept", "application/json");
+            restRequest.AddParameter("application/json", body, ParameterType.RequestBody);
+
+            _logger.LogInformation("Making MCF call");
+
+            var response = client.Execute(restRequest);
+            var mcfResponse = JsonConvert.DeserializeObject<McfResponse<McfResponseResult<MoveInResponse>>>(response.Content);
+
+            if (mcfResponse.Error != null)
+            {
+                var errorMsg = mcfResponse.Error.Message.Value;
+                _logger.LogError(errorMsg);
+                throw new BadRequestException(errorMsg);
+
+            }
+
+            return mcfResponse.Result.Result;
         }
 
         #region Private methods

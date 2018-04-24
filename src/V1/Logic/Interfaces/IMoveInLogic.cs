@@ -2,7 +2,6 @@
 using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Request;
 using PSE.Customer.V1.Response;
-using PSE.WebAPI.Core.Service.Enums;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -19,6 +18,15 @@ namespace PSE.Customer.V1.Logic.Interfaces
         /// <param name="jwt"></param>
         /// <returns></returns>
         ReconnectStatusResponse GetMoveInLatePayment(long contractAccountId, string jwt);
+
+        /// <summary>
+        /// Posts late move in 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="bp"></param>
+        /// <param name="jwt"></param>
+        /// <returns></returns>
+        Task<MoveInResponse> PostLateMoveIn(MoveInRequest request, long bp, string jwt);
 
         /// <summary>
         /// Create a Business Partner

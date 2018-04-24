@@ -21,7 +21,6 @@ using PSE.Customer.V1.Repositories.Entities;
 using PSE.Customer.V1.Repositories.Interfaces;
 using PSE.Test.Core;
 using PSE.WebAPI.Core.Configuration.Interfaces;
-using PSE.WebAPI.Core.Service.Interfaces;
 using Shouldly;
 
 namespace PSE.Customer.Tests.Integration.Extensions

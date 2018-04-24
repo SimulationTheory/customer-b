@@ -17,7 +17,6 @@ using PSE.Customer.V1.Clients.Mcf.Request;
 using PSE.Customer.V1.Clients.Mcf.Response;
 using PSE.Customer.V1.Logic.Interfaces;
 using PSE.Customer.V1.Models;
-using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Request;
 using PSE.Customer.V1.Response;
 using PSE.WebAPI.Core.Exceptions;

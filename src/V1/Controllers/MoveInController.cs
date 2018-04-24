@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -15,9 +18,6 @@ using PSE.Customer.V1.Response;
 using PSE.WebAPI.Core.Exceptions;
 using PSE.WebAPI.Core.Exceptions.Types;
 using PSE.WebAPI.Core.Service;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace PSE.Customer.V1.Controllers
 {
@@ -76,6 +76,7 @@ namespace PSE.Customer.V1.Controllers
                 var response = _moveInLogic.GetMoveInLatePayment(contractAccountId, jwt);
 
                 result = Ok(response);
+
             }
             catch (Exception e)
             {
@@ -91,28 +92,45 @@ namespace PSE.Customer.V1.Controllers
         /// When user pays minimum/all outstanding balance, user move-in status shows "EligibleRc" to true.
         /// Call this method by setting reconnectFlag to activate the service.
         /// </summary>
-        /// <param name="reconnectFlag"></param>
+        /// <param name="request"></param>
         /// <returns></returns>
-        [HttpPut("movein-latepayment/{contractAccountId}")]
+        [HttpPost("movein-latepayment/{contractAccountId}")]
         [ProducesResponseType(typeof(MoveInLatePaymentsResponse), 200)]
-        public async Task<IActionResult> MoveInLatePayments([FromQuery]bool reconnectFlag)
+        public async Task<IActionResult> PostMoveIn([FromBody] MoveInRequest request)
         {
-            IActionResult result = Ok(new MoveInLatePaymentsResponse()
-            {
 
-                FirstIp = 286.00m,
-                EligibleRc = null,
-                AccountNo = 200028750178,
-                ReconnectFlag = false,
-                PriorObligationAccount = 200026140646,
-                DepositAmount = 572.00m,
-                ReconAmount = 70.00m,
-                MinPayment = 356,
-                IncPayment = 320.00m,
-                AccountType = "RES",
-                ReasonCode = string.Empty,
-                Reason = string.Empty
-            });
+
+            IActionResult result;
+            var jwt = GetJWToken();
+            var bp = GetBpIdFromClaims();
+           
+            try
+            {
+                var response = _moveInLogic.PostLateMoveIn(request, bp, jwt);
+                result = Ok(response);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                result = e.ToActionResult();
+            }
+
+            //IActionResult result = Ok(new MoveInLatePaymentsResponse()
+            //{
+
+            //    FirstIp = 286.00m,
+            //    EligibleRc = null,
+            //    AccountNo = 200028750178,
+            //    ReconnectFlag = false,
+            //    PriorObligationAccount = 200026140646,
+            //    DepositAmount = 572.00m,
+            //    ReconAmount = 70.00m,
+            //    MinPayment = 356,
+            //    IncPayment = 320.00m,
+            //    AccountType = "RES",
+            //    ReasonCode = string.Empty,
+            //    Reason = string.Empty
+            //});
 
             return result;
         }
@@ -359,6 +377,7 @@ namespace PSE.Customer.V1.Controllers
 
             return result;
         }
+        #endregion
 
         #region Business Partner ID Type
 
@@ -522,11 +541,7 @@ namespace PSE.Customer.V1.Controllers
             HttpContext.Request.Headers.ContainsKey("Authorization")
                 ? HttpContext.Request.Headers["Authorization"].ToString()
                 : null;
-        #endregion
 
-        #endregion
-
-        #region Private methods
 
         /// <summary>
         /// Gets the Business Partner ID (bpId) from an authenticated users claims

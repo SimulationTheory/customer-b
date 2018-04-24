@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using PSE.Customer.Extensions;
 using PSE.Customer.V1.Clients.Address.Interfaces;
+using PSE.Customer.V1.Clients.Device.Interfaces;
 using PSE.Customer.V1.Clients.Mcf.Interfaces;
 using PSE.Customer.V1.Clients.Mcf.Models;
 using PSE.Customer.V1.Clients.Mcf.Request;
@@ -14,7 +15,6 @@ using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Request;
 using PSE.Customer.V1.Response;
-using PSE.RestUtility.Core.Mcf;
 using PSE.WebAPI.Core.Exceptions.Types;
 using PSE.WebAPI.Core.Service.Interfaces;
 
@@ -27,6 +27,7 @@ namespace PSE.Customer.V1.Logic
         private readonly IMcfClient _mcfClient;
         private static string coreLanguage = "EN";
         private readonly IAddressApi _addressApi;
+        private readonly IDeviceApi _deviceApi;
         private readonly IRequestContextAdapter _requestContext;
 
         /// <summary>
@@ -36,11 +37,12 @@ namespace PSE.Customer.V1.Logic
         /// <param name="mcfClient">The mcfClient..</param>
         /// <param name="addressApi">The addressApi.</param>
         /// <param name="requestContext">The request context adapter.</param>
-        public MoveInLogic(ILogger<MoveInLogic> logger, IMcfClient mcfClient, IAddressApi addressApi, IRequestContextAdapter requestContext)
+        public MoveInLogic(ILogger<MoveInLogic> logger, IMcfClient mcfClient, IAddressApi addressApi, IDeviceApi deviceApi, IRequestContextAdapter requestContext)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _mcfClient = mcfClient ?? throw new ArgumentNullException(nameof(mcfClient));
             _addressApi = addressApi ?? throw new ArgumentNullException(nameof(addressApi));
+            _deviceApi = deviceApi ?? throw new ArgumentNullException(nameof(deviceApi));
             _requestContext = requestContext ?? throw new ArgumentNullException(nameof(requestContext));
         }
 
@@ -177,9 +179,78 @@ namespace PSE.Customer.V1.Logic
             }
             return response;
         }
+        /// <inheritdoc />
+        public async Task<MoveInResponse> PostLateMoveIn(MoveInRequest request, long bp, string jwt)
+        {
+            var mcfMoveInRequest = new CreateMoveInRequest()
+            {
+                AccountID = bp.ToString(),
+                CustomerRole = "",
+                ProcessType = request.PriorObligation ? "PRIOR" : "",
+                ContractItemNav = await CreateContractItemNavList(request, bp, jwt),
+                ProdAttributes = new List<ProdAttributes>()
+            };
 
-        #region private
-        private CreateBusinesspartnerMcfRequest GetBusinessPartnerMcfRequest(CreateBusinesspartnerRequest request, McfAddressinfo addressInfo)
+            var response = _mcfClient.PostLateMoveIn(mcfMoveInRequest, jwt);
+
+
+            return null;
+
+        }
+
+
+
+        #region Helper Methods
+
+        private async Task<IEnumerable<ContractItemNav>> CreateContractItemNavList(MoveInRequest request, long bp, string jwt)
+        {
+            var premiseInstallation = await _deviceApi.GetPremiseInstallation(request.PremiseId);
+            var contractItemNavList = new List<ContractItemNav>();
+            foreach (var installationId in request.InstallationIds)
+            {
+                var premiseInstallDetails = premiseInstallation.Data.Installations.FirstOrDefault(x => x.InstallationId == installationId);
+                if (premiseInstallDetails == null)
+                    throw new BadRequestException(
+                        "Unable to find premise installation details with provided installation id");
+                var contractItemNav = new ContractItemNav()
+                {
+                    ContractStartDate = DateTimeOffset.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss"),
+                    ContractEndDate = DateTime.MaxValue.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss"),
+                    BusinessAgreementID = request.ContractAccountId.ToString(),
+                    TransferCA = "",
+                    ProductID = GetProductId(premiseInstallDetails.DivisionId),
+                    DivisionID = premiseInstallDetails.DivisionId,
+                    PointOfDeliveryGUID = premiseInstallDetails.InstallationGuid,
+
+                };
+
+                contractItemNavList.Add(contractItemNav);
+            }
+
+            return contractItemNavList;
+        }
+
+        public string GetProductId(string divisionId)
+        {
+            var electricProductId = "DEF_ELE";
+            var gasProductId = "DEF_GAS";
+            switch (divisionId)
+            {
+                case "10":
+                    return electricProductId;
+                case "20":
+                    return gasProductId;
+                default:
+                    return "";
+            }
+
+        }
+
+        #endregion
+    
+
+    #region private
+    private CreateBusinesspartnerMcfRequest GetBusinessPartnerMcfRequest(CreateBusinesspartnerRequest request, McfAddressinfo addressInfo)
         {
             var businessMcfRequest = new CreateBusinesspartnerMcfRequest()
             {

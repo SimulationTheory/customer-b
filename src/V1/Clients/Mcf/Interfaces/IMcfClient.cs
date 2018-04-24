@@ -5,6 +5,7 @@ using PSE.Customer.V1.Models;
 using PSE.RestUtility.Core.Mcf;
 using System.Threading.Tasks;
 using PSE.Customer.V1.Clients.Mcf.Models;
+using PSE.Customer.V1.Response;
 
 namespace PSE.Customer.V1.Clients.Mcf.Interfaces
 {
@@ -59,6 +60,14 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// </remarks>
         McfResponse<GetPhoneResponse> CreateBusinessPartnerMobilePhone(string jwt,
             CreateAddressIndependantPhoneRequest request);
+
+        /// <summary>
+        /// Move in late payment
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="jwt"></param>
+        /// <returns></returns>
+        MoveInResponse PostLateMoveIn(CreateMoveInRequest request, string jwt);
 
         /// <summary>
         /// POSTs the work or home phone for the business partner

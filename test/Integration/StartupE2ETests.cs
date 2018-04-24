@@ -13,7 +13,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using PSE.Customer.Tests.Integration.TestObjects;
 
 namespace PSE.Customer.Tests.Integration
 {

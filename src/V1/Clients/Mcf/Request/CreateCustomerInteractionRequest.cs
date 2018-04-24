@@ -1,12 +1,7 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using PSE.Customer.V1.Clients.Mcf.Enums;
 using PSE.RestUtility.Core.Json;
 using PSE.WebAPI.Core.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace PSE.Customer.V1.Clients.Mcf.Request
 {

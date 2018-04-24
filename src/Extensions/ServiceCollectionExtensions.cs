@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using PSE.Cassandra.Core.Extensions;
 using PSE.Customer.Configuration.Keyspaces;
 using PSE.Customer.V1.Clients.Address;
@@ -21,8 +20,9 @@ using PSE.Customer.V1.Repositories.Entities;
 using PSE.Customer.V1.Repositories.Interfaces;
 using PSE.Customer.V1.Request;
 using PSE.Customer.V1.Response;
-using PSE.WebAPI.Core.Startup;
 using System;
+using PSE.Customer.V1.Clients.Device;
+using PSE.Customer.V1.Clients.Device.Interfaces;
 
 namespace PSE.Customer.Extensions
 {
@@ -53,6 +53,7 @@ namespace PSE.Customer.Extensions
             services.AddTransient<IBPByContractAccountRepository, BPByContractAccountRepository>();
             services.AddTransient<ICustomerLogic, CustomerLogic>();
             services.AddTransient<IMoveInLogic, MoveInLogic>();
+            services.AddTransient<IDeviceApi, DeviceApi>();
 
             // Mapping Logic
             AutoMapper.Mapper.Reset();

@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace PSE.Customer.V1.Clients.Mcf.Request
 {

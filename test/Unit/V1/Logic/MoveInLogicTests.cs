@@ -15,6 +15,7 @@ using PSE.WebAPI.Core.Service.Enums;
 using Shouldly;
 using System;
 using System.Collections.Generic;
+using PSE.Customer.V1.Clients.Device.Interfaces;
 
 namespace PSE.Customer.Tests.Unit.V1.Logic
 {
@@ -26,6 +27,7 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
         private Mock<IMcfClient> _mcfClientMock;
         private Mock<ILogger<MoveInLogic>> _loggerMock;
         private Mock<IAddressApi> _addressApi;
+        private Mock<IDeviceApi> _deviceApiMock;
         private Mock<IRequestContextAdapter> _requestContextMock;
 
         [TestInitialize]
@@ -34,6 +36,7 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
             _mcfClientMock = new Mock<IMcfClient>();
             _loggerMock = new Mock<ILogger<MoveInLogic>>();
             _addressApi = new Mock<IAddressApi>();
+            _deviceApiMock = new Mock<IDeviceApi>();
             _requestContextMock = new Mock<IRequestContextAdapter>();
         }
 
@@ -58,6 +61,7 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
                 _loggerMock.Object, 
                 _mcfClientMock.Object, 
                 _addressApi.Object,
+                _deviceApiMock.Object,
                 _requestContextMock.Object);
 
             //Act
@@ -80,6 +84,7 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
                 _loggerMock.Object, 
                 _mcfClientMock.Object, 
                 _addressApi.Object,
+                _deviceApiMock.Object,
                 _requestContextMock.Object);
 
             //Act
@@ -126,6 +131,7 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
                 _loggerMock.Object,
                 _mcfClientMock.Object,
                 _addressApi.Object,
+                _deviceApiMock.Object,
                 _requestContextMock.Object);
 
             //Act
@@ -166,6 +172,7 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
                 _loggerMock.Object,
                 _mcfClientMock.Object,
                 _addressApi.Object,
+                _deviceApiMock.Object,
                 _requestContextMock.Object);
 
             //Act

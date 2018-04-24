@@ -1,12 +1,4 @@
-﻿using PSE.RestUtility.Core.Interfaces;
-using PSE.RestUtility.Core.Mcf;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-
-namespace PSE.Customer.V1.Clients.Mcf.Response
+﻿namespace PSE.Customer.V1.Clients.Mcf.Response
 
 {
     

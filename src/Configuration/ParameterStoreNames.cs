@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace PSE.Authentication.Configuration
+﻿namespace PSE.Authentication.Configuration
 {
     /// <summary>
     /// 

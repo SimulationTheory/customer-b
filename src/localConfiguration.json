@@ -44,5 +44,9 @@
   },
   "LoadBalancerUrl": "http://internal-ci-dev-alb-478417170.us-west-2.elb.amazonaws.com",
   "McfEndpoint": "http://10.41.53.54:8002",
-  "SecureMcfEndpoint": "https://10.41.53.54:8001"
+  "SecureMcfEndpoint": "https://10.41.53.54:8001",
+  "Keyspaces": {
+    "Microservices": "microservices",
+    "SelfServiceAuth": "selfservice_auth"
+  }
 }

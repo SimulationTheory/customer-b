@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using PSE.Customer.V1.Models;
 using PSE.RestUtility.Core.Mcf;
-using System;
 
 namespace PSE.Customer.V1.Clients.Mcf.Response
 {

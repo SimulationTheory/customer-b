@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using PSE.Customer.V1.Clients.Authentication.Interfaces;
 using PSE.Customer.V1.Clients.Authentication.Models.Response;
@@ -13,7 +12,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using PSE.WebAPI.Core.Service.Enums;
-using PSE.WebAPI.Core.Service.Interfaces;
 
 namespace PSE.Customer.V1.Clients.Authentication
 {

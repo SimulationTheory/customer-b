@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using PSE.Customer.Configuration;
-using PSE.Test.Core.Auth;
 using PSE.WebAPI.Core.Startup;
 
 namespace PSE.Customer.Tests.Integration.TestObjects
