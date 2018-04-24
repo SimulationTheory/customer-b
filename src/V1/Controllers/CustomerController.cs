@@ -413,7 +413,7 @@ namespace PSE.Customer.V1.Controllers
         /// <returns>returns GetCustomerInteractionResponse</returns>
         [ProducesResponseType(typeof(GetCustomerInteractionResponse), 201)]
         [HttpPost("interaction")]
-        [AllowAnonymous]
+       
         public async Task<IActionResult> CreateCustomerInteractionRecord([FromBody] CreateCustomerInteractionRequest createCustomerInteraction)
         {
             _logger.LogInformation($"CreateCustomerInteractionRecord({nameof(createCustomerInteraction)}: {createCustomerInteraction.ToJson()}");
@@ -425,8 +425,14 @@ namespace PSE.Customer.V1.Controllers
                 HttpContext.Request.Headers.TryGetValue("Authorization", out StringValues jwt);
                 
                 customerProfile = _customerLogic.CreateCustomerInteractionRecord(createCustomerInteraction, jwt);
-                                              
-                result = Ok(customerProfile);
+                if (customerProfile.Result.Success == "true")
+                {
+                    result = Ok(customerProfile);
+                }
+                else
+                {
+                    result = BadRequest(customerProfile);
+                }
             }
             catch (Exception e)
             {
