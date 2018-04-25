@@ -9,24 +9,6 @@ namespace PSE.Customer.V1.Models
     /// <seealso cref="PSE.Customer.V1.Repositories.DefinedTypes.AddressDefinedType" />
     public class UpdateMailingAddressModel : AddressDefinedType
     {
-        /// <summary>
-        /// Gets or sets the valid from date.
-        /// </summary>
-        /// <value>
-        /// The valid from date.
-        /// </value>
-        [JsonProperty("valid-from-date")]
-        public string ValidFromDate { get; set; }
-
-        /// <summary>
-        /// Gets or sets the valid to date.
-        /// </summary>
-        /// <value>
-        /// The valid to date.
-        /// </value>
-        [JsonProperty("valid-to-date")]
-        public string ValidToDate { get; set; }
-
 
         /// <summary>
         /// Gets or sets a value indicating whether [skip DQM].

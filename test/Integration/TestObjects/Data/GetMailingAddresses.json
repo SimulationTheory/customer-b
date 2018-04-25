@@ -11,7 +11,7 @@
           "__metadata": {
             "type": "ERP_UTILITIES_UMC.AddressInfo"
           },
-          "Standardaddress": true,
+          "StandardFlag": "X",
           "City": "Renton",
           "District": "",
           "PostalCode": "98055-5107",
@@ -70,7 +70,7 @@
           "__metadata": {
             "type": "ERP_UTILITIES_UMC.AddressInfo"
           },
-          "Standardaddress": false,
+          "StandardFlag": "",
           "City": "Renton",
           "District": "",
           "PostalCode": "98055",

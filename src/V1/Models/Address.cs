@@ -1,11 +1,17 @@
 ﻿using Newtonsoft.Json;
+using PSE.Customer.V1.Repositories.DefinedTypes;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace PSE.Customer.V1.Clients.Mcf.Models
+namespace PSE.Customer.V1.Models
 {
     /// <summary>
-    /// Object Model For Mailing Addresses From Mcf Get Call
+    /// Augment Address Defined Type
     /// </summary>
-    public class McfAddressinfo : McfBaseAddressinfo
+    /// <seealso cref="PSE.Customer.V1.Repositories.DefinedTypes.AddressDefinedType" />
+    public class Address : AddressDefinedType
     {
         /// <summary>
         /// Gets or sets the valid from date.
@@ -13,7 +19,7 @@ namespace PSE.Customer.V1.Clients.Mcf.Models
         /// <value>
         /// The valid from date.
         /// </value>
-        [JsonProperty("Validfromdate")]
+        [JsonProperty("valid-from-date")]
         public string ValidFromDate { get; set; }
 
         /// <summary>
@@ -22,16 +28,7 @@ namespace PSE.Customer.V1.Clients.Mcf.Models
         /// <value>
         /// The valid to date.
         /// </value>
-        [JsonProperty("Validtodate")]
+        [JsonProperty("valid-to-date")]
         public string ValidToDate { get; set; }
-
-        /// <summary>
-        /// Gets or sets the type of the address.
-        /// </summary>
-        /// <value>
-        /// The type of the address.
-        /// </value>
-        [JsonIgnore]
-        public McfAddressType AddressType { get; set; }
     }
 }

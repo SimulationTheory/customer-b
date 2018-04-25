@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.WebAPI.Core.Interfaces;
+using System.ComponentModel.DataAnnotations;
 
 namespace PSE.Customer.V1.Request
 {
@@ -11,25 +12,6 @@ namespace PSE.Customer.V1.Request
     /// <seealso cref="PSE.WebAPI.Core.Interfaces.IAPIRequest" />
     public class UpdateMailingAddressRequest : AddressDefinedType, IAPIRequest
     {
-        /// <summary>
-        /// Gets or sets the valid from date.
-        /// </summary>
-        /// <value>
-        /// The valid from date.
-        /// </value>
-        [JsonProperty("valid-from-date")]
-        public string ValidFromDate { get; set; }
-
-        /// <summary>
-        /// Gets or sets the valid to date.
-        /// </summary>
-        /// <value>
-        /// The valid to date.
-        /// </value>
-        [JsonProperty("valid-to-date")]
-        public string ValidToDate { get; set; }
-
-
         /// <summary>
         /// Gets or sets a value indicating whether [skip DQM].
         /// </summary>

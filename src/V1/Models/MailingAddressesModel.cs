@@ -20,6 +20,6 @@ namespace PSE.Customer.V1.Models
         /// <value>
         /// The mailing address.
         /// </value>
-        public AddressDefinedType Address { get; set; }
+        public Address Address { get; set; }
     }
 }

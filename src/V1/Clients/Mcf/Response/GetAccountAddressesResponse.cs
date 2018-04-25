@@ -1,4 +1,5 @@
 ﻿using PSE.Customer.V1.Clients.Mcf.Interfaces;
+using PSE.Customer.V1.Clients.Mcf.Models;
 using PSE.RestUtility.Core.Interfaces;
 using PSE.RestUtility.Core.Mcf;
 
@@ -23,5 +24,13 @@ namespace PSE.Customer.V1.Clients.Mcf.Response
         /// The metadata.
         /// </value>
         public McfMetadata Metadata { get; set; }
+
+        /// <summary>
+        /// Gets or sets the address information.
+        /// </summary>
+        /// <value>
+        /// The address information.
+        /// </value>
+        public new McfAddressinfo AddressInfo { get; set; }
     }
 }

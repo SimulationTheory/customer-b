@@ -697,7 +697,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
                 new MailingAddressesModel
                 {
                     AddressID = 39403323,
-                    Address = new AddressDefinedType
+                    Address = new Address
                     {
                             AddressLine1 ="SE 166th St",
                             AddressLine2 ="",
@@ -710,7 +710,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
                 new MailingAddressesModel
                 {
                     AddressID = 33343907,
-                    Address = new AddressDefinedType
+                    Address = new Address
                     {
                          AddressLine1 ="350 110th Ave NE",
                          AddressLine2 ="",

@@ -70,22 +70,25 @@ namespace PSE.Customer.Extensions
         /// </summary>
         /// <param name="source"></param>
         /// <returns></returns>
-        public static AddressDefinedType McfToCassandraModel(this McfAddressinfo source)
+        public static Address McfToCassandraModel(this McfAddressinfo source)
         {
             if (source == null)
             {
                 throw new ArgumentNullException(nameof(source));
             }
 
-            var model = new AddressDefinedType
+            var model = new Address
             {
-                AddressLine1 = string.IsNullOrEmpty(source.POBox) ? $"{source.HouseNo?.Trim()} {source.Street?.Trim()}" :  source.POBox,
-                AddressLine2 =  source.HouseNo2?.Trim(), 
+                AddressLine1 = string.IsNullOrEmpty(source.POBox) ? $"{source.HouseNo?.Trim()} {source.Street?.Trim()}" : source.POBox,
+                AddressLine2 = source.HouseNo2?.Trim(),
+                CareOf = source.COName?.Trim(),
                 City = source.City.Trim(),
                 PostalCode = !string.IsNullOrEmpty(source.POBoxPostalCode) ? source.POBoxPostalCode.Trim()
                                                  : source.PostalCode?.Trim(),
                 State = source.Region?.Trim(),
-                Country = source.CountryID?.Trim()
+                Country = source.CountryID?.Trim(),
+                ValidFromDate = source.ValidFromDate?.Trim(),
+                ValidToDate = source.ValidToDate?.Trim()
             };
 
             return model;

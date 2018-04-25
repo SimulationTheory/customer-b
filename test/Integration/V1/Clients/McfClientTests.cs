@@ -570,7 +570,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             firstAddressResponse.AddressID.ShouldBe(33343907);
 
             var firstAddress = firstAddressResponse.AddressInfo;
-            firstAddress.StandardAddress.ShouldBeTrue();
+            firstAddress.StandardFlag.ShouldBe("X");
             firstAddress.City.ShouldBe("Renton");
             firstAddress.PostalCode.ShouldBe("98055-5107");
             firstAddress.POBoxPostalCode.ShouldBe("");
@@ -586,7 +586,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             secondAddressResponse.AddressID.ShouldBe(33343940);
 
             var secondAddress = secondAddressResponse.AddressInfo;
-            secondAddress.StandardAddress.ShouldBeFalse();
+            secondAddress.StandardFlag.ShouldBeEmpty();
             secondAddress.City.ShouldBe("Renton");
             secondAddress.PostalCode.ShouldBe("98055");
             secondAddress.POBoxPostalCode.ShouldBe("");
@@ -668,7 +668,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
                 AddressID = addressResponse.AddressID.Value,
                 AddressInfo = new McfAddressinfo
                 {
-                    StandardAddress = true,
+                    StandardFlag = "X",
                     City = "Bellevue",
                     PostalCode = "98004",
                     POBoxPostalCode = "",
@@ -688,7 +688,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             var newAddressResponse = McfClient.GetStandardMailingAddress(user.JwtEncodedString, user.BPNumber).Result.AddressInfo;
 
             //Assert
-            newAddressResponse.StandardAddress.ShouldBe(requestAddress.StandardAddress);
+            newAddressResponse.StandardFlag.ShouldBe(requestAddress.StandardFlag);
             newAddressResponse.City.ShouldBe(requestAddress.City);
             newAddressResponse.PostalCode.ShouldBe(requestAddress.PostalCode);
             newAddressResponse.Street.ShouldBe(requestAddress.Street);
@@ -703,7 +703,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
                 AddressID = addressResponse.AddressID.Value,
                 AddressInfo = new McfAddressinfo
                 {
-                    StandardAddress = addressResponse.AddressInfo.StandardAddress,
+                    StandardFlag = addressResponse.AddressInfo.StandardFlag,
                     City = addressResponse.AddressInfo.City,
                     PostalCode = addressResponse.AddressInfo.PostalCode,
                     POBoxPostalCode = addressResponse.AddressInfo.POBoxPostalCode,
@@ -772,7 +772,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
                 AccountID = user.BPNumber,
                 AddressInfo = new McfAddressinfo
                 {
-                    StandardAddress = true,
+                    StandardFlag = "X",
                     City = "Bellevue",
                     PostalCode = "98004",
                     POBoxPostalCode = "",
@@ -793,7 +793,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             var responsetAddress = response.Result.AddressInfo;
 
             //Assert
-            responsetAddress.StandardAddress.ShouldBe(requestAddress.StandardAddress);
+            responsetAddress.StandardFlag.ShouldBe(requestAddress.StandardFlag);
             responsetAddress.City.ShouldBe(requestAddress.City);
             responsetAddress.PostalCode.ShouldBe(requestAddress.PostalCode);
             responsetAddress.Street.ShouldBe(requestAddress.Street);

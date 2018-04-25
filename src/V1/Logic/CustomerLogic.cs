@@ -359,7 +359,7 @@ namespace PSE.Customer.V1.Logic
             var mcfResponse = _mcfClient.GetMailingAddresses(jwt, bpId);
 
             var results = (isStandardOnly ? mcfResponse?.Result?.Results?
-                                    .Where(x => x.AddressInfo.StandardAddress)
+                                    .Where(x => !string.IsNullOrEmpty(x.AddressInfo.StandardFlag))
                                     : mcfResponse?.Result?.Results)
                                     .ToList();
 
@@ -491,14 +491,14 @@ namespace PSE.Customer.V1.Logic
         
         private void UpdateStandardAddress(string jwt, UpdateAddressRequest request)
         {
-            request.AddressInfo.StandardAddress = true;
+            request.AddressInfo.StandardFlag = "X";
 
             _mcfClient.UpdateAddress(jwt, request);
         }
 
         private McfResponse<CreateAddressResponse> CreateStandardAddress(string jwt, CreateAddressRequest request)
         {
-            request.AddressInfo.StandardAddress = true;
+            request.AddressInfo.StandardFlag = "X";
 
             return _mcfClient.CreateAddress(jwt, request);
         }

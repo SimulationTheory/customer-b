@@ -237,7 +237,7 @@ namespace PSE.Customer.Tests.Unit.Extensions
             var model = addressInfo.McfToCassandraModel();
 
             model.ShouldNotBeNull();
-            model.ShouldBeOfType<AddressDefinedType>();
+            model.ShouldBeOfType<Address>();
             model.AddressLine1.ShouldBe($"{addressInfo.HouseNo?.Trim()} {addressInfo.Street.Trim()}");
             model.AddressLine2.ShouldBe(addressInfo.HouseNo2);
             model.City.ShouldBe(addressInfo.City);
