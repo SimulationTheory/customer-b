@@ -51,9 +51,10 @@ namespace PSE.Customer.V1.Controllers
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns></returns>
-        /// <response code="200">Successfully retrieved invalid movein dates.</response>
+        /// <response code="200">Successfully stopped service.</response>
         /// <response code="401">Unauthorized.  Requires a valid JWT.</response>
         /// <response code="404">ContractAccountId not found.</response>
+        [AllowAnonymous]
         [HttpPost("moveout-stop-service/{contractAccountId}")]
         [ProducesResponseType(typeof(MoveOutStopServiceResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
