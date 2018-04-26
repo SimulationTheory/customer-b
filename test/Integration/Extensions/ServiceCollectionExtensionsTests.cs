@@ -54,6 +54,7 @@ namespace PSE.Customer.Tests.Integration.Extensions
                 using (var loggerFactory = services.GetLoggerFactory())
                 {
                     var logger = loggerFactory.CreateLogger<Startup>();
+                    TestHelper.GetCoreOptions();
                     services.AddClientProxies()
                         .AddTransient<CustomerController>()
                         .AddTransient<ManagePremisesController>()

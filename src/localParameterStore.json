@@ -10,5 +10,13 @@
   {
     "Key": "/CI/MS/Development/UserPool",
     "Value": "us-west-2_Zfg0fUSpS"
+  },
+  {
+    "Key": "/CI/MS/Development/Cassandra/Keyspace/Microservices",
+    "Value": "microservices"
+  },
+  {
+    "Key": "/CI/MS/Development/Cassandra/Keyspace/SelfServiceAuth",
+    "Value": "selfservice_auth"
   }
 ]
