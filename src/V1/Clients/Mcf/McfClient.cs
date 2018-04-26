@@ -904,8 +904,13 @@ namespace PSE.Customer.V1.Clients.Mcf
                 var config = _coreOptions.Configuration;
                 var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
 
+                _logger.LogInformation("Getting resource primary key to update");
+                var allIds = GetAllIdentifiers(identifier.AccountId);
+                var primaryKeyIdentifier = allIds?.Result?.Results.FirstOrDefault(x => x.IdentifierType == identifier.IdentifierType);
+
+                _logger.LogInformation("Creating update request");
                 var url = "/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/IdentifierSet(" +
-                          $"AccountID='{identifier.AccountId}',Identifiertype='{identifier.IdentifierType}',Identifierno='{identifier.IdentifierNo.ToUpper()}')";
+                          $"AccountID='{identifier.AccountId}',Identifiertype='{identifier.IdentifierType}',Identifierno='{primaryKeyIdentifier?.IdentifierNo}')";
                 var restRequest = new RestRequest(url, Method.PUT);
 
                 var cookies = restUtility.GetMcfCookies(_requestContext.JWT, _requestChannel).Result;

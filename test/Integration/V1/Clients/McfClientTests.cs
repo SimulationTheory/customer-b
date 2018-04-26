@@ -459,7 +459,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
 
             // Assert
             response.ShouldNotBeNull();
-            response.HttpStatusCode.ShouldBe(HttpStatusCode.OK);
+            response.HttpStatusCode.ShouldBe(HttpStatusCode.NoContent);
             GetLast4Social(bpNumber).ShouldBe(identifier.IdentifierNo);
         }
 

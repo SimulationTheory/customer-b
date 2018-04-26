@@ -9,6 +9,9 @@ using PSE.Customer.V1.Repositories.DefinedTypes;
 
 namespace PSE.Customer.V1.Logic.Interfaces
 {
+    /// <summary>
+    /// Encapsulates logic for MoveInController
+    /// </summary>
     public interface IMoveInLogic
     {
         /// <summary>
@@ -68,7 +71,7 @@ namespace PSE.Customer.V1.Logic.Interfaces
         /// Updates one ID type for a BP
         /// </summary>
         /// <param name="identifierRequest">Identifier types such as last 4 SSN, drivers license number, etc.</param>
-        void UpdateIdType(IdentifierRequest identifierRequest);
+        Task<StatusCodeResponse> UpdateIdType(IdentifierRequest identifierRequest);
 
         /// <summary>
         /// Validates the identifier by comparing to ID type user already has

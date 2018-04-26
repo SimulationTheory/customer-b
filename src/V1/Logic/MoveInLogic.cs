@@ -447,10 +447,20 @@ namespace PSE.Customer.V1.Logic
         }
 
         /// <inheritdoc />
-        public void UpdateIdType(IdentifierRequest identifierRequest)
+        public Task<StatusCodeResponse> UpdateIdType(IdentifierRequest identifierRequest)
         {
             var bpIdentifier = new BpIdentifier(identifierRequest);
-            _mcfClient.UpdateIdentifier(bpIdentifier);
+
+            var response = _mcfClient.UpdateIdentifier(bpIdentifier);
+            if (response == null || response.Error != null)
+            {
+                const string uiFailureMessage = "Failed to update business partner identifier";
+                var responseErrorMessage = response?.Error != null ? response.Error.ToJson() : uiFailureMessage;
+                _logger.LogError($"{ responseErrorMessage }: {identifierRequest.ToJson()}");
+                throw new InternalServerException(uiFailureMessage);
+            }
+
+            return Task.FromResult(response.ToModel());
         }
 
         /// <inheritdoc />

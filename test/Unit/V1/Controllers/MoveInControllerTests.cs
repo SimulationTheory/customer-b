@@ -177,17 +177,17 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         #region UpdateIdType Tests
 
         [TestMethod]
-        public void UpdateIdType_ValidAccountAndType_SavedSuccessfully()
+        public async Task UpdateIdType_ValidAccountAndType_SavedSuccessfully()
         {
             // Arrange
             var controller = GetController();
             var identifier = new IdentifierRequest();
 
             // Act
-            var response = controller.UpdateIdType(identifier);
+            var response = await controller.UpdateIdType(identifier);
 
             // Assert
-            response.ShouldBeOfType<OkResult>();
+            response.ShouldBeOfType<OkObjectResult>();
         }
 
         #endregion

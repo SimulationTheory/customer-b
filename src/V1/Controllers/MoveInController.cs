@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -460,7 +461,7 @@ namespace PSE.Customer.V1.Controllers
         /// <returns>returns BPSearchResponse</returns>
         [ProducesResponseType(typeof(OkResult), StatusCodes.Status200OK)]
         [HttpPut("bp-id-type")]
-        public IActionResult UpdateIdType([FromBody] IdentifierRequest identifierRequest)
+        public async Task<IActionResult> UpdateIdType([FromBody] IdentifierRequest identifierRequest)
         {
             IActionResult result;
             // !!! JMC - should these be logged?
@@ -468,8 +469,8 @@ namespace PSE.Customer.V1.Controllers
 
             try
             {
-                _moveInLogic.UpdateIdType(identifierRequest);
-                result = Ok();
+                var response = await _moveInLogic.UpdateIdType(identifierRequest);
+                return Ok(response);
             }
             catch (Exception ex)
             {
