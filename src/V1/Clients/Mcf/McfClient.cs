@@ -349,7 +349,7 @@ namespace PSE.Customer.V1.Clients.Mcf
 
                 _logger.LogInformation("Making MCF call");
 
-                var client = restUtility.GetRestClient(config.McfEndpoint);
+                var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
                 var restResponse = client.Execute(restRequest);
             }
             catch (Exception e)
@@ -437,7 +437,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                 restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
                 restRequest.AddHeader("Accept", "application/json");
 
-                var client = restUtility.GetRestClient(config.McfEndpoint);
+                var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
                 var restResponse = client.Execute(restRequest);
 
                 response = JsonConvert.DeserializeObject<McfResponse<GetAccountAddressesResponse>>(restResponse.Content);
@@ -472,7 +472,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                 restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
                 restRequest.AddHeader("Accept", "application/json");
 
-                var client = restUtility.GetRestClient(config.McfEndpoint);
+                var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
                 var restResponse = client.Execute(restRequest);
 
                 response = JsonConvert.DeserializeObject<McfResponse<McfResponseResults<GetAccountAddressesResponse>>>(restResponse.Content);
@@ -507,7 +507,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                 restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
                 restRequest.AddHeader("Accept", "application/json");
 
-                var client = restUtility.GetRestClient(config.McfEndpoint);
+                var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
                 var restResponse = client.Execute(restRequest);
 
                 response = JsonConvert.DeserializeObject<McfResponse<GetContractAccountResponse>>(restResponse.Content);
@@ -555,7 +555,7 @@ namespace PSE.Customer.V1.Clients.Mcf
 
                 _logger.LogInformation("Making MCF call");
 
-                var client = restUtility.GetRestClient(config.McfEndpoint);
+                var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
                 var restResponse = client.Execute(restRequest);
 
                 response = JsonConvert.DeserializeObject<McfResponse<CreateAddressResponse>>(restResponse.Content);
@@ -639,7 +639,7 @@ namespace PSE.Customer.V1.Clients.Mcf
             {
                 var config = _coreOptions.Configuration;
                 var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
-                var client = restUtility.GetRestClient(config.McfEndpoint);
+                var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
                 var request = new RestRequest("/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/FactoryCalHolidaysSet" +
                     "?$filter=HolidayCalendar eq 'Z1' and FactoryCalendar eq 'Z1'and DateFrom eq " +
                     $"datetime'{invalidMoveinDatesRequest.DateFrom.ToString(McfDateFormat)}' and DateTo eq datetime'{invalidMoveinDatesRequest.DateTo.ToString(McfDateFormat)}'" +
@@ -700,7 +700,7 @@ namespace PSE.Customer.V1.Clients.Mcf
 
                 _logger.LogInformation("Making MCF call");
 
-                var client = restUtility.GetRestClient(config.McfEndpoint);
+                var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
                 var restResponse = client.Execute(restRequest);
             }
             catch (Exception e)
