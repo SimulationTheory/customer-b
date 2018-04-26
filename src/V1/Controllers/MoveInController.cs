@@ -283,11 +283,10 @@ namespace PSE.Customer.V1.Controllers
                 //TODO remove below Mock data
                 var bprelationshipsresponse = new BpRelationshipsResponse()
                 {
-                    BpId = "1000000369",
                     RelationShips = new List<BpRelationshipResponse>()
                     {
-                       new BpRelationshipResponse(){BpIdParent ="1000000369", BpId = "1200000695", Relationshipcategory ="BUR001" },
-                       new BpRelationshipResponse(){BpIdParent ="1000000369", BpId = "1200000698", Relationshipcategory ="CRMM02" },
+                       new BpRelationshipResponse(){BpId1="1000000369", BpId2 = "1200000695", Relationshipcategory ="BUR001" , Validfromdate= DateTime.Now, Validtodate = DateTime.MaxValue},
+                       new BpRelationshipResponse(){BpId1 ="1000000369", BpId2 = "1200000698", Relationshipcategory ="CRMM02" , Validfromdate= DateTime.Now, Validtodate = DateTime.MaxValue},
                     }
                 };
                 result = Ok(bprelationshipsresponse);
@@ -320,8 +319,8 @@ namespace PSE.Customer.V1.Controllers
                 //TODO remove below Mock data
                 var bprelationshipsresponse = new BpRelationshipResponse()
                 {
-                    BpIdParent = "120000047",
-                    BpId = "1200000805",
+                    BpId1= "120000047",
+                    BpId2= "1200000805",
                     Relationshipcategory = "ZCOCU"
                 };
                 result = Ok(bprelationshipsresponse);
