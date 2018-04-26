@@ -165,6 +165,8 @@ namespace PSE.Customer.V1.Clients.Mcf
             return response;
         }
 
+        
+
         /// <summary>
         /// POSTs the primary email address
         /// </summary>
@@ -253,6 +255,66 @@ namespace PSE.Customer.V1.Clients.Mcf
 
             return response;
         }
+
+        /// <summary>
+        /// POSTs the mobile phone for the business partner
+        /// </summary>
+        /// <param name="jwt">Java Web Token for authentication</param>
+        /// <param name="request">Phone data to save</param>
+        /// <returns>Results of POST request</returns>
+        /// <remarks>
+        /// OData URI:
+        /// POST ZERP_UTILITIES_UMC_PSE_SRV/AccountAddressIndependentMobilePhones
+        /// </remarks>
+
+        public bool CreateBpRelationship(string jwt, BpRelationshipsRequest request)
+
+        {
+            
+
+            try
+            {
+                var requestBody = request.ToJson(Formatting.None);
+                _logger.LogInformation($"CreateBpRelationship(jwt, {nameof(request)}: {requestBody})");
+                var config = _coreOptions.Configuration;
+                var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
+                var cookies = restUtility.GetMcfCookies(jwt, _requestChannel.ToString()).Result;
+
+                string url = $"sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/Accounts('{request.AccountID1}')/Relationships";
+
+                var restRequest = new RestRequest(url, Method.POST);
+                restRequest.AddCookies(cookies);
+                restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
+                restRequest.AddHeader("ContentType", "application/json");
+                restRequest.AddHeader("Accept", "application/json");
+                restRequest.AddParameter("application/json", requestBody, ParameterType.RequestBody);
+
+                _logger.LogInformation("Making MCF call");
+                var client = restUtility.GetRestClient(config.McfEndpoint);
+                var restResponse = client.Execute(restRequest);
+
+                var mcfResponse = JsonConvert.DeserializeObject<McfResponse<McfResponseResult<BpRelationshipResponse>>>(restResponse.Content);
+                if (mcfResponse.Error != null)
+                {
+                    var errorMsg = mcfResponse.Error.Message.Value;
+                    _logger.LogError(errorMsg);
+                    throw new BadRequestException(errorMsg);
+
+                }
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                throw;
+            }
+
+            
+        }
+
+
+
+
 
         /// <summary>
         /// POSTs the work or home phone for the business partner

@@ -1,33 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PSE.Customer.Configuration;
+using PSE.Customer.Extensions;
+using PSE.Customer.V1.Clients.Address.Interfaces;
 using PSE.Customer.V1.Clients.Authentication.Interfaces;
+using PSE.Customer.V1.Clients.Mcf.Enums;
+using PSE.Customer.V1.Clients.Mcf.Interfaces;
+using PSE.Customer.V1.Clients.Mcf.Request;
+using PSE.Customer.V1.Clients.Mcf.Response;
 using PSE.Customer.V1.Logic.Interfaces;
 using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories;
-using PSE.Customer.V1.Repositories.Entities;
 using PSE.Customer.V1.Repositories.DefinedTypes;
+using PSE.Customer.V1.Repositories.Entities;
 using PSE.Customer.V1.Repositories.Interfaces;
-using PSE.WebAPI.Core.Configuration.Interfaces;
-using RestSharp;
-using Microsoft.AspNetCore.Mvc;
-using PSE.Customer.V1.Clients.Mcf.Interfaces;
-using System.Linq;
-using PSE.Customer.Extensions;
-using PSE.Customer.V1.Clients.Mcf.Enums;
-using PSE.Customer.V1.Clients.Mcf.Request;
-using PSE.Customer.V1.Clients.Mcf.Response;
+using PSE.Customer.V1.Request;
 using PSE.RestUtility.Core.Mcf;
-using PSE.Customer.V1.Clients.Address.Interfaces;
+using PSE.WebAPI.Core.Configuration.Interfaces;
 using PSE.WebAPI.Core.Service.Enums;
+using RestSharp;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using AutoMapper;
 using PSE.Customer.V1.Clients.Address.Models.Request;
+using PSE.WebAPI.Core.Service.Interfaces;
+using System.Threading.Tasks;
+using System.Net;
 
 namespace PSE.Customer.V1.Logic
 {
@@ -47,6 +49,7 @@ namespace PSE.Customer.V1.Logic
         private readonly IAuthenticationApi _authenticationApi;
         private readonly IMcfClient _mcfClient;
         private readonly IAddressApi _addressApi;
+        private readonly IRequestContextAdapter _requestContextAdapter;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CustomerLogic"/> class.
@@ -71,7 +74,8 @@ namespace PSE.Customer.V1.Logic
             ICustomerRepository customerRepository,
             IAuthenticationApi authenticationApi,
             IMcfClient mcfClient,
-            IAddressApi addressApi)
+            IAddressApi addressApi,
+            IRequestContextAdapter requestContextAdapter)
         {
             _redisCache = redisCache ?? throw new ArgumentNullException(nameof(redisCache));
             _localCache = localCache ?? throw new ArgumentNullException(nameof(localCache));
@@ -79,10 +83,11 @@ namespace PSE.Customer.V1.Logic
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _options = options ?? throw new ArgumentNullException(nameof(options));
             _bpByContractAccountRepository = bpByContractAccountRepository ?? throw new ArgumentNullException(nameof(bpByContractAccountRepository));
-            _customerRepository = customerRepository ?? throw new ArgumentNullException(nameof(customerRepository)); 
+            _customerRepository = customerRepository ?? throw new ArgumentNullException(nameof(customerRepository));
             _authenticationApi = authenticationApi ?? throw new ArgumentNullException(nameof(authenticationApi));
             _mcfClient = mcfClient ?? throw new ArgumentNullException(nameof(mcfClient));
             _addressApi = addressApi ?? throw new ArgumentNullException(nameof(addressApi));
+            _requestContextAdapter = requestContextAdapter ?? throw new ArgumentNullException(nameof(requestContextAdapter));
         }
 
         /// <summary>
@@ -452,9 +457,42 @@ namespace PSE.Customer.V1.Logic
             {
                 _logger.LogError($"Getting JWTtoken from Signin for user name {userName}  Failed with error", ex);
             }
-            
+
             return token;
         }
+
+        /// <summary>
+        /// Creates BpReationship
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="jwt"></param>
+        /// <returns></returns>
+        public bool CreateBpRelationshipAsync(CreateBpRelationshipRequest request, string jwt)
+
+       {
+            var fromDate = DateTimeOffset.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss");
+            var toDate = DateTimeOffset.MaxValue.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss");
+
+            var mcfRequest = new BpRelationshipsRequest()
+            {
+                AccountID1 = request.FirstAccountBpId,
+                AccountID2 = request.SecondAccountBpId,
+                Relationshipcategory = request.Relationshipcategory,
+                Differentiationtypevalue = "",
+                Defaultrelationship = false,
+                Validfromdatenew = DateTime.Parse(fromDate),
+                Validtodatenew = DateTime.Parse(toDate),
+            };
+
+            var response = _mcfClient.CreateBpRelationship(jwt, mcfRequest);
+
+            return response; 
+       }
+
+
+
+
+
 
         #region private methods
         private async Task SaveSecurityQuestions(WebProfile webprofile, IRestResponse<OkResult> resp)
@@ -464,7 +502,7 @@ namespace PSE.Customer.V1.Logic
                 //gets JwtToken
                 var jwttoken = await _authenticationApi.GetJwtToken(webprofile?.CustomerCredentials?.UserName, webprofile?.CustomerCredentials?.Password);
 
-                //Save security questions one at at time    
+                //Save security questions one at at time
                 if (jwttoken.StatusCode == HttpStatusCode.OK && !string.IsNullOrEmpty(jwttoken?.Data?.JwtAccessToken))
                 {
                     var savesecurityQuestions = await _authenticationApi.SaveSecurityQuestions(webprofile, jwttoken.Data.JwtAccessToken);
@@ -488,7 +526,7 @@ namespace PSE.Customer.V1.Logic
                 _logger.LogError("Saveing Security questions failed with unexpected error", exp);
             }
         }
-        
+
         private void UpdateStandardAddress(string jwt, UpdateAddressRequest request)
         {
             request.AddressInfo.StandardFlag = "X";

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -284,10 +283,11 @@ namespace PSE.Customer.V1.Controllers
                 //TODO remove below Mock data
                 var bprelationshipsresponse = new BpRelationshipsResponse()
                 {
-                    RelationShips = new List<BpRelationshipResponse>()
+                    BpId = "1000000369",
+                    Relationships = new List<BpRelationshipResponse>()
                     {
-                       new BpRelationshipResponse(){BpId1="1000000369", BpId2 = "1200000695", Relationshipcategory ="BUR001" , Validfromdate= DateTime.Now, Validtodate = DateTime.MaxValue},
-                       new BpRelationshipResponse(){BpId1 ="1000000369", BpId2 = "1200000698", Relationshipcategory ="CRMM02" , Validfromdate= DateTime.Now, Validtodate = DateTime.MaxValue},
+                        new BpRelationshipResponse(){BpIdParent ="1000000369", BpId = "1200000695", Relationshipcategory ="BUR001" },
+                        new BpRelationshipResponse(){BpIdParent ="1000000369", BpId = "1200000698", Relationshipcategory ="CRMM02" },
                     }
                 };
                 result = Ok(bprelationshipsresponse);
@@ -309,7 +309,7 @@ namespace PSE.Customer.V1.Controllers
         /// <returns>returns BPSearchResponse</returns>
         [ProducesResponseType(typeof(BpRelationshipResponse), 200)]
         [HttpPost("bp-relationship")]
-        public async Task<IActionResult> CreateBpRelationship(BpRelationshipRequest bpRelationshipsRequest)
+        public async Task<IActionResult> CreateBpRelationship(CreateBpRelationshipRequest bpRelationshipsRequest)
         {
             IActionResult result;
             _logger.LogInformation($"CreateBpRelationship({nameof(bpRelationshipsRequest)}: {bpRelationshipsRequest.ToJson()})");
@@ -320,8 +320,8 @@ namespace PSE.Customer.V1.Controllers
                 //TODO remove below Mock data
                 var bprelationshipsresponse = new BpRelationshipResponse()
                 {
-                    BpId1= "120000047",
-                    BpId2= "1200000805",
+                    BpIdParent = "120000047",
+                    BpId = "1200000805",
                     Relationshipcategory = "ZCOCU"
                 };
                 result = Ok(bprelationshipsresponse);
@@ -343,7 +343,7 @@ namespace PSE.Customer.V1.Controllers
         /// <returns>returns BPSearchResponse</returns>
         [ProducesResponseType(typeof(BpRelationshipResponse), 200)]
         [HttpPut("bp-relationship")]
-        public async Task<IActionResult> UpdateBpRelationship(BpRelationshipRequest bpRelationshipsRequest)
+        public async Task<IActionResult> UpdateBpRelationship(CreateBpRelationshipRequest bpRelationshipsRequest)
         {
             IActionResult result;
             _logger.LogInformation($"CreateBpRelationship({nameof(bpRelationshipsRequest)}: {bpRelationshipsRequest.ToJson()})");
@@ -461,7 +461,7 @@ namespace PSE.Customer.V1.Controllers
         /// <returns>returns BPSearchResponse</returns>
         [ProducesResponseType(typeof(OkResult), StatusCodes.Status200OK)]
         [HttpPut("bp-id-type")]
-        public async Task<IActionResult> UpdateIdType([FromBody] IdentifierRequest identifierRequest)
+        public IActionResult UpdateIdType([FromBody] IdentifierRequest identifierRequest)
         {
             IActionResult result;
             // !!! JMC - should these be logged?
@@ -469,8 +469,8 @@ namespace PSE.Customer.V1.Controllers
 
             try
             {
-                var response = await _moveInLogic.UpdateIdType(identifierRequest);
-                return Ok(response);
+                _moveInLogic.UpdateIdType(identifierRequest);
+                result = Ok();
             }
             catch (Exception ex)
             {

@@ -199,7 +199,7 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// Creates a Business Partner for Person/Organization or Autherized contact
         /// </summary>
         /// <param name="businesPartnerequest"></param>
-        /// <returns></returns>
+        /// <returns></returns>createbprelationship
         Task<CreateBusinessPartnerMcfResponse> CreateBusinessPartner(CreateBusinesspartnerMcfRequest businesPartnerequest);
 
         /// <summary>
@@ -237,5 +237,15 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// <param name="identifier">The identifier with updated values</param>
         /// <returns>Status code or error message</returns>
         McfStatusCodeResponse DeleteIdentifier(BpIdentifier identifier);
+
+        /// <summary>
+        /// Creates BpRelationship
+        /// /// </summary>
+        /// <param name="jwt"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        bool CreateBpRelationship(string jwt, BpRelationshipsRequest request);
+
+   
     }
 }

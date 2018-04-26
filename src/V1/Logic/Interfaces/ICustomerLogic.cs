@@ -4,11 +4,13 @@ using PSE.Customer.V1.Clients.Mcf.Request;
 using PSE.Customer.V1.Clients.Mcf.Response;
 using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
+using PSE.Customer.V1.Clients.Mcf.Models;
+using PSE.Customer.V1.Request;
 
 namespace PSE.Customer.V1.Logic.Interfaces
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     public interface ICustomerLogic
     {
@@ -52,7 +54,7 @@ namespace PSE.Customer.V1.Logic.Interfaces
         Task PutPhoneNumberAsync(string jwt, Phone phone, long bpId);
 
         /// <summary>
-        /// Gets JWT token 
+        /// Gets JWT token
         /// </summary>
         /// <param name="userName"></param>
         /// <param name="password"></param>
@@ -77,7 +79,7 @@ namespace PSE.Customer.V1.Logic.Interfaces
         Task<bool> UserNameExists(string userName);
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="bpId"></param>
         /// <param name="isStandardOnly"></param>
@@ -101,5 +103,17 @@ namespace PSE.Customer.V1.Logic.Interfaces
         /// <param name="jwt">The JWT.</param>
         /// <returns></returns>
         Task<GetCustomerInteractionResponse> CreateCustomerInteractionRecord(CreateCustomerInteractionRequest createCustomerInteraction, string jwt);
+
+
+
+        /// <summary>
+        /// Creates new bpRelationship
+        /// </summary>
+        /// <param name="request"></param>\
+        /// <param name="jwt"></param>
+        /// <returns></returns>
+        bool CreateBpRelationshipAsync(CreateBpRelationshipRequest request, string jwt);
     }
+
+
 }

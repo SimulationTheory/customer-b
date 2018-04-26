@@ -48,7 +48,6 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
             var jwt = "token";
             var reconnect = false;
 
-
             _mcfClientMock.Setup(mcm => mcm.GetMoveInLatePaymentsResponse(It.IsAny<long>(), It.IsAny<bool>(), It.IsAny<string>()))
                 .Returns(
                     () => new MoveInLatePaymentsResponse()

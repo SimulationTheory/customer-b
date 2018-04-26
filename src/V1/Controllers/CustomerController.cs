@@ -21,6 +21,7 @@ using PSE.Customer.V1.Request;
 using PSE.Customer.V1.Response;
 using PSE.WebAPI.Core.Exceptions;
 using PSE.WebAPI.Core.Exceptions.Types;
+using PSE.Customer.V1.Request;
 using PSE.WebAPI.Core.Service;
 
 namespace PSE.Customer.V1.Controllers
@@ -209,7 +210,7 @@ namespace PSE.Customer.V1.Controllers
                 //Create profile and  save security questions
                 await _customerLogic.CreateWebProfileAsync(webProfile);
 
-                //Updates Email and Phone after signup 
+                //Updates Email and Phone after signup
                 var jwt = await _customerLogic.GetJWTTokenAsync(webProfile.CustomerCredentials.UserName, webProfile.CustomerCredentials.Password);
                 if (!string.IsNullOrEmpty(jwt))
                 {
@@ -229,6 +230,32 @@ namespace PSE.Customer.V1.Controllers
 
             return result;
         }
+
+
+       [ProducesResponseType(typeof(bool), 200)]
+       [HttpPost("bpRelationship")]
+       [AllowAnonymous]
+       public async Task<IActionResult> CreateBpRelationship([FromBody] CreateBpRelationshipRequest request)
+      {
+           IActionResult result;
+
+           try
+           {
+               _logger.LogInformation($"CreateBpRealtionship({nameof(request)}: {request.ToJson()})");
+
+                HttpContext.Request.Headers.TryGetValue("Authorization", out StringValues jwt);
+                //Call Logic Class to create bp relationship and returns true or false if successful/not successful
+                var response = _customerLogic.CreateBpRelationshipAsync(request, jwt);
+               result = Ok(response);
+           }
+           catch (Exception e)
+           {
+               _logger.LogError(e, e.Message);
+               result = e.ToActionResult();
+           }
+           return result;
+       }
+
 
         /// <summary>
         /// Updates postal mail address for logged in user
@@ -355,6 +382,8 @@ namespace PSE.Customer.V1.Controllers
 
             return result;
         }
+
+
 
         /// <summary>
         ///  Gets BP Level Addresses of the authenticated user and store it into Redis
