@@ -55,6 +55,7 @@ namespace PSE.Customer.Extensions
             services.AddTransient<IMoveInLogic, MoveInLogic>();
             services.AddTransient<IDeviceApi, DeviceApi>();
             services.AddTransient<IMoveOutLogic, MoveOutLogic>();
+            services.AddTransient<IManagePremisesLogic, ManagePremisesLogic>();
 
             // Mapping Logic
             AutoMapper.Mapper.Reset();

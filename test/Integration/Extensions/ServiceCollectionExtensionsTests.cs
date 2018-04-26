@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Caching.Distributed;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -21,15 +22,12 @@ using PSE.Customer.V1.Repositories.Entities;
 using PSE.Customer.V1.Repositories.Interfaces;
 using PSE.Test.Core;
 using PSE.WebAPI.Core.Configuration.Interfaces;
+using PSE.WebAPI.Core.Service;
+using PSE.WebAPI.Core.Service.Interfaces;
 using Shouldly;
 
 namespace PSE.Customer.Tests.Integration.Extensions
 {
-    using Microsoft.AspNetCore.Http;
-
-    using PSE.WebAPI.Core.Service;
-    using PSE.WebAPI.Core.Service.Interfaces;
-
     [TestClass]
     public class ServiceCollectionExtensionsTests
     {
@@ -58,7 +56,9 @@ namespace PSE.Customer.Tests.Integration.Extensions
                     var logger = loggerFactory.CreateLogger<Startup>();
                     services.AddClientProxies()
                         .AddTransient<CustomerController>()
+                        .AddTransient<ManagePremisesController>()
                         .AddTransient<MoveInController>()
+                        .AddTransient<MoveOutController>()
                         .AddScoped<IRequestContextAdapter, RequestContextAdapter>()
                         .AddScoped<IHttpContextAccessor, HttpContextAccessor>()
                         .AddSingleton(CoreHelper.GetMemoryDistributedCache())
@@ -93,12 +93,13 @@ namespace PSE.Customer.Tests.Integration.Extensions
                     provider.GetRequiredService<IMcfClient>();
                     provider.GetRequiredService<ICustomerLogic>();
                     provider.GetRequiredService<IAddressApi>();
+                    provider.GetRequiredService<IManagePremisesLogic>();
 
                     // Controller
-                    provider.GetRequiredService<ILogger<CustomerController>>();
                     provider.GetRequiredService<CustomerController>();
+                    provider.GetRequiredService<ManagePremisesController>();
                     provider.GetRequiredService<MoveInController>();
-                    provider.GetRequiredService<ILogger<MoveInController>>();
+                    provider.GetRequiredService<MoveOutController>();
                 }
             }
         }

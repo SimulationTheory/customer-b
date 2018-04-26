@@ -34,10 +34,6 @@
     "UseQueryOptions": true,
     "MaxConnectionsPerHost": 1000
   },
-  "Keyspaces": {
-    "Microservices": "microservices",
-    "SelfServiceAuth": "selfservice_auth"
-  },
   "RedisOptions": {
     "Configuration": "rediscache.iuy6pw.ng.0001.usw2.cache.amazonaws.com",
     "InstanceName": "customer"
