@@ -66,7 +66,7 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// <param name="request"></param>
         /// <param name="jwt"></param>
         /// <returns></returns>
-        MoveInResponse PostLateMoveIn(CreateMoveInRequest request, string jwt);
+        MoveInResponse PostPriorMoveIn(CreateMoveInRequest request, string jwt);
 
         /// <summary>
         /// POSTs the work or home phone for the business partner
@@ -193,7 +193,7 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// </remarks>
         void FixAddressToContractAccount(string jwt, long contractAccountId, FixAddressToContractAccountRequest request);
 
-        MoveInLatePaymentsResponse GetMoveInLatePaymentsResponse(long contractAccountId, string jwt);
+        MoveInLatePaymentsResponse GetMoveInLatePaymentsResponse(long contractAccountId, bool reconnectionFlag, string jwt);
 
         /// <summary>
         /// Creates a Business Partner for Person/Organization or Autherized contact

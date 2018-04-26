@@ -46,9 +46,10 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
             var contractAccount = 11111111;
             var minPayment = 300m;
             var jwt = "token";
+            var reconnect = false;
 
 
-            _mcfClientMock.Setup(mcm => mcm.GetMoveInLatePaymentsResponse(It.IsAny<long>(), It.IsAny<string>()))
+            _mcfClientMock.Setup(mcm => mcm.GetMoveInLatePaymentsResponse(It.IsAny<long>(), It.IsAny<bool>(), It.IsAny<string>()))
                 .Returns(
                     () => new MoveInLatePaymentsResponse()
                     {
@@ -64,7 +65,7 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
                 _requestContextMock.Object);
 
             //Act
-            var actual = target.GetMoveInLatePayment(contractAccount, jwt);
+            var actual = target.GetMoveInLatePayment(contractAccount, reconnect, jwt);
 
             //Assert
             actual.ShouldNotBeNull();

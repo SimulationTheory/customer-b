@@ -17,7 +17,7 @@ namespace PSE.Customer.V1.Logic.Interfaces
         /// <param name="contractAccountId"></param>
         /// <param name="jwt"></param>
         /// <returns></returns>
-        ReconnectStatusResponse GetMoveInLatePayment(long contractAccountId, string jwt);
+        ReconnectStatusResponse GetMoveInLatePayment(long contractAccountId, bool reconnectionFlag, string jwt);
 
         /// <summary>
         /// Posts late move in 
@@ -26,7 +26,8 @@ namespace PSE.Customer.V1.Logic.Interfaces
         /// <param name="bp"></param>
         /// <param name="jwt"></param>
         /// <returns></returns>
-        Task<MoveInResponse> PostLateMoveIn(MoveInRequest request, long bp, string jwt);
+        Task<IEnumerable<long>> PostPriorMoveIn(MoveInRequest request, long bp, string jwt);
+
 
         /// <summary>
         /// Create a Business Partner

@@ -716,7 +716,7 @@ namespace PSE.Customer.V1.Clients.Mcf
         /// <param name="contractAccountId"></param>
         /// <param name="jwt"></param>
         /// <returns></returns>
-        public MoveInLatePaymentsResponse GetMoveInLatePaymentsResponse(long contractAccountId, string jwt)
+        public MoveInLatePaymentsResponse GetMoveInLatePaymentsResponse(long contractAccountId, bool reconnectionFlag, string jwt)
         {
             try
             {
@@ -725,8 +725,9 @@ namespace PSE.Customer.V1.Clients.Mcf
                 var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
                 var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
                 var cookies = restUtility.GetMcfCookies(jwt, _requestChannel);
+                var reconnectParam = reconnectionFlag ? "X" : string.Empty;
 
-                var restRequest = new RestRequest($"/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/LatePaymentsSet?$filter=AccountNo eq '{contractAccountId}' and Reconnect eq ''", Method.GET);
+                var restRequest = new RestRequest($"/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/LatePaymentsSet?$filter=AccountNo eq '{contractAccountId}' and Reconnect eq '{reconnectParam}'", Method.GET);
                 restRequest.AddCookies(cookies.Result);
                 restRequest.AddHeader("Accept", "application/json");
 
@@ -977,7 +978,7 @@ namespace PSE.Customer.V1.Clients.Mcf
             return response;
         }
 
-        public MoveInResponse PostLateMoveIn(CreateMoveInRequest request, string jwt)
+        public MoveInResponse PostPriorMoveIn(CreateMoveInRequest request, string jwt)
         {
             var config = _coreOptions.Configuration;
             _logger.LogInformation($"PostMoveIn(jwt, {nameof(request)}: {request}");
@@ -996,7 +997,7 @@ namespace PSE.Customer.V1.Clients.Mcf
             _logger.LogInformation("Making MCF call");
 
             var response = client.Execute(restRequest);
-            var mcfResponse = JsonConvert.DeserializeObject<McfResponse<McfResponseResult<MoveInResponse>>>(response.Content);
+            var mcfResponse = JsonConvert.DeserializeObject<McfResponse<MoveInResponse>>(response.Content);
 
             if (mcfResponse.Error != null)
             {
@@ -1006,7 +1007,7 @@ namespace PSE.Customer.V1.Clients.Mcf
 
             }
 
-            return mcfResponse.Result.Result;
+            return mcfResponse.Result;
         }
 
         #region Private methods

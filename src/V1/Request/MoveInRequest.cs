@@ -6,7 +6,6 @@ namespace PSE.Customer.V1.Request
     {
         public long ContractAccountId { get; set; }
         public IEnumerable<long> InstallationIds { get; set; }
-        public bool PriorObligation { get; set; }
         public long PremiseId { get; set; }
     }
 }

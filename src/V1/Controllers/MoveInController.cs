@@ -58,13 +58,13 @@ namespace PSE.Customer.V1.Controllers
         }
 
         /// <summary>
-        /// Check if the contract account provided is eligible for reconnection after successful payment
+        /// Check if the contract account provided is eligible for reconnection after successful payment/move in contract account when given reconnection flag
         /// </summary>
         /// <param name="contractAccountId"></param>
         /// <returns></returns>
         [HttpGet("movein-status-latepayment/{contractAccountId}")]
         [ProducesResponseType(typeof(ReconnectStatusResponse), 200)]
-        public async Task<IActionResult> MoveInLatePayments(long contractAccountId)
+        public IActionResult MoveInLatePayments(long contractAccountId, bool reconnectionFlag)
         {
             IActionResult result;
 
@@ -72,7 +72,7 @@ namespace PSE.Customer.V1.Controllers
             {
                 var jwt = GetJWToken();
                 _logger.LogInformation($"GetMoveInLatePayment({nameof(contractAccountId)} : {contractAccountId})");
-                var response = _moveInLogic.GetMoveInLatePayment(contractAccountId, jwt);
+                var response = _moveInLogic.GetMoveInLatePayment(contractAccountId, reconnectionFlag, jwt);
 
                 result = Ok(response);
 
@@ -87,17 +87,14 @@ namespace PSE.Customer.V1.Controllers
         }
 
         /// <summary>
-        /// Mock Endpoint for Latepayments movein Put, initiates movein and creates a new contract account for obligated account. 
-        /// When user pays minimum/all outstanding balance, user move-in status shows "EligibleRc" to true.
-        /// Call this method by setting reconnectFlag to activate the service.
+        /// Initiates move in for prior obligations 
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost("movein-latepayment/{contractAccountId}")]
-        [ProducesResponseType(typeof(MoveInLatePaymentsResponse), 200)]
-        public async Task<IActionResult> PostMoveIn([FromBody] MoveInRequest request)
+        [ProducesResponseType(typeof(LateMoveInResponse), 200)]
+        public async Task<IActionResult> PostLateMoveIn([FromBody] MoveInRequest request)
         {
-
 
             IActionResult result;
             var jwt = GetJWToken();
@@ -105,7 +102,11 @@ namespace PSE.Customer.V1.Controllers
            
             try
             {
-                var response = _moveInLogic.PostLateMoveIn(request, bp, jwt);
+                var response = new LateMoveInResponse()
+                {
+                    NewContractAccounts = await _moveInLogic.PostPriorMoveIn(request, bp, jwt)
+                };
+
                 result = Ok(response);
             }
             catch (Exception e)
@@ -114,22 +115,6 @@ namespace PSE.Customer.V1.Controllers
                 result = e.ToActionResult();
             }
 
-            //IActionResult result = Ok(new MoveInLatePaymentsResponse()
-            //{
-
-            //    FirstIp = 286.00m,
-            //    EligibleRc = null,
-            //    AccountNo = 200028750178,
-            //    ReconnectFlag = false,
-            //    PriorObligationAccount = 200026140646,
-            //    DepositAmount = 572.00m,
-            //    ReconAmount = 70.00m,
-            //    MinPayment = 356,
-            //    IncPayment = 320.00m,
-            //    AccountType = "RES",
-            //    ReasonCode = string.Empty,
-            //    Reason = string.Empty
-            //});
 
             return result;
         }

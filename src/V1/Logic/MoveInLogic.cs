@@ -47,10 +47,10 @@ namespace PSE.Customer.V1.Logic
         }
 
         /// <inheritdoc />
-        public ReconnectStatusResponse GetMoveInLatePayment(long contractAccountId, string jwt)
+        public ReconnectStatusResponse GetMoveInLatePayment(long contractAccountId, bool reconnectionFlag, string jwt)
         {
             _logger.LogInformation($"Getting elibigbility info: GetMoveInLatePaymentResponse({nameof(contractAccountId)} : {contractAccountId})");
-            var paymentResponse = _mcfClient.GetMoveInLatePaymentsResponse(contractAccountId, jwt);
+            var paymentResponse = _mcfClient.GetMoveInLatePaymentsResponse(contractAccountId, reconnectionFlag, jwt);
 
             var reconnectStatus = new ReconnectStatusResponse()
             {
@@ -63,10 +63,6 @@ namespace PSE.Customer.V1.Logic
             return reconnectStatus;
         }
 
-        //public ReconnectionResponse GetReconnectAmountDueAndCa(string contractAccountId)
-        //{
-        //    var paymentResponse = _mcfClient.GetMoveInLatePaymentsResponse(contractAccountId);
-        //}
 
         /// <inheritdoc />
         /// <summary>
@@ -179,22 +175,24 @@ namespace PSE.Customer.V1.Logic
             }
             return response;
         }
+
         /// <inheritdoc />
-        public async Task<MoveInResponse> PostLateMoveIn(MoveInRequest request, long bp, string jwt)
+        public async Task<IEnumerable<long>> PostPriorMoveIn(MoveInRequest request, long bp, string jwt)
         {
             var mcfMoveInRequest = new CreateMoveInRequest()
             {
                 AccountID = bp.ToString(),
                 CustomerRole = "",
-                ProcessType = request.PriorObligation ? "PRIOR" : "",
+                ProcessType = "PRIOR",
                 ContractItemNav = await CreateContractItemNavList(request, bp, jwt),
                 ProdAttributes = new List<ProdAttributes>()
             };
 
-            var response = _mcfClient.PostLateMoveIn(mcfMoveInRequest, jwt);
+            var response = _mcfClient.PostPriorMoveIn(mcfMoveInRequest, jwt);
 
+            var newContractAccounts = response.ContractItemNav.Results.Select(item => long.Parse(item.BusinessAgreementID)).ToList();
 
-            return null;
+            return newContractAccounts;
 
         }
 
