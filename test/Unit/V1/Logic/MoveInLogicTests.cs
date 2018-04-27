@@ -57,11 +57,10 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
                     });
 
             var target = new MoveInLogic(
-                _loggerMock.Object, 
-                _mcfClientMock.Object, 
+                _loggerMock.Object,
+                _mcfClientMock.Object,
                 _addressApi.Object,
-                _deviceApiMock.Object,
-                _requestContextMock.Object);
+                _deviceApiMock.Object);
 
             //Act
             var actual = target.GetMoveInLatePayment(contractAccount, reconnect, jwt);
@@ -80,11 +79,10 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
                 .Returns(sampleResponse);
 
             var target = new MoveInLogic(
-                _loggerMock.Object, 
-                _mcfClientMock.Object, 
+                _loggerMock.Object,
+                _mcfClientMock.Object,
                 _addressApi.Object,
-                _deviceApiMock.Object,
-                _requestContextMock.Object);
+                _deviceApiMock.Object);
 
             //Act
             var request = new GetInvalidMoveinDatesRequest
@@ -103,22 +101,21 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
         public void GetDuplicateBusinessPartnerIfExists_ReturnsBpSearchModel_GivenExistingBP()
         {
             //Arrange
-            _mcfClientMock.Setup(mcm => mcm.GetDuplicateBusinessPartnerIfExists(It.IsAny<BpSearchRequest>(), It.IsAny<RequestChannelEnum>()))
-                .Returns(
+            _mcfClientMock.Setup(mcm => mcm.GetDuplicateBusinessPartnerIfExists(It.IsAny<BpSearchRequest>()))
+                .ReturnsAsync(
                     () => new BpSearchResponse()
                     {
                         BpId = "123456789",
                         BpSearchIdInfoSet = new McfList<IdentifierModel>()
                         {
                             Results = new List<IdentifierModel>()
-                                          {
-                                              new IdentifierModel()
-                                                  {
-                                                      IdentifierType = IdentifierType.ZLAST4,
-                                                      IdentifierValue = "1234"
-                                                  }
-
-                                          }
+                                            {
+                                                new IdentifierModel()
+                                                    {
+                                                        IdentifierType = IdentifierType.ZLAST4,
+                                                        IdentifierValue = "1234"
+                                                    }
+                                            }
                         },
                         Threshhold = " x",
                         Unique = "1 ",
@@ -130,8 +127,7 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
                 _loggerMock.Object,
                 _mcfClientMock.Object,
                 _addressApi.Object,
-                _deviceApiMock.Object,
-                _requestContextMock.Object);
+                _deviceApiMock.Object);
 
             //Act
             var actual = target.GetDuplicateBusinessPartnerIfExists(new BpSearchRequest());
@@ -144,22 +140,22 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
         public void GetDuplicateBusinessPartnerIfExists_ReturnsNull_IfMatchNotFound()
         {
             //Arrange
-            _mcfClientMock.Setup(mcm => mcm.GetDuplicateBusinessPartnerIfExists(It.IsAny<BpSearchRequest>(), It.IsAny<RequestChannelEnum>()))
-                .Returns(
+            _mcfClientMock.Setup(mcm => mcm.GetDuplicateBusinessPartnerIfExists(It.IsAny<BpSearchRequest>()))
+                .ReturnsAsync(
                     () => new BpSearchResponse()
                     {
                         BpId = "123456789",
                         BpSearchIdInfoSet = new McfList<IdentifierModel>()
                         {
                             Results = new List<IdentifierModel>()
-                                                                            {
-                                                                                new IdentifierModel()
-                                                                                    {
-                                                                                        IdentifierType = IdentifierType.ZLAST4,
-                                                                                        IdentifierValue = "1234"
-                                                                                    }
+                            {
+                                new IdentifierModel()
+                                {
+                                    IdentifierType = IdentifierType.ZLAST4,
+                                    IdentifierValue = "1234"
+                                }
 
-                                                                            }
+                            }
                         },
                         Threshhold = "",
                         Unique = "0 ",
@@ -171,14 +167,13 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
                 _loggerMock.Object,
                 _mcfClientMock.Object,
                 _addressApi.Object,
-                _deviceApiMock.Object,
-                _requestContextMock.Object);
+                _deviceApiMock.Object);
 
             //Act
             var actual = target.GetDuplicateBusinessPartnerIfExists(new BpSearchRequest());
 
             //Assert
-            actual.MatchFound.ShouldBe(false);
+            actual.Result.MatchFound.ShouldBe(false);
         }
     }
 }

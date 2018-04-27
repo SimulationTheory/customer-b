@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using PSE.Customer.V1.Clients.Mcf.Response;
 
 namespace PSE.Customer.Tests.Unit.V1.Controllers
 {
@@ -279,9 +280,9 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             result.InvalidMoveinDates.Count.ShouldBe(5);
         }
 
-        #region GetDuplicateBusinessPartnerIfExists Tests
+        #region BpSearch Tests
         [TestMethod]
-        public void GetDuplicateBusinessPartnerIfExists_MissingParams_ReturnsBadRequest()
+        public void BpSearch_MissingParams_ReturnsBadRequest()
         {
             // Arrange
             var controller = GetController();
@@ -299,10 +300,15 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         }
 
         [TestMethod]
-        public void GetDuplicateBusinessPartnerIfExists_ExistingBP_Returns200Ok()
+        public void BpSearch_ExistingBP_Returns200Ok()
         {
             // Arrange
             var controller = GetController();
+            var request = new BpSearchRequest()
+            {
+                FirstName = "Feng",
+                LastName = "Chan"
+            };
             var responseForExistingBp = new BpSearchModel()
             {
                 MatchFound = true,
@@ -319,12 +325,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
                                             }
             };
             MoveInLogicMock.Setup(m => m.GetDuplicateBusinessPartnerIfExists(It.IsAny<BpSearchRequest>()))
-                .Returns(responseForExistingBp);
-            var request = new BpSearchRequest()
-            {
-                FirstName = "Feng",
-                LastName = "Chan"
-            };
+                .ReturnsAsync(responseForExistingBp);
 
             // Act
             var response = controller.BpSearch(request).Result;
@@ -332,7 +333,28 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             // Assert
             response.ShouldBeOfType<OkObjectResult>();
         }
+        #endregion
 
+        #region CancelMoveIn Tests
+        [TestMethod]
+        public void CancelMoveIn_ValidContractId_Returns200OK()
+        {
+            // Arrange
+            var controller = this.GetController();
+            var response = new CancelMoveInResponse()
+            {
+                Success = true,
+                StatusMessage = "Move in for contract id has been cancelled."
+            };
+            this.MoveInLogicMock.Setup(m => m.PostCancelMoveIn(It.IsAny<CancelMoveInRequest>()))
+                .ReturnsAsync(response);
+
+            // Act
+            var result = controller.CancelMoveIn(new CancelMoveInRequest()).Result;
+
+            // Assert
+            result.ShouldBeOfType<OkObjectResult>();
+        }
         #endregion
     }
 }

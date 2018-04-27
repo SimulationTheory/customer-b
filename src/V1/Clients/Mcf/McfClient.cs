@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -59,13 +60,8 @@ namespace PSE.Customer.V1.Clients.Mcf
             _environment = string.IsNullOrEmpty(environment) ? "Development" : environment;
         }
 
-        /// <summary>
-        /// Checks for duplicate account.
-        /// </summary>
-        /// <param name="request">A BpSearchRequest to check for existing account.</param>
-        /// <param name="requestChannel">The channel from the originating request.</param>
-        /// <returns>Returns an McfResponse of type BpSearchResponse</returns>
-        public BpSearchResponse GetDuplicateBusinessPartnerIfExists(BpSearchRequest request, RequestChannelEnum requestChannel)
+        /// <inheritdoc/>
+        public async Task<BpSearchResponse> GetDuplicateBusinessPartnerIfExists(BpSearchRequest request)
         {
             try
             {
@@ -78,7 +74,7 @@ namespace PSE.Customer.V1.Clients.Mcf
 
                 var restRequest = new RestRequest(
                     $"/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/BPSearchSet?$filter=" +
-                                                  $" Channel eq '{requestChannel.ToString()}'" +
+                                                  $" Channel eq '{_requestChannel}'" +
                                                   $" and FirstName eq '{request.FirstName}'" +
                                                   $" and MiddleName eq '{request.MiddleName}'" +
                                                   $" and LastName eq '{request.LastName}'" +
@@ -102,12 +98,13 @@ namespace PSE.Customer.V1.Clients.Mcf
 
                 // Make call to mcf
                 var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
-                var restResponse = client.Execute(restRequest);
+                var cancellationTokenSource = new CancellationTokenSource();
+                var restResponse = await client.ExecuteTaskAsync(restRequest, cancellationTokenSource.Token);
 
                 // Deserialize response
                 var mcfResponse = JsonConvert.DeserializeObject<McfResponse<McfResponseResults<BpSearchResponse>>>(restResponse.Content);
 
-                // Check for null result + an error. Lo
+                // Check for null result + an error.
                 if (mcfResponse.Error != null && mcfResponse.Result == null)
                 {
                     _logger.LogError(mcfResponse.Error.Message.Value, mcfResponse.Error.InnerError);
@@ -420,7 +417,6 @@ namespace PSE.Customer.V1.Clients.Mcf
                 throw;
             }
         }
-
 
         /// <summary>
         /// POSTs the mobile phone for the business partner
@@ -811,6 +807,60 @@ namespace PSE.Customer.V1.Clients.Mcf
         }
 
         /// <inheritdoc />
+        public async Task<CancelMoveInResponse> PostCancelMoveIn(CancelMoveInRequest request)
+        {
+            var response = new CancelMoveInResponse();
+
+            this._logger.LogInformation($"CreateCancelMoveInForContractId({nameof(request)}: {request.ToJson()})");
+
+            try
+            {
+                var config = this._coreOptions.Configuration;
+                var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
+                var restRequest = new RestRequest($"/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/CancelMoveIn?ContractID='{request.ContractId}'", Method.POST);
+
+                // Add basic auth for anon service account
+                var mcfUserName = string.Empty;
+                var mcfUserPassword = string.Empty;
+                SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword);
+                restRequest.AddBasicCredentials(mcfUserName, mcfUserPassword);
+                restRequest.AddMcfRequestHeaders();
+
+                // adding headers
+                restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
+                restRequest.AddHeader("ContentType", "application/json");
+                restRequest.AddHeader("Accept", "application/json");
+
+                // executing request and response
+                var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
+                var cancellationTokenSource = new CancellationTokenSource();
+                var restResponse = await client.ExecuteTaskAsync(restRequest, cancellationTokenSource.Token);
+
+                var mcfResponse = JsonConvert.DeserializeObject<McfResponse<CancelMoveInResponse>>(restResponse.Content);
+                if (mcfResponse.Error != null && mcfResponse.Result == null)
+                {
+                    var errorMessage = mcfResponse.Error.Message?.Value;
+                    _logger.LogError(errorMessage);
+
+                    response.Success = false;
+                    response.StatusMessage = $"Cancellation Error - {restResponse.StatusCode}: {errorMessage}";
+                }
+                else
+                {
+                    response.Success = true;
+                    response.StatusMessage = $"Cancellation Successful.";
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"{e.Message} for {nameof(request)}: {request.ToJson(Formatting.None)}");
+                throw;
+            }
+
+            return response;
+        }
+
+        /// <inheritdoc />
         public async Task<CreateBusinessPartnerMcfResponse> CreateBusinessPartner(CreateBusinesspartnerMcfRequest request)
         {
             CreateBusinessPartnerMcfResponse response;
@@ -1045,6 +1095,7 @@ namespace PSE.Customer.V1.Clients.Mcf
             return response;
         }
 
+        /// <inheritdoc />
         public MoveInResponse PostPriorMoveIn(CreateMoveInRequest request, string jwt)
         {
             var config = _coreOptions.Configuration;

@@ -16,12 +16,11 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
     public interface IMcfClient
     {
         /// <summary>
-        /// Gets the business partner id and associated collection of IdType and Numbers.
+        /// Gets any matching business partner id and associated collection of IdTypes and Numbers.
         /// </summary>
-        /// <param name="request">The search criteria for business partner search.</param>
-        /// <param name="requestChannel">The originating request channel.</param>
-        /// <returns>A business partner response object.</returns>
-        BpSearchResponse GetDuplicateBusinessPartnerIfExists(BpSearchRequest request, RequestChannelEnum requestChannel);
+        /// <param name="request">A business partner search request object: <seealso cref="BpSearchRequest"/></param>
+        /// <returns>Returns a business partner search response object: <seealso cref="BpSearchResponse"/></returns>
+        Task<BpSearchResponse> GetDuplicateBusinessPartnerIfExists(BpSearchRequest request);
 
         /// <summary>
         /// GETs the contact information at the business partner level that does not have any location information.
@@ -199,7 +198,7 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// Creates a Business Partner for Person/Organization or Autherized contact
         /// </summary>
         /// <param name="businesPartnerequest"></param>
-        /// <returns></returns>createbprelationship
+        /// <returns>createbprelationship</returns>
         Task<CreateBusinessPartnerMcfResponse> CreateBusinessPartner(CreateBusinesspartnerMcfRequest businesPartnerequest);
 
         /// <summary>
@@ -247,5 +246,12 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         bool CreateBpRelationship(string jwt, BpRelationshipsRequest request);
 
    
+
+        /// <summary>
+        /// Creates a cancellation for move in for a contract id.
+        /// </summary>
+        /// <param name="request">A cancel move in request object: <seealso cref="CancelMoveInRequest"/></param>
+        /// <returns>A cancel move in response object: <seealso cref="CancelMoveInResponse"/></returns>
+        Task<CancelMoveInResponse> PostCancelMoveIn(CancelMoveInRequest request);
     }
 }

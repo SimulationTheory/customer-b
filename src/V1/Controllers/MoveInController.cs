@@ -140,7 +140,6 @@ namespace PSE.Customer.V1.Controllers
         /// <param name="request">The business partner search criteria.<seealso cref="PSE.Customer.V1.Clients.Mcf.Request.BpSearchRequest" /></param>
         /// <returns>A BPSearchResponse object.</returns>
         [ProducesResponseType(typeof(BpSearchResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(NoContentResult), StatusCodes.Status204NoContent)]
         [HttpGet("bpsearch")]
         [AllowAnonymous]
         public async Task<IActionResult> BpSearch([FromQuery]BpSearchRequest request)
@@ -159,18 +158,16 @@ namespace PSE.Customer.V1.Controllers
                 if ((request.FirstName == null || request.LastName == null)
                     && (request.OrgName == null))
                 {
-                    return BadRequest(
-                        "The request must contain first and last name, or must contain organization name.");
+                    return BadRequest("The request must contain first and last name, or must contain organization name.");
                 }
 
                 // send call to logic class
-                var searchResponse = _moveInLogic.GetDuplicateBusinessPartnerIfExists(request);
+                var searchResponse = await _moveInLogic.GetDuplicateBusinessPartnerIfExists(request);
 
                 // view result from logic class
                 if (!searchResponse.MatchFound)
                 {
-                    _logger.LogInformation(
-                        $"There is not a match for an existing Business Partner based on the information provided.");
+                    _logger.LogInformation($"There is not a match for an existing Business Partner based on the information provided.");
                 }
 
                 return Ok(searchResponse);
@@ -179,6 +176,30 @@ namespace PSE.Customer.V1.Controllers
             {
                 _logger.LogError(ex, "Unable to search BP for a customer.", ex.Message);
                 return ex.ToActionResult();
+            }
+        }
+
+        /// <summary>
+        /// Posts a cancel move-in request to a user account.
+        /// </summary>
+        /// <param name="cancelRequest">The request body, including a Contract Id to cancel.</param>
+        /// <returns>An action result.</returns>
+        [ProducesResponseType(typeof(CancelMoveInResponse), StatusCodes.Status200OK)]
+        [HttpPost("cancelmovein")]
+        [AllowAnonymous]
+        public async Task<IActionResult> CancelMoveIn([FromBody]CancelMoveInRequest cancelRequest)
+        {
+            _logger.LogInformation($"CancelMoveIn({nameof(cancelRequest)}): {cancelRequest.ToJson()}");
+
+            try
+            {
+                var result = await _moveInLogic.PostCancelMoveIn(cancelRequest);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Unable to cancel move-in for contract.", e.Message);
+                return e.ToActionResult();
             }
         }
 
@@ -234,7 +255,6 @@ namespace PSE.Customer.V1.Controllers
         /// </summary>
         /// <param name="createBusinesspartnerRequest"></param>
         /// <returns></returns>
-
         [ProducesResponseType(typeof(BusinessPartnerResponse), StatusCodes.Status200OK)]
         [HttpPost("business-partner")]
         [AllowAnonymous]

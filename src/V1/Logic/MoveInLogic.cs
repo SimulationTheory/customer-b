@@ -9,6 +9,7 @@ using PSE.Customer.V1.Clients.Device.Interfaces;
 using PSE.Customer.V1.Clients.Mcf.Interfaces;
 using PSE.Customer.V1.Clients.Mcf.Models;
 using PSE.Customer.V1.Clients.Mcf.Request;
+using PSE.Customer.V1.Clients.Mcf.Response;
 using PSE.Customer.V1.Logic.Extensions;
 using PSE.Customer.V1.Logic.Interfaces;
 using PSE.Customer.V1.Models;
@@ -28,22 +29,20 @@ namespace PSE.Customer.V1.Logic
         private static string coreLanguage = "EN";
         private readonly IAddressApi _addressApi;
         private readonly IDeviceApi _deviceApi;
-        private readonly IRequestContextAdapter _requestContext;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MoveInLogic"/> class.
         /// </summary>
         /// <param name="logger">The logger.</param>
-        /// <param name="mcfClient">The mcfClient..</param>
+        /// <param name="mcfClient">The mcfClient.</param>
         /// <param name="addressApi">The addressApi.</param>
-        /// <param name="requestContext">The request context adapter.</param>
-        public MoveInLogic(ILogger<MoveInLogic> logger, IMcfClient mcfClient, IAddressApi addressApi, IDeviceApi deviceApi, IRequestContextAdapter requestContext)
+        /// <param name="deviceApi">The deviceApi.</param>
+        public MoveInLogic(ILogger<MoveInLogic> logger, IMcfClient mcfClient, IAddressApi addressApi, IDeviceApi deviceApi)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _mcfClient = mcfClient ?? throw new ArgumentNullException(nameof(mcfClient));
             _addressApi = addressApi ?? throw new ArgumentNullException(nameof(addressApi));
             _deviceApi = deviceApi ?? throw new ArgumentNullException(nameof(deviceApi));
-            _requestContext = requestContext ?? throw new ArgumentNullException(nameof(requestContext));
         }
 
         /// <inheritdoc />
@@ -65,17 +64,12 @@ namespace PSE.Customer.V1.Logic
 
 
         /// <inheritdoc />
-        /// <summary>
-        /// Checks for and returns business partner if an existing match is found.
-        /// </summary>
-        /// <param name="request">A business partner search request.</param>
-        /// <returns>A business partner search response</returns>
-        public BpSearchModel GetDuplicateBusinessPartnerIfExists(BpSearchRequest request)
+        public async Task<BpSearchModel> GetDuplicateBusinessPartnerIfExists(BpSearchRequest request)
         {
             try
             {
                 _logger.LogInformation($"GetDuplicateBusinessPartnerIfExists({nameof(request)}: {request})");
-                var mcfResponse = _mcfClient.GetDuplicateBusinessPartnerIfExists(request, _requestContext.RequestChannel);
+                var mcfResponse = await _mcfClient.GetDuplicateBusinessPartnerIfExists(request);
 
                 // if these Threshhold and Unique conditions are met
                 // we can return the response and bpid
@@ -110,6 +104,24 @@ namespace PSE.Customer.V1.Logic
             }
             catch (Exception e)
             {
+                this._logger.LogError(e, "Failed to search for Business Partner.");
+                throw e;
+            }
+        }
+
+        /// <inheritdoc />
+        public async Task<CancelMoveInResponse> PostCancelMoveIn(CancelMoveInRequest request)
+        {
+            _logger.LogInformation($"Cancelling Move In: CancelMoveInForContractId({nameof(request)} : {request.ToJson()})");
+
+            try
+            {
+                var cancelResponse = await _mcfClient.PostCancelMoveIn(request);
+                return cancelResponse;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to cancel move in.");
                 throw e;
             }
         }
@@ -196,8 +208,6 @@ namespace PSE.Customer.V1.Logic
 
         }
 
-
-
         #region Helper Methods
 
         private async Task<IEnumerable<ContractItemNav>> CreateContractItemNavList(MoveInRequest request, long bp, string jwt)
@@ -245,10 +255,10 @@ namespace PSE.Customer.V1.Logic
         }
 
         #endregion
-    
 
-    #region private
-    private CreateBusinesspartnerMcfRequest GetBusinessPartnerMcfRequest(CreateBusinesspartnerRequest request, McfAddressinfo addressInfo)
+
+        #region private
+        private CreateBusinesspartnerMcfRequest GetBusinessPartnerMcfRequest(CreateBusinesspartnerRequest request, McfAddressinfo addressInfo)
         {
             var businessMcfRequest = new CreateBusinesspartnerMcfRequest()
             {

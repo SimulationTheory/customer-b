@@ -18,6 +18,7 @@ using PSE.Customer.V1.Clients.Mcf.Interfaces;
 using PSE.Customer.V1.Clients.Mcf.Models;
 using PSE.Customer.V1.Clients.Mcf.Request;
 using PSE.Customer.V1.Clients.Mcf.Response;
+using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.RestUtility.Core.Mcf;
 using PSE.WebAPI.Core.Configuration.Interfaces;
@@ -59,7 +60,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
                 Provider = services.BuildServiceProvider();
                 AuthClient = Provider.GetService<IAuthenticationApi>();
                 McfClient = Provider.GetService<IMcfClient>();
-              
+
                 // clean up artifacts left behind by cassand registration
                 Cassandra.Core.Extensions.ServiceCollectionExtensions.ClearCassandraSettings();
             }
@@ -747,7 +748,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
                 Note = "Insert Notes for the IR",
                 IncomingFlag = true,
                 DocumentStatusID = "E0003"
-             };
+            };
 
             GetCustomerInteractionResponse response = McfClient.CreateCustomerInteractionRecord(newInteraction, user.JwtEncodedString);
             Assert.AreEqual(response.Success, "True");
@@ -800,6 +801,50 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             responsetAddress.HouseNo.ShouldBe(requestAddress.HouseNo);
             responsetAddress.CountryID.ShouldBe(requestAddress.CountryID);
             responsetAddress.Region.ShouldBe(requestAddress.Region);
+        }
+
+        #endregion
+
+        #region CreateCancelMoveInForContractId Tests
+        [TestMethod]
+        public void CreateCancelMoveInForContractId_SuccessOnCancel()
+        {
+            /*
+                This might be tough to test, and may need to be done manually.
+                Each time a move-in is cancelled, I don't think that it can be re-cancelled.
+                A new move-in may need to be scheduled first, then cancelled.
+                If so, we should make the test schedule a move-in and then cancel it.
+            */
+
+            // Arrange
+            var request = new CancelMoveInRequest()
+            {
+                ContractId = "220015395001" // good input
+            };
+
+            // Act
+            var response = McfClient.PostCancelMoveIn(request);
+
+            // Assert
+            Assert.AreEqual(true, response.Result.Success);
+            Assert.IsNotNull(response.Result.StatusMessage);
+        }
+
+        [TestMethod]
+        public void CreateCancelMoveInForContractId_FailedOnCancel()
+        {
+            // Arrange
+            var request = new CancelMoveInRequest()
+            {
+                ContractId = "a 123 % & -++_* bcdef" // bad input
+            };
+
+            // Act
+            var response = McfClient.PostCancelMoveIn(request);
+
+            // Assert
+            Assert.AreEqual(false, response.Result.Success);
+            Assert.IsNotNull(response.Result.StatusMessage);
         }
 
         #endregion

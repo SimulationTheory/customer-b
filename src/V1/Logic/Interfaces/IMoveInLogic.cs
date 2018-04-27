@@ -1,11 +1,12 @@
 ﻿using PSE.Customer.V1.Clients.Mcf.Request;
+using PSE.Customer.V1.Clients.Mcf.Response;
 using PSE.Customer.V1.Models;
+using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Request;
 using PSE.Customer.V1.Response;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using PSE.Customer.V1.Repositories.DefinedTypes;
 
 namespace PSE.Customer.V1.Logic.Interfaces
 {
@@ -14,6 +15,13 @@ namespace PSE.Customer.V1.Logic.Interfaces
     /// </summary>
     public interface IMoveInLogic
     {
+        /// <summary>
+        /// Posts a cancellation for the given ContractID.
+        /// </summary>
+        /// <param name="request">A cancel move-in request containing the contract id to cancel.</param>
+        /// <returns>A CancelMoveInReponse object.</returns>
+        Task<CancelMoveInResponse> PostCancelMoveIn(CancelMoveInRequest request);
+
         /// <summary>
         /// Get move in late payment costs associated with provided contract account id 
         /// </summary>
@@ -85,6 +93,6 @@ namespace PSE.Customer.V1.Logic.Interfaces
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        BpSearchModel GetDuplicateBusinessPartnerIfExists(BpSearchRequest request);
+        Task<BpSearchModel> GetDuplicateBusinessPartnerIfExists(BpSearchRequest request);
     }
 }
