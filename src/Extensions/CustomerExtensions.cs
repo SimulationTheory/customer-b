@@ -79,7 +79,7 @@ namespace PSE.Customer.Extensions
 
             var model = new Address
             {
-                AddressLine1 = string.IsNullOrEmpty(source.POBox) ? $"{source.HouseNo?.Trim()} {source.Street?.Trim()}" : source.POBox,
+                AddressLine1 = string.IsNullOrEmpty(source.POBox) ? $"{source.HouseNo?.Trim()} {source.Street?.Trim()}" : $"P.O. Box {source.POBox}",
                 AddressLine2 = source.HouseNo2?.Trim(),
                 CareOf = source.COName?.Trim(),
                 City = source.City.Trim(),
