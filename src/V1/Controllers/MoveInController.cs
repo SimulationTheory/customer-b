@@ -20,6 +20,7 @@ using PSE.WebAPI.Core.Exceptions;
 using PSE.WebAPI.Core.Exceptions.Types;
 using PSE.WebAPI.Core.Service;
 
+
 namespace PSE.Customer.V1.Controllers
 {
     /// <summary>
@@ -54,13 +55,14 @@ namespace PSE.Customer.V1.Controllers
         {
             _config = (appSettings ?? throw new ArgumentNullException(nameof(appSettings))).Value;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _moveInLogic = moveInLogic ?? throw new ArgumentNullException(nameof(moveInLogic));
+            _moveInLogic = moveInLogic ?? throw new ArgumentNullException(nameof(moveInLogic));                 
         }
 
         /// <summary>
         /// Check if the contract account provided is eligible for reconnection after successful payment/move in contract account when given reconnection flag
         /// </summary>
         /// <param name="contractAccountId"></param>
+        /// /// <param name="reconnectionFlag"></param>
         /// <returns></returns>
         [HttpGet("movein-status-latepayment/{contractAccountId}")]
         [ProducesResponseType(typeof(ReconnectStatusResponse), 200)]
@@ -75,7 +77,6 @@ namespace PSE.Customer.V1.Controllers
                 var response = _moveInLogic.GetMoveInLatePayment(contractAccountId, reconnectionFlag, jwt);
 
                 result = Ok(response);
-
             }
             catch (Exception e)
             {
@@ -289,28 +290,20 @@ namespace PSE.Customer.V1.Controllers
         /// <summary>
         /// Get all bp relationsships
         /// </summary>
-        /// <param name="bpRelationshipsRequest"></param>
         /// <returns>returns BPSearchResponse</returns>
-        [ProducesResponseType(typeof(BpRelationshipsResponse), 200)]
-        [HttpGet("bp-relationships")]
+        [ProducesResponseType(typeof(BpRelationshipsResponse), StatusCodes.Status200OK)]
+        [HttpGet("bp-relationships")]       
         public async Task<IActionResult> GetAllBpRelationships()
         {
             IActionResult result;
 
             try
             {
-                //get the Bp from the JWT
-                //TODO remove below Mock data
-                var bprelationshipsresponse = new BpRelationshipsResponse()
-                {
-                    BpId = "1000000369",
-                    Relationships = new List<BpRelationshipResponse>()
-                    {
-                        new BpRelationshipResponse(){BpIdParent ="1000000369", BpId = "1200000695", Relationshipcategory ="BUR001" },
-                        new BpRelationshipResponse(){BpIdParent ="1000000369", BpId = "1200000698", Relationshipcategory ="CRMM02" },
-                    }
-                };
-                result = Ok(bprelationshipsresponse);
+                //get the Bp from the JWT              
+                var bpId = GetBpIdFromClaims();
+                var jwt = GetJWToken();
+                var resp = await _moveInLogic.GetBprelationships(bpId.ToString(), jwt);
+                result = Ok(resp);
             }
             catch (Exception ex)
             {
@@ -322,66 +315,41 @@ namespace PSE.Customer.V1.Controllers
             return result;
         }
 
-        /// <summary>
-        /// Create a Bp relationship
-        /// </summary>
-        /// <param name="bpRelationshipsRequest"></param>
-        /// <returns>returns BPSearchResponse</returns>
-        [ProducesResponseType(typeof(BpRelationshipResponse), 200)]
-        [HttpPost("bp-relationship")]
-        public async Task<IActionResult> CreateBpRelationship(CreateBpRelationshipRequest bpRelationshipsRequest)
-        {
-            IActionResult result;
-            _logger.LogInformation($"CreateBpRelationship({nameof(bpRelationshipsRequest)}: {bpRelationshipsRequest.ToJson()})");
-
-            try
-            {
-                //Get the parnet Bp Id from the JWT
-                //TODO remove below Mock data
-                var bprelationshipsresponse = new BpRelationshipResponse()
-                {
-                    BpIdParent = "120000047",
-                    BpId = "1200000805",
-                    Relationshipcategory = "ZCOCU"
-                };
-                result = Ok(bprelationshipsresponse);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Unable to CreateBpRelationship for BP", ex.Message);
-
-                result = ex.ToActionResult();
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Update an existing Bp relationship
-        /// </summary>
-        /// <param name="bpRelationshipsRequest"></param>
-        /// <returns>returns BPSearchResponse</returns>
-        [ProducesResponseType(typeof(BpRelationshipResponse), 200)]
-        [HttpPut("bp-relationship")]
-        public async Task<IActionResult> UpdateBpRelationship(CreateBpRelationshipRequest bpRelationshipsRequest)
-        {
-            IActionResult result;
-            _logger.LogInformation($"CreateBpRelationship({nameof(bpRelationshipsRequest)}: {bpRelationshipsRequest.ToJson()})");
-
-            try
-            {
-                result = Ok();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Unable to Update Bp Relationship for BP", ex.Message);
-
-                result = ex.ToActionResult();
-            }
-
-            return result;
-        }
         #endregion
+
+        /// <summary>
+        /// Create Authorized Contact and create or update a bp relation ship with the parent bp
+        /// </summary>
+        /// <param name="authorizedContactRequest"></param>
+        /// <returns>returns CreateAuthorizedContact</returns>
+        [ProducesResponseType(typeof(AuthorizedContactResponse), StatusCodes.Status200OK)]
+        [HttpPost("authorized-contact")]
+        public async Task<IActionResult> CreateAuthorizedContact([FromBody] AuthorizedContactRequest authorizedContactRequest)
+        {
+            IActionResult result;
+            _logger.LogInformation($"CreateAuthorizedContact({nameof(authorizedContactRequest)}: {authorizedContactRequest.ToJson()})");
+
+            try
+            {
+                if(authorizedContactRequest == null || authorizedContactRequest.AuthorizedContact == null)
+                {
+                    return BadRequest();
+                }
+                var bpId = GetBpIdFromClaims();
+                var jwt = GetJWToken();
+                var contact = await _moveInLogic.CreateAuthorizedContact(authorizedContactRequest, bpId.ToString(), jwt);
+               
+                result = Ok(contact);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unable Create Authorized Contact", ex.Message);
+
+                result = ex.ToActionResult();
+            }
+
+            return result;
+        }
 
         #region Business Partner ID Type
 

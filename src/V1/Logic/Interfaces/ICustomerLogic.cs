@@ -6,6 +6,7 @@ using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Clients.Mcf.Models;
 using PSE.Customer.V1.Request;
+using PSE.Customer.V1.Response;
 
 namespace PSE.Customer.V1.Logic.Interfaces
 {
@@ -97,14 +98,21 @@ namespace PSE.Customer.V1.Logic.Interfaces
         Task<long> UpsertStandardMailingAddressAsync(long bpId, UpdateMailingAddressModel address, string jwt);
 
         /// <summary>
-        /// Upserts the standard mailing address.
+        /// creates a customer interaction record.
         /// </summary>
-        /// <param name="createCustomerInteraction">The address.</param>
+        /// <param name="createCustomerInteraction">The interaction record.</param>
         /// <param name="jwt">The JWT.</param>
         /// <returns></returns>
         Task<GetCustomerInteractionResponse> CreateCustomerInteractionRecord(CreateCustomerInteractionRequest createCustomerInteraction, string jwt);
 
 
+        /// <summary>
+        /// updates a business partner relationship.
+        /// </summary>
+        /// <param name="bpRelationshipUpdate">request for updating business partner relationship.</param>
+        /// /// <param name="jwt"></param>
+
+        BpRelationshipUpdateResponse UpdateBPRelationship(BpRelationshipUpdateRequest bpRelationshipUpdate, string jwt);
 
         /// <summary>
         /// Creates new bpRelationship
@@ -113,6 +121,7 @@ namespace PSE.Customer.V1.Logic.Interfaces
         /// <param name="jwt"></param>
         /// <returns></returns>
         bool CreateBpRelationshipAsync(CreateBpRelationshipRequest request, string jwt);
+
     }
 
 

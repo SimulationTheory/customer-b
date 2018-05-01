@@ -26,6 +26,9 @@ namespace PSE.Customer.V1.Request
         public Phone Phone { get; set; }
 
         [JsonConverter(typeof(StringEnumConverter))]
+        public RelationshipCategory Relationshipcategory { get; set; }
+
+        [JsonConverter(typeof(StringEnumConverter))]
         public McfAddressType AddressType { get; set; }
         public AddressDefinedTypeRequest Address { get; set; }
 

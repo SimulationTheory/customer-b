@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -11,7 +10,6 @@ using Newtonsoft.Json.Linq;
 using PSE.Customer.Configuration;
 using PSE.Customer.Extensions;
 using PSE.Customer.V1.Clients.Mcf.Interfaces;
-using PSE.Customer.V1.Clients.Mcf.Models;
 using PSE.Customer.V1.Clients.Mcf.Request;
 using PSE.Customer.V1.Clients.Mcf.Response;
 using PSE.Customer.V1.Models;
@@ -22,12 +20,16 @@ using PSE.RestUtility.Core.Mcf;
 using PSE.WebAPI.Core.Configuration;
 using PSE.WebAPI.Core.Configuration.Interfaces;
 using PSE.WebAPI.Core.Exceptions.Types;
-using PSE.WebAPI.Core.Service.Enums;
 using PSE.WebAPI.Core.Service.Interfaces;
 using RestSharp;
 
+
+
 namespace PSE.Customer.V1.Clients.Mcf
 {
+    using PSE.Customer.V1.Clients.Mcf.Models;
+    using PSE.WebAPI.Core.Service.Enums;
+
     /// <summary>
     /// Handles interaction with SAP via MCF calls
     /// </summary>
@@ -252,66 +254,6 @@ namespace PSE.Customer.V1.Clients.Mcf
 
             return response;
         }
-
-        /// <summary>
-        /// POSTs the mobile phone for the business partner
-        /// </summary>
-        /// <param name="jwt">Java Web Token for authentication</param>
-        /// <param name="request">Phone data to save</param>
-        /// <returns>Results of POST request</returns>
-        /// <remarks>
-        /// OData URI:
-        /// POST ZERP_UTILITIES_UMC_PSE_SRV/AccountAddressIndependentMobilePhones
-        /// </remarks>
-
-        public bool CreateBpRelationship(string jwt, BpRelationshipsRequest request)
-
-        {
-            
-
-            try
-            {
-                var requestBody = request.ToJson(Formatting.None);
-                _logger.LogInformation($"CreateBpRelationship(jwt, {nameof(request)}: {requestBody})");
-                var config = _coreOptions.Configuration;
-                var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
-                var cookies = restUtility.GetMcfCookies(jwt, _requestChannel.ToString()).Result;
-
-                string url = $"sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/Accounts('{request.AccountID1}')/Relationships";
-
-                var restRequest = new RestRequest(url, Method.POST);
-                restRequest.AddCookies(cookies);
-                restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
-                restRequest.AddHeader("ContentType", "application/json");
-                restRequest.AddHeader("Accept", "application/json");
-                restRequest.AddParameter("application/json", requestBody, ParameterType.RequestBody);
-
-                _logger.LogInformation("Making MCF call");
-                var client = restUtility.GetRestClient(config.McfEndpoint);
-                var restResponse = client.Execute(restRequest);
-
-                var mcfResponse = JsonConvert.DeserializeObject<McfResponse<McfResponseResult<BpRelationshipResponse>>>(restResponse.Content);
-                if (mcfResponse.Error != null)
-                {
-                    var errorMsg = mcfResponse.Error.Message.Value;
-                    _logger.LogError(errorMsg);
-                    throw new BadRequestException(errorMsg);
-
-                }
-                return true;
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, e.Message);
-                throw;
-            }
-
-            
-        }
-
-
-
-
 
         /// <summary>
         /// POSTs the work or home phone for the business partner
@@ -627,6 +569,7 @@ namespace PSE.Customer.V1.Clients.Mcf
             return response;
         }
 
+
         /// <summary>
         /// POSTs a new customer interaction record.
         /// </summary>
@@ -648,7 +591,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                 var requestBody = request.ToJson(Formatting.None);
                 // URL for creating interaction record post
                 var restRequest = new RestRequest($"/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/InteractionRecords", Method.POST);
-             
+
                 if (jwt != null)
                 {
                     var cookies = restUtility.GetMcfCookies(jwt, _requestChannel).Result;
@@ -688,45 +631,7 @@ namespace PSE.Customer.V1.Clients.Mcf
             return response;
         }
 
-        /// <inheritdoc/>
-        public McfResponse<GetHolidaysResponse> GetInvalidMoveinDates(GetInvalidMoveinDatesRequest invalidMoveinDatesRequest)
-        {
-            McfResponse<GetHolidaysResponse> mcfResponse = null;
-
-            try
-            {
-                var config = _coreOptions.Configuration;
-                var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
-                var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
-                var request = new RestRequest("/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/FactoryCalHolidaysSet" +
-                    "?$filter=HolidayCalendar eq 'Z1' and FactoryCalendar eq 'Z1'and DateFrom eq " +
-                    $"datetime'{invalidMoveinDatesRequest.DateFrom.ToString(McfDateFormat)}' and DateTo eq datetime'{invalidMoveinDatesRequest.DateTo.ToString(McfDateFormat)}'" +
-                    "&$expand=HolidaysNav&$format=json", Method.GET);
-
-                // Add anon bypass auth
-                var mcfUserName = string.Empty;
-                var mcfUserPassword = string.Empty;
-                SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword);
-                request.AddBasicCredentials(mcfUserName, mcfUserPassword);
-                request.AddHeader("Accept", "application/json");
-
-                var restResponse = client.Execute(request);
-                mcfResponse = JsonConvert.DeserializeObject<McfResponse<GetHolidaysResponse>>(restResponse.Content);
-                if (mcfResponse.Error != null && mcfResponse.Result == null)
-                {
-                    _logger.LogError(mcfResponse.Error.Message.Value);
-                    throw new BadRequestException(mcfResponse.Error.Message.Value);
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, e.Message);
-                throw;
-            }
-
-            return mcfResponse;
-        }
-
+      
         /// <summary>
         /// PUTs address to contract account.
         /// </summary>
@@ -768,11 +673,52 @@ namespace PSE.Customer.V1.Clients.Mcf
             }
         }
 
+        #region Move in/out
+
+        /// <inheritdoc/>
+        public McfResponse<GetHolidaysResponse> GetInvalidMoveinDates(GetInvalidMoveinDatesRequest invalidMoveinDatesRequest)
+        {
+            McfResponse<GetHolidaysResponse> mcfResponse = null;
+
+            try
+            {
+                var config = _coreOptions.Configuration;
+                var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
+                var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
+                var request = new RestRequest("/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/FactoryCalHolidaysSet" +
+                    "?$filter=HolidayCalendar eq 'Z1' and FactoryCalendar eq 'Z1'and DateFrom eq " +
+                    $"datetime'{invalidMoveinDatesRequest.DateFrom.ToString(McfDateFormat)}' and DateTo eq datetime'{invalidMoveinDatesRequest.DateTo.ToString(McfDateFormat)}'" +
+                    "&$expand=HolidaysNav&$format=json", Method.GET);
+
+                // Add anon bypass auth
+                var mcfUserName = string.Empty;
+                var mcfUserPassword = string.Empty;
+                SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword);
+                request.AddBasicCredentials(mcfUserName, mcfUserPassword);
+                request.AddHeader("Accept", "application/json");
+
+                var restResponse = client.Execute(request);
+                mcfResponse = JsonConvert.DeserializeObject<McfResponse<GetHolidaysResponse>>(restResponse.Content);
+                if (mcfResponse.Error != null && mcfResponse.Result == null)
+                {
+                    _logger.LogError(mcfResponse.Error.Message.Value);
+                    throw new BadRequestException(mcfResponse.Error.Message.Value);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                throw;
+            }
+
+            return mcfResponse;
+        }
         /// <summary>
         /// Get reconnection payment details from mcf
         /// </summary>
         /// <param name="contractAccountId"></param>
         /// <param name="jwt"></param>
+        ///  /// <param name="reconnectionFlag"></param>
         /// <returns></returns>
         public MoveInLatePaymentsResponse GetMoveInLatePaymentsResponse(long contractAccountId, bool reconnectionFlag, string jwt)
         {
@@ -861,6 +807,39 @@ namespace PSE.Customer.V1.Clients.Mcf
         }
 
         /// <inheritdoc />
+        public MoveInResponse PostPriorMoveIn(CreateMoveInRequest request, string jwt)
+        {
+            var config = _coreOptions.Configuration;
+            _logger.LogInformation($"PostMoveIn(jwt, {nameof(request)}: {request}");
+            var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
+            var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
+            var cookies = restUtility.GetMcfCookies(jwt, _requestChannel);
+            var body = JsonConvert.SerializeObject(request);
+
+            var restRequest = new RestRequest("/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/ContractItems", Method.POST);
+            restRequest.AddCookies(cookies.Result);
+            restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
+            restRequest.AddHeader("ContentType", "application/json");
+            restRequest.AddHeader("Accept", "application/json");
+            restRequest.AddParameter("application/json", body, ParameterType.RequestBody);
+
+            _logger.LogInformation("Making MCF call");
+
+            var response = client.Execute(restRequest);
+            var mcfResponse = JsonConvert.DeserializeObject<McfResponse<MoveInResponse>>(response.Content);
+
+            if (mcfResponse.Error != null)
+            {
+                var errorMsg = mcfResponse.Error.Message.Value;
+                _logger.LogError(errorMsg);
+                throw new BadRequestException(errorMsg);
+
+            }
+
+            return mcfResponse.Result;
+        }
+
+        /// <inheritdoc />
         public async Task<CreateBusinessPartnerMcfResponse> CreateBusinessPartner(CreateBusinesspartnerMcfRequest request)
         {
             CreateBusinessPartnerMcfResponse response;
@@ -908,7 +887,9 @@ namespace PSE.Customer.V1.Clients.Mcf
 
             return response;
         }
+        #endregion
 
+        #region Identifiers
         /// <inheritdoc />
         public McfResponse<McfResponseResults<BpIdentifier>> GetAllIdentifiers(string bpId)
         {
@@ -1094,39 +1075,155 @@ namespace PSE.Customer.V1.Clients.Mcf
 
             return response;
         }
+        #endregion
 
-        /// <inheritdoc />
-        public MoveInResponse PostPriorMoveIn(CreateMoveInRequest request, string jwt)
+        #region Bp Relationships
+        /// <summary>
+        /// Gets Bp relation ships for a given bp id
+        /// </summary>
+        /// <param name="bpId"></param>
+        /// <param name="jwt"></param>
+        /// <returns></returns>
+        public async Task<BpRelationshipsMcfResponse> GetBprelationships(string bpId, string jwt)
         {
-            var config = _coreOptions.Configuration;
-            _logger.LogInformation($"PostMoveIn(jwt, {nameof(request)}: {request}");
-            var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
-            var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
-            var cookies = restUtility.GetMcfCookies(jwt, _requestChannel);
-            var body = JsonConvert.SerializeObject(request);
+            BpRelationshipsMcfResponse mcfResponse = null;
 
-            var restRequest = new RestRequest("/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/ContractItems", Method.POST);
-            restRequest.AddCookies(cookies.Result);
-            restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
-            restRequest.AddHeader("ContentType", "application/json");
-            restRequest.AddHeader("Accept", "application/json");
-            restRequest.AddParameter("application/json", body, ParameterType.RequestBody);
-
-            _logger.LogInformation("Making MCF call");
-
-            var response = client.Execute(restRequest);
-            var mcfResponse = JsonConvert.DeserializeObject<McfResponse<MoveInResponse>>(response.Content);
-
-            if (mcfResponse.Error != null)
+            try
             {
-                var errorMsg = mcfResponse.Error.Message.Value;
-                _logger.LogError(errorMsg);
-                throw new BadRequestException(errorMsg);
+                var config = _coreOptions.Configuration;
+                var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
+                var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
+                var cookies = restUtility.GetMcfCookies(jwt, _requestChannel);//TODO make the underlying call async
+                var request = new RestRequest($"/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/Accounts('{bpId}')/Relationships", Method.GET);
 
+
+                request.AddCookies(cookies.Result);
+                request.AddMcfRequestHeaders();
+
+                _logger.LogInformation("Making MCF call");
+
+                var cancellationTokenSource = new CancellationTokenSource();
+                var restResponse = await client.ExecuteTaskAsync(request, cancellationTokenSource.Token);
+                if (!restResponse.IsSuccessful)
+                {
+                    HandleErrorResponse(bpId, restResponse);
+                }
+
+                var resp = JsonConvert.DeserializeObject<McfResponse<BpRelationshipsMcfResponse>>(restResponse.Content);
+
+                mcfResponse = resp.Result;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                throw;
             }
 
-            return mcfResponse.Result;
+            return mcfResponse;
         }
+        
+
+        /// <summary>
+        /// /Creates Bp Relation ships
+        /// </summary>
+        /// <param name="jwt"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public bool CreateBpRelationship(string jwt, BpRelationshipRequest request)
+        {
+
+
+            try
+            {
+                var requestBody = request.ToJson(Formatting.None);
+                _logger.LogInformation($"CreateBpRelationship(jwt, {nameof(request)}: {requestBody})");
+                var config = _coreOptions.Configuration;
+                var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
+                var cookies = restUtility.GetMcfCookies(jwt, _requestChannel.ToString()).Result;
+
+                string url = $"sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/Accounts('{request.AccountID1}')/Relationships";
+
+                var restRequest = new RestRequest(url, Method.POST);
+                restRequest.AddCookies(cookies);
+                restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
+                restRequest.AddHeader("ContentType", "application/json");
+                restRequest.AddHeader("Accept", "application/json");
+                restRequest.AddParameter("application/json", requestBody, ParameterType.RequestBody);
+
+                _logger.LogInformation("Making MCF call");
+                var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
+                var restResponse = client.Execute(restRequest);
+
+                var mcfResponse = JsonConvert.DeserializeObject<McfResponse<McfResponseResult<BpRelationshipResponse>>>(restResponse.Content);
+                if (mcfResponse.Error != null)
+                {
+                    var errorMsg = mcfResponse.Error.Message.Value;
+                    _logger.LogError(errorMsg);
+                    throw new BadRequestException(errorMsg);
+
+                }
+                return true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                throw;
+            }
+
+
+        }
+        /// <summary>
+        /// update business partner relationship.
+        /// </summary>
+        /// <param name="jwt">Java Web Token for authentication</param>
+        /// <param name="request">Request object</param>
+        /// <returns>Response object</returns>
+        /// <remarks>
+        /// OData URI:
+        /// PUT /sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/RelationshipsSet(AccountID1='1200000047',AccountID2='1200000806',Relationshipcategory='ZCOCU') 
+        ///</remarks>
+        public BpRelationshipUpdateResponse UpdateBusinessPartnerRelationship(BpRelationshipUpdateRequest request, string jwt)
+        {
+            BpRelationshipUpdateResponse response = new BpRelationshipUpdateResponse();
+
+            try
+            {
+                _logger.LogInformation($"UpdateBusinessPartnerRelationship(jwt, {nameof(request)}: {request.ToJson()})");
+                var config = _coreOptions.Configuration;
+                var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
+                var cookies = restUtility.GetMcfCookies(jwt, _requestChannel.ToString()).Result;
+               
+                // URL for updating BP relationship
+                string url = $"/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/RelationshipsSet(AccountID1='{request.AccountID1}',AccountID2='{request.AccountID2}',Relationshipcategory='{request.Relationshipcategory}')";
+
+                var restRequest = new RestRequest(url, Method.PUT);
+                restRequest.AddCookies(cookies);
+                restRequest.AddMcfRequestHeaders();
+
+                restRequest.AddJsonBody<BpRelationshipUpdateRequest>(request);
+
+                _logger.LogInformation("Making MCF call");
+                var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
+                var restResponse = client.Execute(restRequest);
+                if (!restResponse.IsSuccessful)
+                {
+                    var errorMsg = restResponse.Content;
+                    _logger.LogError(errorMsg);
+                    throw new BadRequestException(errorMsg);
+                }
+
+                response.status_code = restResponse.StatusCode.ToString();
+                response.status_reason = restResponse.StatusDescription;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                throw;
+            }
+
+            return response;
+        }
+        #endregion
 
         #region Private methods
 
@@ -1157,6 +1254,22 @@ namespace PSE.Customer.V1.Clients.Mcf
 
                 userName = parameters.FirstOrDefault(x => x.Key.Equals(mcfCustomerUserNameParamName)).Value;
                 password = parameters.FirstOrDefault(x => x.Key.Equals(mcfCustomerUserPasswordParamName)).Value;
+            }
+        }
+
+        private void HandleErrorResponse(string bpId, IRestResponse restResponse)
+        {
+            var errorResponse = JsonConvert.DeserializeObject<McfResponse<BpRelationshipsMcfResponse>>(restResponse.Content);
+            var errormessage = $"Accounts('{bpId}')/Relationships was not successfull with Error {errorResponse.ToJson()}";
+            _logger.LogError(errormessage);
+            if (restResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                throw new ResourceNotFoundException(errormessage);
+            }
+            else
+            {
+
+                throw new Exception(errormessage);
             }
         }
 

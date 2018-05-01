@@ -7,7 +7,7 @@ using PSE.Customer.V1.Response;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
+using PSE.WebAPI.Core.Service.Enums;
 namespace PSE.Customer.V1.Logic.Interfaces
 {
     /// <summary>
@@ -26,6 +26,7 @@ namespace PSE.Customer.V1.Logic.Interfaces
         /// Get move in late payment costs associated with provided contract account id 
         /// </summary>
         /// <param name="contractAccountId"></param>
+        /// /// <param name="reconnectionFlag"></param>
         /// <param name="jwt"></param>
         /// <returns></returns>
         ReconnectStatusResponse GetMoveInLatePayment(long contractAccountId, bool reconnectionFlag, string jwt);
@@ -94,5 +95,22 @@ namespace PSE.Customer.V1.Logic.Interfaces
         /// <param name="request"></param>
         /// <returns></returns>
         Task<BpSearchModel> GetDuplicateBusinessPartnerIfExists(BpSearchRequest request);
+
+        /// <summary>
+        /// Gets relationships given a business partner id
+        /// </summary>
+        /// <param name="bpId"></param>
+        ///  /// <param name="jwt"></param>
+        /// <returns></returns>
+        Task<BpRelationshipsResponse> GetBprelationships(string bpId, string jwt);
+
+        /// <summary>
+        /// /Creates Authorized Contact
+        /// </summary>
+        /// <param name="authorizedContactRequest"></param>
+        /// <param name="bpId"></param>
+        /// <param name="jwt"></param>
+        /// <returns></returns>
+        Task<AuthorizedContactResponse> CreateAuthorizedContact(AuthorizedContactRequest authorizedContactRequest, string bpId, string jwt);
     }
 }

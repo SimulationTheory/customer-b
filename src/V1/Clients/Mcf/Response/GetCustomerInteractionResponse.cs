@@ -2,9 +2,9 @@
 
 {
     
-public class GetCustomerInteractionResponse
-    
- {
+public class GetCustomerInteractionResponse 
+
+    {
         public string Success { get; set; }
 
        

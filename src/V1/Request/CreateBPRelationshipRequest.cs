@@ -1,15 +1,11 @@
-﻿using PSE.WebAPI.Core.Interfaces;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace PSE.Customer.V1.Request
 {
-    using Newtonsoft.Json;
-
-    public class BpRelationshipsRequest : IAPIRequest
-    {
-    }
-
-    public class BpRelationshipRequest : IAPIRequest
+    public class CreateBPRelationshipRequest
     {
         public string AccountID1 { get; set; }
 
@@ -20,9 +16,9 @@ namespace PSE.Customer.V1.Request
         public string Relationshipcategory { get; set; }
         public string Relationshiptype { get; set; }
         public string Relationshiptypenew { get; set; }
-        public DateTime Validfromdate { get; set; }
+        public string Validfromdate { get; set; }
         public DateTime Validfromdatenew { get; set; }
-        public DateTime Validtodate { get; set; }
+        public string Validtodate { get; set; }
         public DateTime Validtodatenew { get; set; }
     }
 }

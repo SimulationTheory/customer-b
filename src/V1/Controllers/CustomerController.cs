@@ -19,10 +19,20 @@ using PSE.Customer.V1.Logic.Interfaces;
 using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Request;
 using PSE.Customer.V1.Response;
+using PSE.WebAPI.Core.Service;
+using System;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
+using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Http;
 using PSE.WebAPI.Core.Exceptions;
 using PSE.WebAPI.Core.Exceptions.Types;
+using PSE.Customer.V1.Clients.Mcf.Request;
+using PSE.Customer.V1.Clients.Mcf.Response;
+using PSE.RestUtility.Core.Mcf;
 using PSE.Customer.V1.Request;
-using PSE.WebAPI.Core.Service;
+
 
 namespace PSE.Customer.V1.Controllers
 {
@@ -295,6 +305,49 @@ namespace PSE.Customer.V1.Controllers
                     {
                         result = Unauthorized();
                     }
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e.Message);
+
+                    result = e.ToActionResult();
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Updates business partner relationship for logged in user
+        /// </summary>
+        /// <param name="request">Request object containing business partner relationship ids, relationship type</param>
+        /// <returns>200 if successful, 400 if address is not valid, 500 if exception</returns>
+        [ProducesResponseType(typeof(OkResult), 200)]
+        [HttpPut("UpdateBPRelationship")]
+       
+        public async Task<IActionResult> UpdateBusinessPartnerRelationship([FromBody] BpRelationshipUpdateRequest request)
+        {
+            _logger.LogInformation($"UpdateBusinessPartnerRelationship({nameof(request)}: {request.ToJson()})");
+
+            IActionResult result = BadRequest(ModelState);
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+
+                    if (HttpContext.Request.Headers.TryGetValue("Authorization", out StringValues jwt))
+                    {
+                       
+                        BpRelationshipUpdateResponse response =_customerLogic.UpdateBPRelationship(request, jwt);
+
+                    
+                        result = Ok(response);
+                    }
+                    else
+                    {
+                        result = Unauthorized();
+                   }
                 }
                 catch (Exception e)
                 {

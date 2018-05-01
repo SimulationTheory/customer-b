@@ -753,7 +753,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
                 DocumentStatusID = "E0003"
             };
 
-            GetCustomerInteractionResponse response = McfClient.CreateCustomerInteractionRecord(newInteraction, user.JwtEncodedString);
+           GetCustomerInteractionResponse response = McfClient.CreateCustomerInteractionRecord(newInteraction, user.JwtEncodedString);
             Assert.AreEqual(response.Success, "True");
             Assert.IsNotNull(response.InteractionRecordID);
         }

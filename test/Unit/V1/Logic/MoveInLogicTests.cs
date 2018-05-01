@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using PSE.Customer.V1.Clients.Device.Interfaces;
 using PSE.WebAPI.Core.Service.Interfaces;
+using PSE.Customer.V1.Logic.Interfaces;
 
 namespace PSE.Customer.Tests.Unit.V1.Logic
 {
@@ -28,6 +29,7 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
         private Mock<IAddressApi> _addressApi;
         private Mock<IDeviceApi> _deviceApiMock;
         private Mock<IRequestContextAdapter> _requestContextMock;
+        private Mock<ICustomerLogic> _customerMock;
 
         [TestInitialize]
         public void TestInitalize()
@@ -37,6 +39,7 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
             _addressApi = new Mock<IAddressApi>();
             _deviceApiMock = new Mock<IDeviceApi>();
             _requestContextMock = new Mock<IRequestContextAdapter>();
+            _customerMock = new Mock<ICustomerLogic>();
         }
 
         [TestMethod]
@@ -60,7 +63,8 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
                 _loggerMock.Object,
                 _mcfClientMock.Object,
                 _addressApi.Object,
-                _deviceApiMock.Object);
+                _deviceApiMock.Object,
+                _customerMock.Object);
 
             //Act
             var actual = target.GetMoveInLatePayment(contractAccount, reconnect, jwt);
@@ -82,7 +86,8 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
                 _loggerMock.Object,
                 _mcfClientMock.Object,
                 _addressApi.Object,
-                _deviceApiMock.Object);
+                _deviceApiMock.Object,
+                 _customerMock.Object);
 
             //Act
             var request = new GetInvalidMoveinDatesRequest
@@ -127,7 +132,8 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
                 _loggerMock.Object,
                 _mcfClientMock.Object,
                 _addressApi.Object,
-                _deviceApiMock.Object);
+                _deviceApiMock.Object,
+                 _customerMock.Object);
 
             //Act
             var actual = target.GetDuplicateBusinessPartnerIfExists(new BpSearchRequest());
@@ -167,7 +173,8 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
                 _loggerMock.Object,
                 _mcfClientMock.Object,
                 _addressApi.Object,
-                _deviceApiMock.Object);
+                _deviceApiMock.Object,
+                 _customerMock.Object);
 
             //Act
             var actual = target.GetDuplicateBusinessPartnerIfExists(new BpSearchRequest());

@@ -30,6 +30,8 @@ using PSE.Customer.V1.Clients.Address.Models.Request;
 using PSE.WebAPI.Core.Service.Interfaces;
 using System.Threading.Tasks;
 using System.Net;
+using PSE.Customer.V1.Response;
+using System.Globalization;
 
 namespace PSE.Customer.V1.Logic
 {
@@ -64,6 +66,7 @@ namespace PSE.Customer.V1.Logic
         /// <param name="authenticationApi">The authentication API.</param>
         /// <param name="mcfClient"></param>
         /// <param name="addressApi"></param>
+        /// /// <param name="requestContextAdapter"></param>
         public CustomerLogic(
             IDistributedCache redisCache,
             IMemoryCache localCache,
@@ -158,7 +161,8 @@ namespace PSE.Customer.V1.Logic
         /// <summary>
         /// Returns CustomerProfileModel based customer and customer contact information retrieved from Cassandra
         /// </summary>
-        /// <param name="bpId">Business partner ID</param>
+        /// <param name="createCustomerInteraction">Interaction record</param>
+        /// /// <param name="Jwt"></param>
         /// <returns>Awaitable CustomerProfileModel result</returns>
         public async Task<GetCustomerInteractionResponse> CreateCustomerInteractionRecord(CreateCustomerInteractionRequest createCustomerInteraction,string jwt)
         {
@@ -382,6 +386,23 @@ namespace PSE.Customer.V1.Logic
         }
 
         /// <summary>
+        /// Updates the business partner relationship.
+        /// </summary>
+        /// <param name="bpRelationshipUpdate">The business partner relationship update.</param>
+        /// <param name="jwt">The JWT.</param>
+        /// <returns></returns>
+        public BpRelationshipUpdateResponse UpdateBPRelationship(BpRelationshipUpdateRequest bpRelationshipUpdate, string jwt)
+        {
+
+            _logger.LogInformation($"UpdateBpRelationship({nameof(bpRelationshipUpdate)}: {bpRelationshipUpdate.AccountID1},{bpRelationshipUpdate.AccountID2},{bpRelationshipUpdate.Relationshipcategory}" +
+                                   $"{nameof(bpRelationshipUpdate)}: {bpRelationshipUpdate.ToJson()})");
+
+            
+            BpRelationshipUpdateResponse updateStatus =  _mcfClient.UpdateBusinessPartnerRelationship(bpRelationshipUpdate, jwt);      
+
+            return updateStatus;
+        }
+        /// <summary>
         /// Upserts the standard mailing address.
         /// </summary>
         /// <param name="bpId">The bp identifier.</param>
@@ -473,7 +494,7 @@ namespace PSE.Customer.V1.Logic
             var fromDate = DateTimeOffset.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss");
             var toDate = DateTimeOffset.MaxValue.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss");
 
-            var mcfRequest = new BpRelationshipsRequest()
+            var mcfRequest = new BpRelationshipRequest()
             {
                 AccountID1 = request.FirstAccountBpId,
                 AccountID2 = request.SecondAccountBpId,
@@ -488,11 +509,6 @@ namespace PSE.Customer.V1.Logic
 
             return response; 
        }
-
-
-
-
-
 
         #region private methods
         private async Task SaveSecurityQuestions(WebProfile webprofile, IRestResponse<OkResult> resp)

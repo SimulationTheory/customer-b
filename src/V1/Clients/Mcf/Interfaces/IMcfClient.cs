@@ -243,7 +243,7 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// <param name="jwt"></param>
         /// <param name="request"></param>
         /// <returns></returns>
-        bool CreateBpRelationship(string jwt, BpRelationshipsRequest request);
+        bool CreateBpRelationship(string jwt, BpRelationshipRequest request);
 
    
 
@@ -253,5 +253,22 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// <param name="request">A cancel move in request object: <seealso cref="CancelMoveInRequest"/></param>
         /// <returns>A cancel move in response object: <seealso cref="CancelMoveInResponse"/></returns>
         Task<CancelMoveInResponse> PostCancelMoveIn(CancelMoveInRequest request);
+
+        /// <summary>
+        /// Gets the BP relationships for a given BP
+        /// </summary>
+        /// <param name="bpId"></param>
+        /// /// <param name="jwt"></param>
+        /// <returns></returns>
+        Task<BpRelationshipsMcfResponse> GetBprelationships(string bpId, string jwt);
+
+        /// <summary>
+        /// Update the business partner relationshipo
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="jwt"></param>
+        /// <returns></returns>
+        BpRelationshipUpdateResponse UpdateBusinessPartnerRelationship(BpRelationshipUpdateRequest request, string jwt);
+
     }
 }

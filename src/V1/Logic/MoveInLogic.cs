@@ -28,21 +28,18 @@ namespace PSE.Customer.V1.Logic
         private readonly IMcfClient _mcfClient;
         private static string coreLanguage = "EN";
         private readonly IAddressApi _addressApi;
+        private readonly ICustomerLogic _customerLogic;
+        private const string McfDateFormat = "yyyy-MM-ddThh:mm:ss";
+        private static string ValidToMcfmaxdata = new DateTime(9999, 12, 31).ToString(McfDateFormat);
         private readonly IDeviceApi _deviceApi;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MoveInLogic"/> class.
-        /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="mcfClient">The mcfClient.</param>
-        /// <param name="addressApi">The addressApi.</param>
-        /// <param name="deviceApi">The deviceApi.</param>
-        public MoveInLogic(ILogger<MoveInLogic> logger, IMcfClient mcfClient, IAddressApi addressApi, IDeviceApi deviceApi)
+        public MoveInLogic(ILogger<MoveInLogic> logger, IMcfClient mcfClient, IAddressApi addressApi, IDeviceApi deviceApi,ICustomerLogic customerLogic)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _mcfClient = mcfClient ?? throw new ArgumentNullException(nameof(mcfClient));
             _addressApi = addressApi ?? throw new ArgumentNullException(nameof(addressApi));
             _deviceApi = deviceApi ?? throw new ArgumentNullException(nameof(deviceApi));
+            _customerLogic = customerLogic ?? throw new ArgumentNullException(nameof(customerLogic));
         }
 
         /// <inheritdoc />
@@ -165,27 +162,132 @@ namespace PSE.Customer.V1.Logic
 
         }
 
-        private CreateBusinesspartnerResponse ValidateAddress(RestSharp.IRestResponse<McfAddressinfo> addressResponse)
+
+        /// <summary>
+        /// Get Bp relationship based on a given BP
+        /// </summary>
+        /// <param name="bpId"></param>
+        /// /// <param name="jwt"></param>
+        /// <returns></returns>
+        public async Task<BpRelationshipsResponse> GetBprelationships(string bpId, string jwt)
         {
-            CreateBusinesspartnerResponse response = null;
-            if (!addressResponse.IsSuccessful && addressResponse.Data == null)
+            _logger.LogInformation($"GetBprelationshipsr: GetBprelationships({nameof(bpId)} : {bpId})");
+            try
             {
-                var message = $"Address validator service failed with the error {addressResponse.Content}";
-                _logger.LogError(message);
-                if (addressResponse.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                var resp = await _mcfClient.GetBprelationships(bpId, jwt);
+                var bprelations = MapBpRelations(resp, bpId);
+              
+                return bprelations;
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to GetBprelationships for {bpId}");
+                throw ex;
+            }
+            
+        }
+        /// <summary>
+        /// Creates Autorized contact
+        /// Get Customer Relationships Get /v{version}/customer/bp-relationships
+         ///Check to see if customer is existing(and active) contact customer 
+         ///   If yes and active – no action required
+         ///   If yes and not currently valid – Update valid to date to 1231999? 
+        ///       If no – create relationship type contact customer between the two BP;s
+         ///   From Date: System Date
+         ///   To Date: 12/29/9999 
+        /// </summary>
+        /// <param name="authorizedContactRequest"></param>
+        /// <param name="bpId"></param>
+        /// <param name="jwt"></param>
+        /// <returns></returns>
+        public async Task<AuthorizedContactResponse> CreateAuthorizedContact(AuthorizedContactRequest authorizedContactRequest, string bpId, string jwt)
+        {
+            _logger.LogInformation($"CreateAuthorizedContact: CreateAuthorizedContact({nameof(authorizedContactRequest)} : {authorizedContactRequest.ToJson()})");
+            
+            try
+            {
+                var authorizedContactresponse = new AuthorizedContactResponse();
+                //Do a bp search
+                var bpSearch = MapToBpSearchrequest(authorizedContactRequest.AuthorizedContact);
+                var bpExists = await GetDuplicateBusinessPartnerIfExists(bpSearch);
+                var loggedInBp = bpId.ToString();
+                if (bpExists == null || !bpExists.MatchFound)
                 {
-                    response = new CreateBusinesspartnerResponse()
+                    //if bp doesn't exist
+                    // create bp
+                    //Create a relation ship
+                    _logger.LogInformation($"There is not a match for an existing Business Partner based on the information provided.");
+                    var bp = await CreateBusinessPartner(authorizedContactRequest.AuthorizedContact); // create bp
+                    authorizedContactresponse.BpId = bp.BpId;
+                    //Create a Bp relation ship
+                    var bpCreateRelation = new CreateBpRelationshipRequest()
                     {
-                        ErrorMessage = message,
-                        HttpStatusCode = System.Net.HttpStatusCode.BadRequest
+                        FirstAccountBpId = bpId,
+                        SecondAccountBpId = bp.BpId,
+                        Relationshipcategory = authorizedContactRequest.AuthorizedContact?.Relationshipcategory.GetEnumMemberValue()
                     };
+                    var createRelation = _customerLogic.CreateBpRelationshipAsync(bpCreateRelation, jwt);
+
                 }
                 else
                 {
-                    throw new Exception(message);
+                    //if bp exist 
+                    // check if Bp relation ship exist , if yes update relationship
+                    // if no relation ship exist then create a relation ship
+                    var contactBp = bpExists.BpId.ToString();
+                    authorizedContactresponse.BpId = bpExists.BpId.ToString();
+                    var checkRelationShip = await GetBprelationships(loggedInBp, jwt);
+                    var hasRelation = CheckRelationWithContact(checkRelationShip, contactBp);
+                    var hasActiveRelation = IsrelationShipActive(hasRelation);
+
+                    if (hasRelation != null && !hasActiveRelation)
+                    {
+                        //Update
+                        var relationShipToupdate = GetRelationshipToupdate(hasRelation);
+                        _mcfClient.UpdateBusinessPartnerRelationship(relationShipToupdate, jwt);
+                      
+                    }
+                    if(hasRelation == null)
+                    {
+                        //Create Bp relationship
+                        var bpCreateRelation = new CreateBpRelationshipRequest()
+                        {
+                            FirstAccountBpId = bpId,
+                            SecondAccountBpId = contactBp,
+                            Relationshipcategory = authorizedContactRequest.AuthorizedContact?.Relationshipcategory.GetEnumMemberValue()
+                        };
+                        var createRelation = _customerLogic.CreateBpRelationshipAsync(bpCreateRelation, jwt);
+                    }
+
+                }
+                return authorizedContactresponse;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to CreateAuthorizedContact");
+                throw ex;
+            }
+            
+        }
+
+        /// <inheritdoc/>
+        public List<DateTimeOffset> GetInvalidMoveinDates(GetInvalidMoveinDatesRequest invalidMoveinDatesRequest)
+        {
+            List<DateTimeOffset> dates = null;
+
+            var mcfResponse = _mcfClient.GetInvalidMoveinDates(invalidMoveinDatesRequest);
+
+            if (mcfResponse != null)
+            {
+                // Note verified with Vikas/Bimba that HolidaysResultList will always return a list with one element.
+                dates = new List<DateTimeOffset>();
+                foreach (Holiday holiday in mcfResponse.Result.HolidaysResultList[0].HolidaysNav.Holidays)
+                {
+                    dates.Add(holiday.Date);
                 }
             }
-            return response;
+
+            return dates;
         }
 
         /// <inheritdoc />
@@ -206,6 +308,104 @@ namespace PSE.Customer.V1.Logic
 
             return newContractAccounts;
 
+        }
+
+        /// <inheritdoc />
+        public Task<List<IdentifierTypeResponse>> GetAllIdTypes(long bpId)
+        {
+            var usersIdentifierModels = new List<IdentifierTypeResponse>();
+
+            var response = _mcfClient.GetAllIdentifiers(bpId.ToString());
+            if (response?.Result != null)
+            {
+                usersIdentifierModels = response.Result.ToModel();
+            }
+
+            return Task.FromResult(usersIdentifierModels);
+        }
+
+        /// <inheritdoc />
+        public Task<List<IdentifierTypeResponse>> GetIdType(long bpId, IdentifierType type)
+        {
+            var usersIdentifierModels = new List<IdentifierTypeResponse>();
+
+            var response = _mcfClient.GetAllIdentifiers(bpId.ToString());
+            if (response?.Result?.Results != null)
+            {
+                var validIds = response.Result.ToModel();
+                var matchingType = validIds.FirstOrDefault(x => x.IdentifierType == type);
+                if (matchingType != null)
+                {
+                    usersIdentifierModels.Add(matchingType);
+                }
+            }
+
+            return Task.FromResult(usersIdentifierModels);
+        }
+
+        /// <inheritdoc />
+        public Task<CreateBpIdTypeResponse> CreateIdType(IdentifierRequest identifierRequest)
+        {
+            var bpIdentifier = new BpIdentifier(identifierRequest);
+            var response = new CreateBpIdTypeResponse();
+
+            var mcfResponse = _mcfClient.CreateIdentifier(bpIdentifier);
+            if (mcfResponse == null)
+            {
+                const string uiFailureMessage = "Failed to create business partner identifier";
+                _logger.LogError($"{ uiFailureMessage }: {identifierRequest.ToJson()}");
+                throw new InternalServerException(uiFailureMessage);
+            }
+
+            response.HttpStatusCode = mcfResponse.HttpStatusCode;
+            if (mcfResponse.Error != null)
+            {
+                const string uiFailureMessage = "Failed to create business partner identifier";
+                _logger.LogError($"{ mcfResponse.Error.ToJson() }: {identifierRequest.ToJson()}");
+                response.ErrorMessage = uiFailureMessage;
+            }
+            else
+            {
+                response.BpIdType = mcfResponse.Result.ToModel();
+            }
+
+            return Task.FromResult(response);
+        }
+
+        /// <inheritdoc />
+        public Task<StatusCodeResponse> UpdateIdType(IdentifierRequest identifierRequest)
+        {
+            var bpIdentifier = new BpIdentifier(identifierRequest);
+
+            var response = _mcfClient.UpdateIdentifier(bpIdentifier);
+            if (response == null || response.Error != null)
+            {
+                const string uiFailureMessage = "Failed to update business partner identifier";
+                var responseErrorMessage = response?.Error != null ? response.Error.ToJson() : uiFailureMessage;
+                _logger.LogError($"{ responseErrorMessage }: {identifierRequest.ToJson()}");
+                throw new InternalServerException(uiFailureMessage);
+            }
+
+            return Task.FromResult(response.ToModel());
+        }
+
+        /// <inheritdoc />
+        public Task<bool> ValidateIdType(IdentifierRequest identifierRequest)
+        {
+            var response = _mcfClient.GetAllIdentifiers(identifierRequest.BpId);
+            if (response == null || response.Error != null)
+            {
+                const string uiFailureMessage = "Failed to get business partner identifiers";
+                var responseErrorMessage = response?.Error != null ? response.Error.ToJson() : uiFailureMessage;
+                _logger.LogError($"{ responseErrorMessage }: {identifierRequest.ToJson()}");
+                throw new InternalServerException(uiFailureMessage);
+            }
+
+            var validIdentifier = response.Result?.Results?.FirstOrDefault(x =>
+                x.IdentifierType == identifierRequest.IdentifierType.ToString() &&
+                x.IdentifierNo == identifierRequest.IdentifierNo);
+
+            return Task.FromResult(validIdentifier != null);
         }
 
         #region Helper Methods
@@ -237,7 +437,6 @@ namespace PSE.Customer.V1.Logic
 
             return contractItemNavList;
         }
-
         public string GetProductId(string divisionId)
         {
             var electricProductId = "DEF_ELE";
@@ -254,10 +453,6 @@ namespace PSE.Customer.V1.Logic
 
         }
 
-        #endregion
-
-
-        #region private
         private CreateBusinesspartnerMcfRequest GetBusinessPartnerMcfRequest(CreateBusinesspartnerRequest request, McfAddressinfo addressInfo)
         {
             var businessMcfRequest = new CreateBusinesspartnerMcfRequest()
@@ -372,124 +567,133 @@ namespace PSE.Customer.V1.Logic
             return category;
         }
 
+        private CreateBusinesspartnerResponse ValidateAddress(RestSharp.IRestResponse<McfAddressinfo> addressResponse)
+        {
+            CreateBusinesspartnerResponse response = null;
+            if (!addressResponse.IsSuccessful && addressResponse?.Data == null)
+            {
+                var message = $"Address validator service failed with the error {addressResponse.Content}";
+                _logger.LogError(message);
+                if (addressResponse.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                {
+                    response = new CreateBusinesspartnerResponse()
+                    {
+                        ErrorMessage = message,
+                        HttpStatusCode = System.Net.HttpStatusCode.BadRequest
+
+                    };
+                }
+                else
+                {
+                    throw new Exception(message);
+                }
+            }
+            return response;
+        }
+
+        private BpRelationshipsResponse MapBpRelations(BpRelationshipsMcfResponse resp, string bpId)
+        {
+
+            var relationShips = new BpRelationshipsResponse()
+            {
+                RelationShips = GetRelations(resp.Results)
+            };
+            return relationShips;
+        }
+
+        private List<BpRelationshipResponse> GetRelations(List<BpRelationship> bprelationships)
+        {
+            List<BpRelationshipResponse> relationships = new List<BpRelationshipResponse>();
+           foreach(var rel in bprelationships)
+           {
+                var relResp = new BpRelationshipResponse()
+                {
+                    BpId1 = rel.AccountID2,
+                    BpId2 = rel.AccountID1,
+                    Message = rel.Message,
+                    Relationshipcategory = rel.Relationshipcategory,
+                    Validfromdate = rel.Validfromdate,
+                    Validfromdatenew = rel.Validfromdatenew,
+                    Validtodate = rel.Validtodate,
+                    Validtodatenew = rel.Validtodatenew
+                };
+                relationships.Add(relResp);
+           }
+
+            return relationships;
+        }
+
+        private BpSearchRequest MapToBpSearchrequest(CreateBusinesspartnerRequest authorizedContactRequest)
+        {
+            var bpSearch = new BpSearchRequest()
+            {
+                Email = authorizedContactRequest.Email,
+                FirstName = authorizedContactRequest.FirstName,
+                MiddleName = authorizedContactRequest.MiddleName,
+                LastName = authorizedContactRequest.LastName,
+                ServiceZip = authorizedContactRequest.Address.PostalCode,
+                Phone = authorizedContactRequest.Phone?.Number
+            };
+            return bpSearch;
+        }
+
+        private BpRelationshipUpdateRequest GetRelationshipToupdate(BpRelationshipResponse relationShip)
+        {
+            var updateRelation = new BpRelationshipUpdateRequest()
+            {
+                AccountID1 = long.TryParse(relationShip.BpId1, out long bp1) ? bp1 : 0,
+                AccountID2 = long.TryParse(relationShip.BpId2, out long bp2) ? bp2 : 0,
+                Defaultrelationship = false,
+                Differentiationtypevalue="",
+                Relationshiptypenew ="",
+                Validfromdate = relationShip.Validfromdate.ToString(McfDateFormat),
+                Validtodate = relationShip.Validtodate.ToString(McfDateFormat),
+                Validfromdatenew = DateTimeOffset.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss"),
+                Validtodatenew = DateTimeOffset.MaxValue.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss"),
+                Relationshipcategory = relationShip.Relationshipcategory,
+            };
+            return updateRelation;
+        }
+
+        private BpRelationshipRequest GetRelationshipRequest(BpRelationshipResponse relationShip)
+        {
+            var fromDate = DateTimeOffset.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss");
+            var toDate = DateTimeOffset.MaxValue.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss");
+            var mcfRequest = new BpRelationshipRequest()
+            {
+                AccountID1 = relationShip.BpId1,
+                AccountID2 = relationShip.BpId2,
+                Relationshipcategory = relationShip.Relationshipcategory,
+                Differentiationtypevalue = "",
+                Defaultrelationship = false,
+                Validfromdate = relationShip.Validfromdate,
+                Validtodate = relationShip.Validtodate,
+                Validfromdatenew = DateTime.Parse(fromDate),
+                Validtodatenew = DateTime.Parse(toDate),
+            };
+
+
+           
+            return mcfRequest;
+        }
+
+        private bool IsrelationShipActive(BpRelationshipResponse checkRelationShip)
+        {
+            bool valid = false;
+            if(checkRelationShip?.Validtodate < DateTime.Now || checkRelationShip?.Validfromdate > DateTime.Now)
+            {
+                valid =  false;
+            }
+            return valid;
+        }
+
+        private BpRelationshipResponse CheckRelationWithContact(BpRelationshipsResponse checkRelationShip, string contactBp)
+        {
+           var bprelation =  checkRelationShip?.RelationShips?.FirstOrDefault(r => (r.BpId1 == contactBp || r.BpId2 == contactBp));
+           return bprelation;
+        }
+
+       
         #endregion
-
-        /// <inheritdoc/>
-        public List<DateTimeOffset> GetInvalidMoveinDates(GetInvalidMoveinDatesRequest invalidMoveinDatesRequest)
-        {
-            List<DateTimeOffset> dates = null;
-
-            var mcfResponse = _mcfClient.GetInvalidMoveinDates(invalidMoveinDatesRequest);
-
-            if (mcfResponse != null)
-            {
-                // Note verified with Vikas/Bimba that HolidaysResultList will always return a list with one element.
-                dates = new List<DateTimeOffset>();
-                foreach (Holiday holiday in mcfResponse.Result.HolidaysResultList[0].HolidaysNav.Holidays)
-                {
-                    dates.Add(holiday.Date);
-                }
-            }
-
-            return dates;
-        }
-
-        /// <inheritdoc />
-        public Task<List<IdentifierTypeResponse>> GetAllIdTypes(long bpId)
-        {
-            var usersIdentifierModels = new List<IdentifierTypeResponse>();
-
-            var response = _mcfClient.GetAllIdentifiers(bpId.ToString());
-            if (response?.Result != null)
-            {
-                usersIdentifierModels = response.Result.ToModel();
-            }
-
-            return Task.FromResult(usersIdentifierModels);
-        }
-
-        /// <inheritdoc />
-        public Task<List<IdentifierTypeResponse>> GetIdType(long bpId, IdentifierType type)
-        {
-            var usersIdentifierModels = new List<IdentifierTypeResponse>();
-
-            var response = _mcfClient.GetAllIdentifiers(bpId.ToString());
-            if (response?.Result?.Results != null)
-            {
-                var validIds = response.Result.ToModel();
-                var matchingType = validIds.FirstOrDefault(x => x.IdentifierType == type);
-                if (matchingType != null)
-                {
-                    usersIdentifierModels.Add(matchingType);
-                }
-            }
-
-            return Task.FromResult(usersIdentifierModels);
-        }
-
-        /// <inheritdoc />
-        public Task<CreateBpIdTypeResponse> CreateIdType(IdentifierRequest identifierRequest)
-        {
-            var bpIdentifier = new BpIdentifier(identifierRequest);
-            var response = new CreateBpIdTypeResponse();
-
-            var mcfResponse = _mcfClient.CreateIdentifier(bpIdentifier);
-            if (mcfResponse == null)
-            {
-                const string uiFailureMessage = "Failed to create business partner identifier";
-                _logger.LogError($"{ uiFailureMessage }: {identifierRequest.ToJson()}");
-                throw new InternalServerException(uiFailureMessage);
-            }
-
-            response.HttpStatusCode = mcfResponse.HttpStatusCode;
-            if (mcfResponse.Error != null)
-            {
-                const string uiFailureMessage = "Failed to create business partner identifier";
-                _logger.LogError($"{ mcfResponse.Error.ToJson() }: {identifierRequest.ToJson()}");
-                response.ErrorMessage = uiFailureMessage;
-            }
-            else
-            {
-                response.BpIdType = mcfResponse.Result.ToModel();
-            }
-
-            return Task.FromResult(response);
-        }
-
-        /// <inheritdoc />
-        public Task<StatusCodeResponse> UpdateIdType(IdentifierRequest identifierRequest)
-        {
-            var bpIdentifier = new BpIdentifier(identifierRequest);
-
-            var response = _mcfClient.UpdateIdentifier(bpIdentifier);
-            if (response == null || response.Error != null)
-            {
-                const string uiFailureMessage = "Failed to update business partner identifier";
-                var responseErrorMessage = response?.Error != null ? response.Error.ToJson() : uiFailureMessage;
-                _logger.LogError($"{ responseErrorMessage }: {identifierRequest.ToJson()}");
-                throw new InternalServerException(uiFailureMessage);
-            }
-
-            return Task.FromResult(response.ToModel());
-        }
-
-        /// <inheritdoc />
-        public Task<bool> ValidateIdType(IdentifierRequest identifierRequest)
-        {
-            var response = _mcfClient.GetAllIdentifiers(identifierRequest.BpId);
-            if (response == null || response.Error != null)
-            {
-                const string uiFailureMessage = "Failed to get business partner identifiers";
-                var responseErrorMessage = response?.Error != null ? response.Error.ToJson() : uiFailureMessage;
-                _logger.LogError($"{ responseErrorMessage }: {identifierRequest.ToJson()}");
-                throw new InternalServerException(uiFailureMessage);
-            }
-
-            var validIdentifier = response.Result?.Results?.FirstOrDefault(x =>
-                x.IdentifierType == identifierRequest.IdentifierType.ToString() &&
-                x.IdentifierNo == identifierRequest.IdentifierNo);
-
-            return Task.FromResult(validIdentifier != null);
-        }
     }
 }
