@@ -6,8 +6,12 @@ using System.Collections.Generic;
 namespace PSE.Customer.V1.Models
 {
     public class CustomerProfileModel
-    {        
+    {
         public string CustomerName { get; set; }
+        public string FirstName { get; set; }
+        public string MiddleName { get; set; }
+        public string LastName { get; set; }
+        public bool FraudCheck { get; set; }
         public string OrganizationName { get; set; }
         public bool IsPva { get; set; }
         public string EmailAddress { get; set; }        

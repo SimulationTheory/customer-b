@@ -109,6 +109,7 @@ namespace PSE.Customer.Tests.Unit.Extensions
             model.CustomerName.ShouldBe(customerEntity.FullName);
             model.OrganizationName.ShouldBe(customerEntity.EmployerName);
             model.IsPva.ShouldBe(customerEntity.PvaIndicator);
+            model.MiddleName.ShouldBe("L");
         }
 
         [TestMethod]
@@ -133,6 +134,7 @@ namespace PSE.Customer.Tests.Unit.Extensions
             model.CustomerName.ShouldContain(customerEntity.LastName);
             model.OrganizationName.ShouldBe(customerEntity.EmployerName);
             model.IsPva.ShouldBe(customerEntity.PvaIndicator);
+            model.MiddleName.ShouldBeEmpty();
         }
         #endregion
 

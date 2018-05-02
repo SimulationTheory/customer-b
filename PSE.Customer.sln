@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2036
+VisualStudioVersion = 15.0.27130.2024
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PSE.Customer", "src\PSE.Customer.csproj", "{405AEC7F-2706-4C73-BBBB-B683B0D4AA23}"
 EndProject
@@ -40,11 +40,9 @@ Global
 		{405AEC7F-2706-4C73-BBBB-B683B0D4AA23}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{405AEC7F-2706-4C73-BBBB-B683B0D4AA23}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5F611F09-F24C-4AFB-96AD-2BF6DF83D994}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5F611F09-F24C-4AFB-96AD-2BF6DF83D994}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F611F09-F24C-4AFB-96AD-2BF6DF83D994}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5F611F09-F24C-4AFB-96AD-2BF6DF83D994}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BD536EEA-72A3-41B8-A4A1-DA6768DD0342}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BD536EEA-72A3-41B8-A4A1-DA6768DD0342}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BD536EEA-72A3-41B8-A4A1-DA6768DD0342}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BD536EEA-72A3-41B8-A4A1-DA6768DD0342}.Release|Any CPU.Build.0 = Release|Any CPU
 		{58249900-6D68-44BF-9E3C-EF7418E22592}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
