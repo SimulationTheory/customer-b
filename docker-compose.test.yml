@@ -17,7 +17,7 @@ services:
       retries: 3
     environment:
       - AWS_PROFILE=AWSDevUser
-      - ASPNETCORE_ENVIRONMENT=dev
+      - ASPNETCORE_ENVIRONMENT=dev2
       - GIT_HASH=Docker_Compose
   customer-test:
     image: customer-test
@@ -31,5 +31,5 @@ services:
         condition: service_healthy
     environment:
       - AWS_PROFILE=AWSDevUser
-      - ASPNETCORE_ENVIRONMENT=dev
+      - ASPNETCORE_ENVIRONMENT=dev2
       - GIT_HASH=Docker_Compose
