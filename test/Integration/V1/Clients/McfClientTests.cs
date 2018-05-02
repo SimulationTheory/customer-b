@@ -18,7 +18,6 @@ using PSE.Customer.V1.Clients.Mcf.Interfaces;
 using PSE.Customer.V1.Clients.Mcf.Models;
 using PSE.Customer.V1.Clients.Mcf.Request;
 using PSE.Customer.V1.Clients.Mcf.Response;
-using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.RestUtility.Core.Mcf;
 using PSE.WebAPI.Core.Configuration.Interfaces;
@@ -282,7 +281,6 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         #region Business Partner Identifier Tests
 
         [TestMethod]
-        [Ignore]//TODO : Remove this when SAP fix is applied
         public async Task GetAllIdentifiers_AccountWithIdentifier_AllIdentifiersReturned()
         {
             // Arrange
@@ -306,7 +304,6 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         }
 
         [TestMethod]
-        [Ignore]//TODO : Remove this when SAP fix is applied
         public async Task CreateIdentifier_IdentifierDoesNotExist_IdentifierCreated()
         {
             // Arrange
@@ -376,7 +373,6 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         }
 
         [TestMethod]
-        [Ignore]//TODO : Remove this when SAP fix is applied
         public async Task CreateIdentifier_IdentifierAlreadyExists_BadRequest()
         {
             // Arrange
