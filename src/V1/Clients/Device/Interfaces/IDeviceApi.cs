@@ -1,6 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using PSE.Customer.V1.Clients.Device.Models.Response;
 using PSE.Customer.V1.Response;
 using RestSharp;
+using System.Threading.Tasks;
 
 namespace PSE.Customer.V1.Clients.Device.Interfaces
 {
@@ -16,9 +17,8 @@ namespace PSE.Customer.V1.Clients.Device.Interfaces
         /// <summary>
         /// Retrieves installation details of provided installation ids
         /// </summary>
-        /// <param name="installationId"></param>
-        /// <param name="jwt"></param>
+        /// <param name="installationId">The installation identifier.</param>
         /// <returns></returns>
-        Task<IRestResponse<GetInstallationDetailResponse>> GetInstallationDetail(long installationId);
+        Task<IRestResponse<GetInstallationResponse>> GetInstallationDetail(long installationId);
     }
 }

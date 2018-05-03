@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using PSE.Customer.V1.Clients.Mcf.Models;
 using PSE.Customer.V1.Response;
 using PSE.WebAPI.Core.Service.Enums;
+using System;
+using PSE.Customer.V1.Clients.Account.Models.Response;
 
 namespace PSE.Customer.V1.Clients.Mcf.Interfaces
 {
@@ -270,5 +272,14 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// <returns></returns>
         BpRelationshipUpdateResponse UpdateBusinessPartnerRelationship(BpRelationshipUpdateRequest request, string jwt);
 
+
+        /// <summary>
+        /// Stops the service.
+        /// </summary>
+        /// <param name="contractItemId">The contract item identifier.</param>
+        /// <param name="premiseId">The premise identifier.</param>
+        /// <param name="moveoutDate">The moveout date.</param>
+        /// <returns></returns>
+        McfResponse<GetContractItemMcfResponse> StopService(long contractItemId, long premiseId, DateTimeOffset moveoutDate);
     }
 }

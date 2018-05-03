@@ -1,6 +1,8 @@
 ﻿using PSE.Customer.V1.Models;
 using PSE.RestUtility.Core.Mcf;
 using PSE.WebAPI.Core.Interfaces;
+using System;
+using System.Collections.Generic;
 
 namespace PSE.Customer.V1.Response
 {
@@ -11,11 +13,32 @@ namespace PSE.Customer.V1.Response
     public class MoveOutStopServiceResponse : IAPIResponse
     {
         /// <summary>
-        /// Gets or sets a value indicating whether WarmHomeFund is true or not.
+        /// The final bill date.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if [warm home fund]; otherwise, <c>false</c>.
+        /// The final bill date.
         /// </value>
-        public bool WarmHomeFund { get; set; }
+        public DateTimeOffset? FinalBillDate { get; set; }
+
+        /// <summary>
+        /// The final bill due date.
+        /// </summary>
+        /// <value>
+        /// The final bill due date.
+        /// </value>
+        public DateTimeOffset? FinalBillDueDate { get; set; }
+
+        /// <summary>
+        /// The warm home fund amount.
+        /// </summary>
+        /// <value>
+        /// The warm home fund.
+        /// </value>
+        public decimal? WarmHomeFund { get; set; }
+
+        /// <summary>
+        /// Indicates success of the stop service call for each installation.
+        /// </summary>
+        public Dictionary<long, string> Status { get; set; }
     }
 }

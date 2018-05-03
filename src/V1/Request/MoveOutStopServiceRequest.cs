@@ -30,6 +30,6 @@ namespace PSE.Customer.V1.Request
         /// <value>
         /// The installation ids.
         /// </value>
-        public IEnumerable<long> InstallationIds { get; set; }
+        public List<long> InstallationIds { get; set; }
     }
 }

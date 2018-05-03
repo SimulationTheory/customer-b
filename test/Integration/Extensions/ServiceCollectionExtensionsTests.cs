@@ -44,6 +44,7 @@ namespace PSE.Customer.Tests.Integration.Extensions
             /// Users should run locally before making a pull request.
             /// </remarks>
             [TestMethod]
+            [Ignore]
 #endif
             public void AddRepositories_E2E_CanInitializeRepositoryLogicAndControllerParams()
             {

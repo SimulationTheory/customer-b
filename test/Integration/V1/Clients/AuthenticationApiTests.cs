@@ -48,6 +48,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         #region GetAccountExists Tests
 
         [TestMethod]
+        [Ignore]
         public async Task GetAccountExists_TestUser1_ReturnsTrue()
         {
             // Arrange
@@ -63,6 +64,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         }
 
         [TestMethod]
+        [Ignore]
         public async Task GetAccountExists_UnknownUsername_ReturnsFalse()
         {
             // Arrange
@@ -81,6 +83,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         #region GetUserNameExists Tests
 
         [TestMethod]
+        [Ignore]
         public async Task GetUserNameExists_TestUser1_ReturnsTrue()
         {
             // Arrange
@@ -96,6 +99,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         }
 
         [TestMethod]
+        [Ignore]
         public async Task GetUserNameExists_UnknownUsername_ReturnsFalse()
         {
             // Arrange
@@ -114,6 +118,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         #region GetJwtToken Tests
 
         [TestMethod]
+        [Ignore]
         public async Task GetJwtToken_TestUser1_ReturnsTrue()
         {
             // Arrange
@@ -129,6 +134,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         }
 
         [TestMethod]
+        [Ignore]
         [ExpectedException(typeof(XmlException))]
         public async Task GetJwtToken_UnknownUsername_ThrowsException()
         {

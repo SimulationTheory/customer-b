@@ -23,6 +23,7 @@ using PSE.Customer.V1.Response;
 using System;
 using PSE.Customer.V1.Clients.Device;
 using PSE.Customer.V1.Clients.Device.Interfaces;
+using PSE.Customer.V1.Clients.Account;
 
 namespace PSE.Customer.Extensions
 {
@@ -54,6 +55,7 @@ namespace PSE.Customer.Extensions
             services.AddTransient<ICustomerLogic, CustomerLogic>();
             services.AddTransient<IMoveInLogic, MoveInLogic>();
             services.AddTransient<IDeviceApi, DeviceApi>();
+            services.AddTransient<IAccountApi, AccountApi>();
             services.AddTransient<IMoveOutLogic, MoveOutLogic>();
             services.AddTransient<IManagePremisesLogic, ManagePremisesLogic>();
 

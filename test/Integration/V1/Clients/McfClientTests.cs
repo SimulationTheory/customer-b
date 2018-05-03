@@ -304,6 +304,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         }
 
         [TestMethod]
+        [Ignore]
         public async Task CreateIdentifier_IdentifierDoesNotExist_IdentifierCreated()
         {
             // Arrange

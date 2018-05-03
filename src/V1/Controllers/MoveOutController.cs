@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using PSE.Customer.Configuration;
 using PSE.Customer.V1.Logic.Interfaces;
 using PSE.Customer.V1.Request;
@@ -10,6 +11,7 @@ using PSE.Customer.V1.Response;
 using PSE.WebAPI.Core.Exceptions;
 using PSE.WebAPI.Core.Service;
 using System;
+using System.Threading.Tasks;
 
 namespace PSE.Customer.V1.Controllers
 {
@@ -47,32 +49,48 @@ namespace PSE.Customer.V1.Controllers
         }
 
         /// <summary>
-        /// Stop service on the given contract account Id.
+        /// Stop service on the given contract account Id
+        /// for the given installationIds.
         /// </summary>
-        /// <param name="request">The request.</param>
+        /// <remarks>
+        /// Response includes a map of installationIds with status msgs.
+        ///  List of status messages:
+        ///   - Stop service request succeeded.
+        ///   - InstallationId not found.
+        ///   - InstallationId not on contractAccountId.
+        /// </remarks>
+        /// <param name="stopServiceRequest">The stop service request.</param>
         /// <returns></returns>
         /// <response code="200">Successfully stopped service.</response>
         /// <response code="401">Unauthorized.  Requires a valid JWT.</response>
-        /// <response code="404">ContractAccountId not found.</response>
+        /// <response code="404">ContractAccountId not found or installationIds not found on contract account.</response>
         [AllowAnonymous]
         [HttpPost("moveout-stop-service/{contractAccountId}")]
         [ProducesResponseType(typeof(MoveOutStopServiceResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult PostStopService([FromBody] MoveOutStopServiceRequest stopServiceRequest)
+        public async Task<IActionResult> PostStopService([FromBody] MoveOutStopServiceRequest stopServiceRequest)
         {
             IActionResult result;
+            _logger.LogInformation($"PostStopService: {JsonConvert.SerializeObject(stopServiceRequest, Formatting.Indented)}");
 
             try
             {
-                var response = new MoveOutStopServiceResponse() { WarmHomeFund = true };
+                var response = await _moveOutLogic.StopService(stopServiceRequest);
 
-                result = Ok(response);
-
+                if (response == null)
+                {
+                    result = NotFound();
+                }
+                else
+                {
+                    result = Ok(response);
+                    _logger.LogInformation($"PostStopService: {JsonConvert.SerializeObject(response, Formatting.Indented)}");
+                }
             }
             catch (Exception e)
             {
-                _logger.LogError(e, e.Message);
+                _logger.LogError(e, $"Error in PostStopService: {JsonConvert.SerializeObject(stopServiceRequest, Formatting.Indented)}");
                 result = e.ToActionResult();
             }
 
