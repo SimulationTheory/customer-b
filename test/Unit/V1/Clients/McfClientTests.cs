@@ -117,5 +117,74 @@ namespace PSE.Customer.Tests.Unit.V1.Clients
         }
 
         #endregion
+
+        #region GetOwnerAccounts Tests
+
+        [TestMethod]
+        public void GetOwnerAccounts_ResponseFromCustomerWithMultipleActiveAccounts_AccountsLoaded()
+        {
+            // Arrange
+            var testData = TestData.GetFromResources(TestData.GetOwnerAccountMultiplePremises);
+
+            // Act
+            var response = JsonConvert.DeserializeObject<McfResponse<McfResponseResults<OwnerAccountsSet>>>(testData);
+
+            // Assert
+            response.Error.ShouldBeNull();
+            var ownerAccountsSets = response.Result.Results.ToList();
+            ownerAccountsSets.Count.ShouldBe(1);
+
+            var ownerAccount = ownerAccountsSets[0];
+            ownerAccount.AccountId.ShouldBe("1001543028");
+
+            var contractAccounts = ownerAccount.OwnerContractAccount.Results.ToList();
+            contractAccounts.Count.ShouldBeGreaterThan(0);
+
+            var firstAccount = contractAccounts[0];
+            firstAccount.ContractAccount.ShouldBe("200012482127");
+            firstAccount.ContractAccountBalance.ShouldBe("0.000");
+
+            var premiseSets = firstAccount.OwnerPremise.Results.ToList();
+            premiseSets.Count.ShouldBe(1);
+
+            var premise = premiseSets[0];
+            premise.Premise.ShouldBe("7001424713");
+
+            var premiseAddress = premise.PremiseAddress;
+            premiseAddress.Standardaddress.ShouldBeFalse();
+            premiseAddress.City.ShouldBe("Puyallup");
+            premiseAddress.PostlCod1.ShouldBe("98374");
+            premiseAddress.Street.ShouldBe("111TH AVE E");
+            premiseAddress.HouseNo.ShouldBe("12401");
+
+            var propertySets = premise.OwnerPremiseProperty.Results.ToList();
+            propertySets.Count.ShouldBe(2);
+
+            var firstProperty = propertySets[0];
+            firstProperty.Property.ShouldBe("1300034560");
+            firstProperty.Installation.ShouldBe("5000001007");
+            firstProperty.Division.ShouldBe("20");
+            firstProperty.Opendate.ShouldBe("/Date(1364601600000)/");
+            firstProperty.Closedate.ShouldBe("/Date(253402214400000)/");
+            firstProperty.Occupiedstatus.ShouldBe("Occupied");
+            firstProperty.Lastoccupied.ShouldBeNull();
+            firstProperty.Occupiedsince.ShouldBe("/Date(1386547200000)/");
+        }
+
+        [TestMethod]
+        public void GetOwnerAccounts_ResponseFromCustomerWithNoActiveAccount_ErrorMessageReturned()
+        {
+            // Arrange
+            var testData = TestData.GetFromResources(TestData.GetOwnerAccountNoActiveAccount);
+
+            // Act
+            var response = JsonConvert.DeserializeObject<McfResponse<McfResponseResults<BpIdentifier>>>(testData);
+
+            // Assert
+            response.Error.ShouldNotBeNull();
+            response.Error.Message.Value.ShouldStartWith("No active properties exist for the BusinessPartner");
+        }
+
+        #endregion
     }
 }

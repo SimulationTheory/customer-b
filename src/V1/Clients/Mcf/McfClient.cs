@@ -1,4 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PSE.Customer.Configuration;
@@ -16,14 +22,6 @@ using PSE.WebAPI.Core.Configuration.Interfaces;
 using PSE.WebAPI.Core.Exceptions.Types;
 using PSE.WebAPI.Core.Service.Interfaces;
 using RestSharp;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
-
 
 namespace PSE.Customer.V1.Clients.Mcf
 {
@@ -1269,6 +1267,55 @@ namespace PSE.Customer.V1.Clients.Mcf
             }
 
             return mcfResponse;
+        }
+
+        /// <summary>
+        /// Gets the owner accounts.
+        /// </summary>
+        /// <param name="bpId">Business partner ID</param>
+        /// <returns></returns>
+        public async Task<McfResponse<McfResponseResults<OwnerAccountsSet>>> GetOwnerAccounts(string bpId)
+        {
+            McfResponse<McfResponseResults<OwnerAccountsSet>> response;
+
+            try
+            {
+                _logger.LogInformation($"GetAllIdentifiers({nameof(bpId)}: {bpId}); {_requestContext.ToJson()})");
+                var config = _coreOptions.Configuration;
+                var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
+
+                var url = $"/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/Accounts('{bpId}')/OwnerAccounts?$expand=OwnerContractAccount/OwnerPremise/OwnerPremiseProperty&$format=json";
+                var restRequest = new RestRequest(url, Method.GET);
+
+                if (string.IsNullOrWhiteSpace(_requestContext.JWT))
+                {
+                    // Add anon bypass auth
+                    var mcfUserName = string.Empty;
+                    var mcfUserPassword = string.Empty;
+                    SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword);
+                    restRequest.AddBasicCredentials(mcfUserName, mcfUserPassword);
+                }
+                else
+                {
+                    var cookies = restUtility.GetMcfCookies(_requestContext.JWT, _requestContext.RequestChannel.ToString()).Result;
+                    restRequest.AddCookies(cookies);
+                }
+                restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
+                restRequest.AddHeader("Accept", "application/json");
+
+                _logger.LogInformation("Making MCF call");
+                var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
+                var restResponse = await client.ExecuteTaskAsync(restRequest);
+
+                response = JsonConvert.DeserializeObject<McfResponse<McfResponseResults<OwnerAccountsSet>>>(restResponse.Content);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Failed to get all identifiers {{{bpId}}}");
+                throw;
+            }
+
+            return response;
         }
 
         #region Private methods

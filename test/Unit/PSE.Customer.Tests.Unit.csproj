@@ -10,12 +10,16 @@
     <None Remove="TestObjects\Data\GetBpIdentifier.json" />
     <None Remove="TestObjects\Data\GetBpIdentifierResults.json" />
     <None Remove="TestObjects\Data\GetInstallmentPlan.json" />
+    <None Remove="TestObjects\Data\GetOwnerAccountMultiplePremises.json" />
+    <None Remove="TestObjects\Data\GetOwnerAccountNoActiveAccount.json" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="TestObjects\Data\GetBpIdentifierResults.json" />
     <EmbeddedResource Include="TestObjects\Data\GetBpIdentifier.json" />
     <EmbeddedResource Include="TestObjects\Data\GetInstallmentPlan.json" />
+    <EmbeddedResource Include="TestObjects\Data\GetOwnerAccountMultiplePremises.json" />
+    <EmbeddedResource Include="TestObjects\Data\GetOwnerAccountNoActiveAccount.json" />
   </ItemGroup>
 
   <ItemGroup>

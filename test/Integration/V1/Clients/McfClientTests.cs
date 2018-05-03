@@ -848,5 +848,44 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         }
 
         #endregion
+
+        #region Owner Accounts Tests
+
+        [TestMethod]
+        public async Task GetOwnerAccounts_ValidBpId_AccountsRetrieved()
+        {
+            // Arrange
+            var user = new TestUser { Username = "craigasbjornsen" };
+            var loginResponse = await AuthClient.GetJwtToken(user.Username, "Start@123");
+            user.SetJwtEncodedString(loginResponse.Data.JwtAccessToken);
+            UserContext.SetUser(user);
+
+            // Act
+            var response = await McfClient.GetOwnerAccounts(user.BPNumber.ToString());
+
+            // Assert
+            response.ShouldNotBeNull();
+            // Note: Unit tests verify parsing.  This test verifies SAP endpoint returns something
+            response.Result.Results.ToList()[0].AccountId.ShouldBe("1001543028");
+        }
+
+        [TestMethod]
+        public async Task GetOwnerAccounts_BpWithNoActiveProperties_AccountsRetrieved()
+        {
+            // Arrange
+            var user = new TestUser { Username = "testpaeligible01" };
+            var loginResponse = await AuthClient.GetJwtToken(user.Username, "Start@123");
+            user.SetJwtEncodedString(loginResponse.Data.JwtAccessToken);
+            UserContext.SetUser(user);
+
+            // Act
+            var response = await McfClient.GetOwnerAccounts(user.BPNumber.ToString());
+
+            // Assert
+            response.Error.ShouldNotBeNull();
+            response.Error.Message.Value.ShouldBe("No active properties exist for the BusinessPartner");
+        }
+
+        #endregion
     }
 }

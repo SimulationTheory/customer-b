@@ -1,0 +1,612 @@
+﻿{
+    "d": {
+        "results": [
+            {
+                "__metadata": {
+                    "id": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerAccountsSet('1001543028')",
+                    "uri": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerAccountsSet('1001543028')",
+                    "type": "ERP_UTILITIES_UMC.OwnerAccounts"
+                },
+                "Accountid": "1001543028",
+                "OwnerContractAccount": {
+                    "results": [
+                        {
+                            "__metadata": {
+                                "id": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerContractAccountSet('200012482127')",
+                                "uri": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerContractAccountSet('200012482127')",
+                                "type": "ERP_UTILITIES_UMC.OwnerContractAccount"
+                            },
+                            "ContractAccount": "200012482127",
+                            "ContractAccBal": "0.000",
+                            "OwnerPremise": {
+                                "results": [
+                                    {
+                                        "__metadata": {
+                                            "id": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremiseSet('7001424713')",
+                                            "uri": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremiseSet('7001424713')",
+                                            "type": "ERP_UTILITIES_UMC.OwnerPremise"
+                                        },
+                                        "PremiseAddress": {
+                                            "__metadata": { "type": "ERP_UTILITIES_UMC.PremiseAddress" },
+                                            "HouseNo2": "",
+                                            "Standardaddress": false,
+                                            "City": "Puyallup",
+                                            "District": "",
+                                            "PostlCod1": "98374",
+                                            "PostlCod2": "",
+                                            "PoBox": "",
+                                            "Street": "111TH AVE E",
+                                            "HouseNo": "12401",
+                                            "Building": "",
+                                            "Floor": "",
+                                            "RoomNo": "",
+                                            "Country": "US",
+                                            "Countryname": "USA",
+                                            "Region": "WA",
+                                            "Regionname": "",
+                                            "TimeZone": "PST",
+                                            "Taxjurcode": "WA12700270",
+                                            "Langu": "",
+                                            "Shortform": ""
+                                        },
+                                        "Premise": "7001424713",
+                                        "OwnerPremiseProperty": {
+                                            "results": [
+                                                {
+                                                    "__metadata": {
+                                                        "id": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremisePropertySet(Property='1300034560',Installation='5000001007')",
+                                                        "uri": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremisePropertySet(Property='1300034560',Installation='5000001007')",
+                                                        "type": "ERP_UTILITIES_UMC.OwnerPremiseProperty"
+                                                    },
+                                                    "Property": "1300034560",
+                                                    "Installation": "5000001007",
+                                                    "Division": "20",
+                                                    "Opendate": "/Date(1364601600000)/",
+                                                    "Closedate": "/Date(253402214400000)/",
+                                                    "Occupiedstatus": "Occupied",
+                                                    "Lastoccupied": null,
+                                                    "Occupiedsince": "/Date(1386547200000)/"
+                                                },
+                                                {
+                                                    "__metadata": {
+                                                        "id": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremisePropertySet(Property='1300034560',Installation='5000001022')",
+                                                        "uri": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremisePropertySet(Property='1300034560',Installation='5000001022')",
+                                                        "type": "ERP_UTILITIES_UMC.OwnerPremiseProperty"
+                                                    },
+                                                    "Property": "1300034560",
+                                                    "Installation": "5000001022",
+                                                    "Division": "10",
+                                                    "Opendate": "/Date(1364601600000)/",
+                                                    "Closedate": "/Date(253402214400000)/",
+                                                    "Occupiedstatus": "Occupied",
+                                                    "Lastoccupied": null,
+                                                    "Occupiedsince": "/Date(1386547200000)/"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "__metadata": {
+                                "id": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerContractAccountSet('200012482259')",
+                                "uri": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerContractAccountSet('200012482259')",
+                                "type": "ERP_UTILITIES_UMC.OwnerContractAccount"
+                            },
+                            "ContractAccount": "200012482259",
+                            "ContractAccBal": "0.000",
+                            "OwnerPremise": {
+                                "results": [
+                                    {
+                                        "__metadata": {
+                                            "id": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremiseSet('7000023522')",
+                                            "uri": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremiseSet('7000023522')",
+                                            "type": "ERP_UTILITIES_UMC.OwnerPremise"
+                                        },
+                                        "PremiseAddress": {
+                                            "__metadata": { "type": "ERP_UTILITIES_UMC.PremiseAddress" },
+                                            "HouseNo2": "",
+                                            "Standardaddress": false,
+                                            "City": "Puyallup",
+                                            "District": "",
+                                            "PostlCod1": "98371",
+                                            "PostlCod2": "",
+                                            "PoBox": "",
+                                            "Street": "4TH AVE NW",
+                                            "HouseNo": "1209",
+                                            "Building": "",
+                                            "Floor": "",
+                                            "RoomNo": "",
+                                            "Country": "US",
+                                            "Countryname": "USA",
+                                            "Region": "WA",
+                                            "Regionname": "",
+                                            "TimeZone": "PST",
+                                            "Taxjurcode": "WA12700110",
+                                            "Langu": "",
+                                            "Shortform": ""
+                                        },
+                                        "Premise": "7000023522",
+                                        "OwnerPremiseProperty": {
+                                            "results": [
+                                                {
+                                                    "__metadata": {
+                                                        "id": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremisePropertySet(Property='1300059928',Installation='5000036676')",
+                                                        "uri": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremisePropertySet(Property='1300059928',Installation='5000036676')",
+                                                        "type": "ERP_UTILITIES_UMC.OwnerPremiseProperty"
+                                                    },
+                                                    "Property": "1300059928",
+                                                    "Installation": "5000036676",
+                                                    "Division": "10",
+                                                    "Opendate": "/Date(1364601600000)/",
+                                                    "Closedate": "/Date(253402214400000)/",
+                                                    "Occupiedstatus": "Occupied",
+                                                    "Lastoccupied": null,
+                                                    "Occupiedsince": "/Date(1363651200000)/"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "__metadata": {
+                                "id": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerContractAccountSet('200012482507')",
+                                "uri": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerContractAccountSet('200012482507')",
+                                "type": "ERP_UTILITIES_UMC.OwnerContractAccount"
+                            },
+                            "ContractAccount": "200012482507",
+                            "ContractAccBal": "0.000",
+                            "OwnerPremise": {
+                                "results": [
+                                    {
+                                        "__metadata": {
+                                            "id": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremiseSet('7000031474')",
+                                            "uri": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremiseSet('7000031474')",
+                                            "type": "ERP_UTILITIES_UMC.OwnerPremise"
+                                        },
+                                        "PremiseAddress": {
+                                            "__metadata": { "type": "ERP_UTILITIES_UMC.PremiseAddress" },
+                                            "HouseNo2": "",
+                                            "Standardaddress": false,
+                                            "City": "Puyallup",
+                                            "District": "",
+                                            "PostlCod1": "98374",
+                                            "PostlCod2": "",
+                                            "PoBox": "",
+                                            "Street": "111TH AVE E",
+                                            "HouseNo": "12405",
+                                            "Building": "",
+                                            "Floor": "",
+                                            "RoomNo": "",
+                                            "Country": "US",
+                                            "Countryname": "USA",
+                                            "Region": "WA",
+                                            "Regionname": "",
+                                            "TimeZone": "PST",
+                                            "Taxjurcode": "WA12700270",
+                                            "Langu": "",
+                                            "Shortform": ""
+                                        },
+                                        "Premise": "7000031474",
+                                        "OwnerPremiseProperty": {
+                                            "results": [
+                                                {
+                                                    "__metadata": {
+                                                        "id": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremisePropertySet(Property='1300066643',Installation='5000046282')",
+                                                        "uri": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremisePropertySet(Property='1300066643',Installation='5000046282')",
+                                                        "type": "ERP_UTILITIES_UMC.OwnerPremiseProperty"
+                                                    },
+                                                    "Property": "1300066643",
+                                                    "Installation": "5000046282",
+                                                    "Division": "20",
+                                                    "Opendate": "/Date(1364601600000)/",
+                                                    "Closedate": "/Date(253402214400000)/",
+                                                    "Occupiedstatus": "Occupied",
+                                                    "Lastoccupied": null,
+                                                    "Occupiedsince": "/Date(1371168000000)/"
+                                                },
+                                                {
+                                                    "__metadata": {
+                                                        "id": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremisePropertySet(Property='1300066643',Installation='5000046300')",
+                                                        "uri": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremisePropertySet(Property='1300066643',Installation='5000046300')",
+                                                        "type": "ERP_UTILITIES_UMC.OwnerPremiseProperty"
+                                                    },
+                                                    "Property": "1300066643",
+                                                    "Installation": "5000046300",
+                                                    "Division": "10",
+                                                    "Opendate": "/Date(1364601600000)/",
+                                                    "Closedate": "/Date(253402214400000)/",
+                                                    "Occupiedstatus": "Occupied",
+                                                    "Lastoccupied": null,
+                                                    "Occupiedsince": "/Date(1371168000000)/"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "__metadata": {
+                                "id": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerContractAccountSet('200012482721')",
+                                "uri": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerContractAccountSet('200012482721')",
+                                "type": "ERP_UTILITIES_UMC.OwnerContractAccount"
+                            },
+                            "ContractAccount": "200012482721",
+                            "ContractAccBal": "0.000",
+                            "OwnerPremise": {
+                                "results": [
+                                    {
+                                        "__metadata": {
+                                            "id": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremiseSet('7000352166')",
+                                            "uri": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremiseSet('7000352166')",
+                                            "type": "ERP_UTILITIES_UMC.OwnerPremise"
+                                        },
+                                        "PremiseAddress": {
+                                            "__metadata": { "type": "ERP_UTILITIES_UMC.PremiseAddress" },
+                                            "HouseNo2": "",
+                                            "Standardaddress": false,
+                                            "City": "Puyallup",
+                                            "District": "",
+                                            "PostlCod1": "98374",
+                                            "PostlCod2": "",
+                                            "PoBox": "",
+                                            "Street": "113TH AVE E",
+                                            "HouseNo": "13506",
+                                            "Building": "",
+                                            "Floor": "",
+                                            "RoomNo": "",
+                                            "Country": "US",
+                                            "Countryname": "USA",
+                                            "Region": "WA",
+                                            "Regionname": "",
+                                            "TimeZone": "PST",
+                                            "Taxjurcode": "WA12700270",
+                                            "Langu": "",
+                                            "Shortform": ""
+                                        },
+                                        "Premise": "7000352166",
+                                        "OwnerPremiseProperty": {
+                                            "results": [
+                                                {
+                                                    "__metadata": {
+                                                        "id": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremisePropertySet(Property='1300044118',Installation='5000156536')",
+                                                        "uri": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremisePropertySet(Property='1300044118',Installation='5000156536')",
+                                                        "type": "ERP_UTILITIES_UMC.OwnerPremiseProperty"
+                                                    },
+                                                    "Property": "1300044118",
+                                                    "Installation": "5000156536",
+                                                    "Division": "20",
+                                                    "Opendate": "/Date(1364601600000)/",
+                                                    "Closedate": "/Date(253402214400000)/",
+                                                    "Occupiedstatus": "Occupied",
+                                                    "Lastoccupied": null,
+                                                    "Occupiedsince": "/Date(1363305600000)/"
+                                                },
+                                                {
+                                                    "__metadata": {
+                                                        "id": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremisePropertySet(Property='1300044118',Installation='5000156553')",
+                                                        "uri": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremisePropertySet(Property='1300044118',Installation='5000156553')",
+                                                        "type": "ERP_UTILITIES_UMC.OwnerPremiseProperty"
+                                                    },
+                                                    "Property": "1300044118",
+                                                    "Installation": "5000156553",
+                                                    "Division": "10",
+                                                    "Opendate": "/Date(1364601600000)/",
+                                                    "Closedate": "/Date(253402214400000)/",
+                                                    "Occupiedstatus": "Occupied",
+                                                    "Lastoccupied": null,
+                                                    "Occupiedsince": "/Date(1363305600000)/"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "__metadata": {
+                                "id": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerContractAccountSet('200012483661')",
+                                "uri": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerContractAccountSet('200012483661')",
+                                "type": "ERP_UTILITIES_UMC.OwnerContractAccount"
+                            },
+                            "ContractAccount": "200012483661",
+                            "ContractAccBal": "0.000",
+                            "OwnerPremise": {
+                                "results": [
+                                    {
+                                        "__metadata": {
+                                            "id": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremiseSet('7000130536')",
+                                            "uri": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremiseSet('7000130536')",
+                                            "type": "ERP_UTILITIES_UMC.OwnerPremise"
+                                        },
+                                        "PremiseAddress": {
+                                            "__metadata": { "type": "ERP_UTILITIES_UMC.PremiseAddress" },
+                                            "HouseNo2": "",
+                                            "Standardaddress": false,
+                                            "City": "Puyallup",
+                                            "District": "",
+                                            "PostlCod1": "98374",
+                                            "PostlCod2": "",
+                                            "PoBox": "",
+                                            "Street": "111TH AVE E",
+                                            "HouseNo": "12403",
+                                            "Building": "",
+                                            "Floor": "",
+                                            "RoomNo": "",
+                                            "Country": "US",
+                                            "Countryname": "USA",
+                                            "Region": "WA",
+                                            "Regionname": "",
+                                            "TimeZone": "PST",
+                                            "Taxjurcode": "WA12700270",
+                                            "Langu": "",
+                                            "Shortform": ""
+                                        },
+                                        "Premise": "7000130536",
+                                        "OwnerPremiseProperty": {
+                                            "results": [
+                                                {
+                                                    "__metadata": {
+                                                        "id": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremisePropertySet(Property='1300166162',Installation='5000488398')",
+                                                        "uri": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremisePropertySet(Property='1300166162',Installation='5000488398')",
+                                                        "type": "ERP_UTILITIES_UMC.OwnerPremiseProperty"
+                                                    },
+                                                    "Property": "1300166162",
+                                                    "Installation": "5000488398",
+                                                    "Division": "10",
+                                                    "Opendate": "/Date(1364601600000)/",
+                                                    "Closedate": "/Date(253402214400000)/",
+                                                    "Occupiedstatus": "Occupied",
+                                                    "Lastoccupied": null,
+                                                    "Occupiedsince": "/Date(1500768000000)/"
+                                                },
+                                                {
+                                                    "__metadata": {
+                                                        "id": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremisePropertySet(Property='1300166162',Installation='5000488807')",
+                                                        "uri": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremisePropertySet(Property='1300166162',Installation='5000488807')",
+                                                        "type": "ERP_UTILITIES_UMC.OwnerPremiseProperty"
+                                                    },
+                                                    "Property": "1300166162",
+                                                    "Installation": "5000488807",
+                                                    "Division": "20",
+                                                    "Opendate": "/Date(1364601600000)/",
+                                                    "Closedate": "/Date(253402214400000)/",
+                                                    "Occupiedstatus": "Occupied",
+                                                    "Lastoccupied": null,
+                                                    "Occupiedsince": "/Date(1500768000000)/"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "__metadata": {
+                                "id": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerContractAccountSet('200026320834')",
+                                "uri": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerContractAccountSet('200026320834')",
+                                "type": "ERP_UTILITIES_UMC.OwnerContractAccount"
+                            },
+                            "ContractAccount": "200026320834",
+                            "ContractAccBal": "0.000",
+                            "OwnerPremise": {
+                                "results": [
+                                    {
+                                        "__metadata": {
+                                            "id": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremiseSet('7000137254')",
+                                            "uri": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremiseSet('7000137254')",
+                                            "type": "ERP_UTILITIES_UMC.OwnerPremise"
+                                        },
+                                        "PremiseAddress": {
+                                            "__metadata": { "type": "ERP_UTILITIES_UMC.PremiseAddress" },
+                                            "HouseNo2": "",
+                                            "Standardaddress": false,
+                                            "City": "Puyallup",
+                                            "District": "",
+                                            "PostlCod1": "98374",
+                                            "PostlCod2": "",
+                                            "PoBox": "",
+                                            "Street": "111TH AVE E",
+                                            "HouseNo": "12407",
+                                            "Building": "",
+                                            "Floor": "",
+                                            "RoomNo": "",
+                                            "Country": "US",
+                                            "Countryname": "USA",
+                                            "Region": "WA",
+                                            "Regionname": "",
+                                            "TimeZone": "PST",
+                                            "Taxjurcode": "WA12700270",
+                                            "Langu": "",
+                                            "Shortform": ""
+                                        },
+                                        "Premise": "7000137254",
+                                        "OwnerPremiseProperty": {
+                                            "results": [
+                                                {
+                                                    "__metadata": {
+                                                        "id": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremisePropertySet(Property='1300030051',Installation='5000617851')",
+                                                        "uri": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremisePropertySet(Property='1300030051',Installation='5000617851')",
+                                                        "type": "ERP_UTILITIES_UMC.OwnerPremiseProperty"
+                                                    },
+                                                    "Property": "1300030051",
+                                                    "Installation": "5000617851",
+                                                    "Division": "20",
+                                                    "Opendate": "/Date(1364601600000)/",
+                                                    "Closedate": "/Date(253402214400000)/",
+                                                    "Occupiedstatus": "Occupied",
+                                                    "Lastoccupied": null,
+                                                    "Occupiedsince": "/Date(1438387200000)/"
+                                                },
+                                                {
+                                                    "__metadata": {
+                                                        "id": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremisePropertySet(Property='1300030051',Installation='5000617872')",
+                                                        "uri": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremisePropertySet(Property='1300030051',Installation='5000617872')",
+                                                        "type": "ERP_UTILITIES_UMC.OwnerPremiseProperty"
+                                                    },
+                                                    "Property": "1300030051",
+                                                    "Installation": "5000617872",
+                                                    "Division": "10",
+                                                    "Opendate": "/Date(1364601600000)/",
+                                                    "Closedate": "/Date(253402214400000)/",
+                                                    "Occupiedstatus": "Occupied",
+                                                    "Lastoccupied": null,
+                                                    "Occupiedsince": "/Date(1438387200000)/"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "__metadata": {
+                                "id": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerContractAccountSet('200026431789')",
+                                "uri": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerContractAccountSet('200026431789')",
+                                "type": "ERP_UTILITIES_UMC.OwnerContractAccount"
+                            },
+                            "ContractAccount": "200026431789",
+                            "ContractAccBal": "0.000",
+                            "OwnerPremise": {
+                                "results": [
+                                    {
+                                        "__metadata": {
+                                            "id": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremiseSet('7000505896')",
+                                            "uri": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremiseSet('7000505896')",
+                                            "type": "ERP_UTILITIES_UMC.OwnerPremise"
+                                        },
+                                        "PremiseAddress": {
+                                            "__metadata": { "type": "ERP_UTILITIES_UMC.PremiseAddress" },
+                                            "HouseNo2": "",
+                                            "Standardaddress": false,
+                                            "City": "Puyallup",
+                                            "District": "",
+                                            "PostlCod1": "98374",
+                                            "PostlCod2": "",
+                                            "PoBox": "",
+                                            "Street": "113TH AVE E",
+                                            "HouseNo": "13508",
+                                            "Building": "",
+                                            "Floor": "",
+                                            "RoomNo": "",
+                                            "Country": "US",
+                                            "Countryname": "USA",
+                                            "Region": "WA",
+                                            "Regionname": "",
+                                            "TimeZone": "PST",
+                                            "Taxjurcode": "WA12700270",
+                                            "Langu": "",
+                                            "Shortform": ""
+                                        },
+                                        "Premise": "7000505896",
+                                        "OwnerPremiseProperty": {
+                                            "results": [
+                                                {
+                                                    "__metadata": {
+                                                        "id": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremisePropertySet(Property='1300094269',Installation='5001047482')",
+                                                        "uri": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremisePropertySet(Property='1300094269',Installation='5001047482')",
+                                                        "type": "ERP_UTILITIES_UMC.OwnerPremiseProperty"
+                                                    },
+                                                    "Property": "1300094269",
+                                                    "Installation": "5001047482",
+                                                    "Division": "10",
+                                                    "Opendate": "/Date(1364601600000)/",
+                                                    "Closedate": "/Date(253402214400000)/",
+                                                    "Occupiedstatus": "Occupied",
+                                                    "Lastoccupied": null,
+                                                    "Occupiedsince": "/Date(1467331200000)/"
+                                                },
+                                                {
+                                                    "__metadata": {
+                                                        "id": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremisePropertySet(Property='1300094269',Installation='5001047499')",
+                                                        "uri": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremisePropertySet(Property='1300094269',Installation='5001047499')",
+                                                        "type": "ERP_UTILITIES_UMC.OwnerPremiseProperty"
+                                                    },
+                                                    "Property": "1300094269",
+                                                    "Installation": "5001047499",
+                                                    "Division": "20",
+                                                    "Opendate": "/Date(1364601600000)/",
+                                                    "Closedate": "/Date(253402214400000)/",
+                                                    "Occupiedstatus": "Occupied",
+                                                    "Lastoccupied": null,
+                                                    "Occupiedsince": "/Date(1467331200000)/"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "__metadata": {
+                                "id": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerContractAccountSet('200027110358')",
+                                "uri": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerContractAccountSet('200027110358')",
+                                "type": "ERP_UTILITIES_UMC.OwnerContractAccount"
+                            },
+                            "ContractAccount": "200027110358",
+                            "ContractAccBal": "0.000",
+                            "OwnerPremise": {
+                                "results": [
+                                    {
+                                        "__metadata": {
+                                            "id": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremiseSet('7000017076')",
+                                            "uri": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremiseSet('7000017076')",
+                                            "type": "ERP_UTILITIES_UMC.OwnerPremise"
+                                        },
+                                        "PremiseAddress": {
+                                            "__metadata": { "type": "ERP_UTILITIES_UMC.PremiseAddress" },
+                                            "HouseNo2": "",
+                                            "Standardaddress": false,
+                                            "City": "Puyallup",
+                                            "District": "",
+                                            "PostlCod1": "98371",
+                                            "PostlCod2": "",
+                                            "PoBox": "",
+                                            "Street": "4TH AVE NW",
+                                            "HouseNo": "1207",
+                                            "Building": "",
+                                            "Floor": "",
+                                            "RoomNo": "",
+                                            "Country": "US",
+                                            "Countryname": "USA",
+                                            "Region": "WA",
+                                            "Regionname": "",
+                                            "TimeZone": "PST",
+                                            "Taxjurcode": "WA12700110",
+                                            "Langu": "",
+                                            "Shortform": ""
+                                        },
+                                        "Premise": "7000017076",
+                                        "OwnerPremiseProperty": {
+                                            "results": [
+                                                {
+                                                    "__metadata": {
+                                                        "id": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremisePropertySet(Property='1300000904',Installation='5000020822')",
+                                                        "uri": "https://10.41.53.54:8001/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/OwnerPremisePropertySet(Property='1300000904',Installation='5000020822')",
+                                                        "type": "ERP_UTILITIES_UMC.OwnerPremiseProperty"
+                                                    },
+                                                    "Property": "1300000904",
+                                                    "Installation": "5000020822",
+                                                    "Division": "10",
+                                                    "Opendate": "/Date(1364601600000)/",
+                                                    "Closedate": "/Date(253402214400000)/",
+                                                    "Occupiedstatus": "Occupied",
+                                                    "Lastoccupied": null,
+                                                    "Occupiedsince": "/Date(1481068800000)/"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

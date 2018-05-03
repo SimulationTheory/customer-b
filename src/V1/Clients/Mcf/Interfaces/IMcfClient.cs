@@ -247,8 +247,6 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// <returns></returns>
         bool CreateBpRelationship(string jwt, BpRelationshipRequest request);
 
-   
-
         /// <summary>
         /// Creates a cancellation for move in for a contract id.
         /// </summary>
@@ -281,5 +279,12 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// <param name="moveoutDate">The moveout date.</param>
         /// <returns></returns>
         McfResponse<GetContractItemMcfResponse> StopService(long contractItemId, long premiseId, DateTimeOffset moveoutDate);
+
+        /// <summary>
+        /// Gets the owner accounts. AccountID is retrieved from request context.
+        /// </summary>
+        /// <param name="bpId">Business partner ID</param>
+        /// <returns></returns>
+        Task<McfResponse<McfResponseResults<OwnerAccountsSet>>> GetOwnerAccounts(string bpId);
     }
 }
