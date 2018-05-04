@@ -15,7 +15,7 @@ namespace PSE.Customer.V1.Repositories.Entities
         public string FirstName { get; set; }
         [Column("full_name")]
         public string FullName { get; set; }
-        //[Column("middle_name")] TODO: Remove Comment When Column Is Added To Cassandra
+        [Column("middle_name")]
         public string MiddleName { get; set; }
         [Column("last_name")]
         public string LastName { get; set; }
