@@ -27,6 +27,7 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
         private Mock<IMcfClient> _mcfClientMock;
         private Mock<ILogger<MoveInLogic>> _loggerMock;
         private Mock<IAddressApi> _addressApi;
+        private Mock<IAccountApi> _accountApi;
         private Mock<IDeviceApi> _deviceApiMock;
         private Mock<IRequestContextAdapter> _requestContextMock;
         private Mock<ICustomerLogic> _customerMock;
@@ -37,6 +38,7 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
             _mcfClientMock = new Mock<IMcfClient>();
             _loggerMock = new Mock<ILogger<MoveInLogic>>();
             _addressApi = new Mock<IAddressApi>();
+            _accountApi = new Mock<IAccountApi>();
             _deviceApiMock = new Mock<IDeviceApi>();
             _requestContextMock = new Mock<IRequestContextAdapter>();
             _customerMock = new Mock<ICustomerLogic>();
@@ -63,6 +65,7 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
                 _loggerMock.Object,
                 _mcfClientMock.Object,
                 _addressApi.Object,
+                _accountApi.Object,
                 _deviceApiMock.Object,
                 _customerMock.Object);
 
@@ -86,6 +89,7 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
                 _loggerMock.Object,
                 _mcfClientMock.Object,
                 _addressApi.Object,
+                _accountApi.Object,
                 _deviceApiMock.Object,
                  _customerMock.Object);
 
@@ -132,6 +136,7 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
                 _loggerMock.Object,
                 _mcfClientMock.Object,
                 _addressApi.Object,
+                _accountApi.Object,
                 _deviceApiMock.Object,
                  _customerMock.Object);
 
@@ -173,6 +178,7 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
                 _loggerMock.Object,
                 _mcfClientMock.Object,
                 _addressApi.Object,
+                _accountApi.Object,
                 _deviceApiMock.Object,
                  _customerMock.Object);
 

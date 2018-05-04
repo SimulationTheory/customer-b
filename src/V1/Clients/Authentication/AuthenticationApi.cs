@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using PSE.WebAPI.Core.Service.Enums;
+using PSE.WebAPI.Core.Service.Interfaces;
 
 namespace PSE.Customer.V1.Clients.Authentication
 {
@@ -20,13 +21,16 @@ namespace PSE.Customer.V1.Clients.Authentication
     /// </summary>
     public class AuthenticationApi : ClientProxy.ClientProxy, IAuthenticationApi
     {
+        private readonly IRequestContextAdapter _channelContext;
+
         /// <summary>
         /// Constructor for DI
         /// </summary>
-        /// <param name="requestContextAdapter"></param>
         /// <param name="coreOptions"></param>
-        public AuthenticationApi(ICoreOptions coreOptions) : base(coreOptions)
+        /// <param name="channelContext"></param>
+        public AuthenticationApi(ICoreOptions coreOptions, IRequestContextAdapter channelContext) : base(coreOptions)
         {
+            _channelContext = channelContext;
         }
 
         /// <summary>
@@ -50,8 +54,7 @@ namespace PSE.Customer.V1.Clients.Authentication
         public Task<IRestResponse<ExistsResponse>> GetUserNameExists(string userName)
         {
             var request = new RestRequest($"/v{API_VERSION}/authentication/user-name-exists/{userName}");
-            // TODO: Need to get this from somewhere...
-            request.AddHeader("request-channel", "Web");
+            request.AddHeader("request-channel", _channelContext.RequestChannel.ToString());
             return ExecuteAsync<ExistsResponse>(request);
         }
         /// <summary>
@@ -82,8 +85,7 @@ namespace PSE.Customer.V1.Clients.Authentication
 
             var body = JsonConvert.SerializeObject(signUpInfo);
             request.AddParameter("application/json", body, ParameterType.RequestBody);
-            // TODO: Need to get this from somewhere...
-            request.AddHeader("request-channel", "Web");
+            request.AddHeader("request-channel", _channelContext.RequestChannel.ToString());
 
             var resp = await ExecuteAsync<OkResult>(request);
             return resp;
@@ -106,8 +108,7 @@ namespace PSE.Customer.V1.Clients.Authentication
             };
             request.AddHeader("ContentType", "application/json");
             request.AddHeader("Accept", "application/json");
-            // TODO: Need to get this from somewhere...
-            request.AddHeader("request-channel", "Web");
+            request.AddHeader("request-channel", _channelContext.RequestChannel.ToString());
 
             var body = JsonConvert.SerializeObject(requestBody);
             request.AddParameter("application/json", body, ParameterType.RequestBody);
@@ -130,8 +131,7 @@ namespace PSE.Customer.V1.Clients.Authentication
 
             request.AddHeader("ContentType", "application/json");
             request.AddHeader("Accept", "application/json");
-            // TODO: Need to get this from somewhere...
-            request.AddHeader("request-channel", "Web");
+            request.AddHeader("request-channel", _channelContext.RequestChannel.ToString());
 
             var req1 = new List<CreateUpdateUserSecurityQuestionModel>();
             profileInfo.SecurityQuestionResponses.ToList().ForEach(s => req1.Add(new CreateUpdateUserSecurityQuestionModel() { Sequence = s.Sequence, Question = s.Question, Answer = s.Answer }));

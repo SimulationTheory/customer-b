@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using PSE.Customer.Extensions;
+using PSE.Customer.V1.Clients.Account.Models.Request;
 using PSE.Customer.V1.Clients.Address.Interfaces;
 using PSE.Customer.V1.Clients.Device.Interfaces;
 using PSE.Customer.V1.Clients.Mcf.Interfaces;
@@ -17,7 +18,6 @@ using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Request;
 using PSE.Customer.V1.Response;
 using PSE.WebAPI.Core.Exceptions.Types;
-using PSE.WebAPI.Core.Service.Interfaces;
 
 namespace PSE.Customer.V1.Logic
 {
@@ -32,12 +32,23 @@ namespace PSE.Customer.V1.Logic
         private const string McfDateFormat = "yyyy-MM-ddThh:mm:ss";
         private static string ValidToMcfmaxdata = new DateTime(9999, 12, 31).ToString(McfDateFormat);
         private readonly IDeviceApi _deviceApi;
+        private readonly IAccountApi _accountApi;
 
-        public MoveInLogic(ILogger<MoveInLogic> logger, IMcfClient mcfClient, IAddressApi addressApi, IDeviceApi deviceApi,ICustomerLogic customerLogic)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MoveInLogic"/> class.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <param name="mcfClient">The mcfClient.</param>
+        /// <param name="addressApi">The addressApi.</param>
+        /// <param name="accountApi"></param>
+        /// <param name="deviceApi">The deviceApi.</param>
+        /// <param name="customerLogic"></param>
+        public MoveInLogic(ILogger<MoveInLogic> logger, IMcfClient mcfClient, IAddressApi addressApi, IAccountApi accountApi, IDeviceApi deviceApi, ICustomerLogic customerLogic)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _mcfClient = mcfClient ?? throw new ArgumentNullException(nameof(mcfClient));
             _addressApi = addressApi ?? throw new ArgumentNullException(nameof(addressApi));
+            _accountApi = accountApi ?? throw new ArgumentNullException(nameof(accountApi));
             _deviceApi = deviceApi ?? throw new ArgumentNullException(nameof(deviceApi));
             _customerLogic = customerLogic ?? throw new ArgumentNullException(nameof(customerLogic));
         }
@@ -176,25 +187,25 @@ namespace PSE.Customer.V1.Logic
             {
                 var resp = await _mcfClient.GetBprelationships(bpId, jwt);
                 var bprelations = MapBpRelations(resp, bpId);
-              
+
                 return bprelations;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, $"Failed to GetBprelationships for {bpId}");
                 throw ex;
             }
-            
+
         }
         /// <summary>
         /// Creates Autorized contact
         /// Get Customer Relationships Get /v{version}/customer/bp-relationships
-         ///Check to see if customer is existing(and active) contact customer 
-         ///   If yes and active – no action required
-         ///   If yes and not currently valid – Update valid to date to 1231999? 
+        ///Check to see if customer is existing(and active) contact customer 
+        ///   If yes and active – no action required
+        ///   If yes and not currently valid – Update valid to date to 1231999? 
         ///       If no – create relationship type contact customer between the two BP;s
-         ///   From Date: System Date
-         ///   To Date: 12/29/9999 
+        ///   From Date: System Date
+        ///   To Date: 12/29/9999 
         /// </summary>
         /// <param name="authorizedContactRequest"></param>
         /// <param name="bpId"></param>
@@ -203,7 +214,7 @@ namespace PSE.Customer.V1.Logic
         public async Task<AuthorizedContactResponse> CreateAuthorizedContact(AuthorizedContactRequest authorizedContactRequest, string bpId, string jwt)
         {
             _logger.LogInformation($"CreateAuthorizedContact: CreateAuthorizedContact({nameof(authorizedContactRequest)} : {authorizedContactRequest.ToJson()})");
-            
+
             try
             {
                 var authorizedContactresponse = new AuthorizedContactResponse();
@@ -245,9 +256,9 @@ namespace PSE.Customer.V1.Logic
                         //Update
                         var relationShipToupdate = GetRelationshipToupdate(hasRelation);
                         _mcfClient.UpdateBusinessPartnerRelationship(relationShipToupdate, jwt);
-                      
+
                     }
-                    if(hasRelation == null)
+                    if (hasRelation == null)
                     {
                         //Create Bp relationship
                         var bpCreateRelation = new CreateBpRelationshipRequest()
@@ -267,7 +278,7 @@ namespace PSE.Customer.V1.Logic
                 _logger.LogError(ex, $"Failed to CreateAuthorizedContact");
                 throw ex;
             }
-            
+
         }
 
         /// <inheritdoc/>
@@ -298,11 +309,11 @@ namespace PSE.Customer.V1.Logic
                 AccountID = bp.ToString(),
                 CustomerRole = "",
                 ProcessType = "PRIOR",
-                ContractItemNav = await CreateContractItemNavList(request, bp, jwt),
-                ProdAttributes = new List<ProdAttributes>()
+                ContractItemNav = await CreateContractItemNavList(request),
+                ProdAttributes = new List<ProdAttribute>()
             };
 
-            var response = _mcfClient.PostPriorMoveIn(mcfMoveInRequest, jwt);
+            var response = _mcfClient.PostMoveIn(mcfMoveInRequest, jwt);
 
             var newContractAccounts = response.ContractItemNav.Results.Select(item => long.Parse(item.BusinessAgreementID)).ToList();
 
@@ -408,9 +419,46 @@ namespace PSE.Customer.V1.Logic
             return Task.FromResult(validIdentifier != null);
         }
 
+        /// <inheritdoc />
+        public async Task<CleanMoveInResponse> PostCleanMoveIn(CleanMoveInRequest request, string jwt)
+        {
+
+            var bpId = ParseBpFromString(request.BpId);
+
+            //
+            var addressInfoResponse = await _customerLogic.GetMailingAddressesAsync(bpId, true, jwt);
+            var addressInfo = addressInfoResponse.FirstOrDefault();
+          
+            var accountRequest = new CreateAccountRequest()
+            {
+                Description = "New Move In"
+            };
+            var accountResponse = await _accountApi.PostCreateContractAccount(accountRequest);
+
+            var mcfMoveInRequest = new CreateMoveInRequest()
+            {
+                AccountID = request.BpId,
+                CustomerRole = "",
+                ProcessType = "",
+                ContractItemNav = await CreateCleanMoveInContractItemNavList(request, accountResponse.ContractAccountId.ToString()),
+                ProdAttributes = CreateProdAttributeList(request.ProductEnrollments)
+            };
+
+            var response = _mcfClient.PostMoveIn(mcfMoveInRequest, jwt);
+            var depositByContractId = response.ContractItemNav.Results.ToDictionary(contractItem => contractItem.ContractID, contractItem => contractItem.SecDepositAmt);
+            var notificationNumberByContractId = response.ContractItemNav.Results.ToDictionary(
+                contractItem => contractItem.ContractID, contractItem => contractItem.NotificationNumber);
+            var moveInResponse = new CleanMoveInResponse()
+            {
+                DepositsByContractId = depositByContractId,
+                NotificationNumberByContractId = notificationNumberByContractId
+            };
+            return moveInResponse;
+        }
+
         #region Helper Methods
 
-        private async Task<IEnumerable<ContractItemNav>> CreateContractItemNavList(MoveInRequest request, long bp, string jwt)
+        private async Task<IEnumerable<ContractItemNav>> CreateContractItemNavList(MoveInRequest request)
         {
             var premiseInstallation = await _deviceApi.GetPremiseInstallation(request.PremiseId);
             var contractItemNavList = new List<ContractItemNav>();
@@ -436,6 +484,61 @@ namespace PSE.Customer.V1.Logic
             }
 
             return contractItemNavList;
+        }
+
+        public async Task<IEnumerable<ContractItemNav>> CreateCleanMoveInContractItemNavList(CleanMoveInRequest request, string newContractAccountId)
+        {
+            var contractItemNavList = new List<ContractItemNav>();
+            foreach (var installation in request.Installations)
+            {
+                var contractItemNav = new ContractItemNav()
+                {
+                    ContractStartDate = DateTimeOffset.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss"),
+                    ContractEndDate = DateTime.MaxValue.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss"),
+                    BusinessAgreementID = newContractAccountId,
+                    TransferCA = "",
+                    ProductID = GetProductId(installation.DivisionId),
+                    DivisionID = installation.DivisionId,
+                    PointOfDeliveryGUID = installation.InstallationGuid
+                };
+
+                contractItemNavList.Add(contractItemNav);
+            }
+
+            return contractItemNavList;
+        }
+
+        //TODO: Speak with Venu to revisit this 4/30/2018
+        public IEnumerable<ProdAttribute> CreateProdAttributeList(IEnumerable<ProductInfo> products)
+        {
+            var prodAttributes = new List<ProdAttribute>();
+
+            if (products == null) return prodAttributes;
+
+            //TODO: Find other product type names
+
+            foreach (var product in products)
+            {
+                var productType = product.ProductType.ToLower();
+                var prodAttribute = new ProdAttribute();
+                switch (productType)
+                {
+                    case "green":
+                        prodAttribute.Attrname = "ZFC_GPWBLK";
+                        break;
+                    case "carbon":
+                        prodAttribute.Attrname = "ZFC_CARBOFF";
+                        break;
+                    default:
+                        throw new BadRequestException("Unknown product type. Please verify product type is correct.");
+                }
+                prodAttribute.Attrvalue = product.EnrollmentAmount.ToString();
+                prodAttributes.Add(prodAttribute);
+
+            }
+
+            return prodAttributes;
+
         }
         public string GetProductId(string divisionId)
         {
@@ -604,8 +707,8 @@ namespace PSE.Customer.V1.Logic
         private List<BpRelationshipResponse> GetRelations(List<BpRelationship> bprelationships)
         {
             List<BpRelationshipResponse> relationships = new List<BpRelationshipResponse>();
-           foreach(var rel in bprelationships)
-           {
+            foreach (var rel in bprelationships)
+            {
                 var relResp = new BpRelationshipResponse()
                 {
                     BpId1 = rel.AccountID2,
@@ -618,7 +721,7 @@ namespace PSE.Customer.V1.Logic
                     Validtodatenew = rel.Validtodatenew
                 };
                 relationships.Add(relResp);
-           }
+            }
 
             return relationships;
         }
@@ -644,8 +747,8 @@ namespace PSE.Customer.V1.Logic
                 AccountID1 = long.TryParse(relationShip.BpId1, out long bp1) ? bp1 : 0,
                 AccountID2 = long.TryParse(relationShip.BpId2, out long bp2) ? bp2 : 0,
                 Defaultrelationship = false,
-                Differentiationtypevalue="",
-                Relationshiptypenew ="",
+                Differentiationtypevalue = "",
+                Relationshiptypenew = "",
                 Validfromdate = relationShip.Validfromdate.ToString(McfDateFormat),
                 Validtodate = relationShip.Validtodate.ToString(McfDateFormat),
                 Validfromdatenew = DateTimeOffset.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss"),
@@ -673,27 +776,36 @@ namespace PSE.Customer.V1.Logic
             };
 
 
-           
+
             return mcfRequest;
         }
 
         private bool IsrelationShipActive(BpRelationshipResponse checkRelationShip)
         {
             bool valid = false;
-            if(checkRelationShip?.Validtodate < DateTime.Now || checkRelationShip?.Validfromdate > DateTime.Now)
+            if (checkRelationShip?.Validtodate < DateTime.Now || checkRelationShip?.Validfromdate > DateTime.Now)
             {
-                valid =  false;
+                valid = false;
             }
             return valid;
         }
 
         private BpRelationshipResponse CheckRelationWithContact(BpRelationshipsResponse checkRelationShip, string contactBp)
         {
-           var bprelation =  checkRelationShip?.RelationShips?.FirstOrDefault(r => (r.BpId1 == contactBp || r.BpId2 == contactBp));
-           return bprelation;
+            var bprelation = checkRelationShip?.RelationShips?.FirstOrDefault(r => (r.BpId1 == contactBp || r.BpId2 == contactBp));
+            return bprelation;
+        }
+        private long ParseBpFromString(string bp)
+        {
+            if (!long.TryParse(bp, out var bpId))
+            {
+                throw new InternalServerException($"{bp} should be Long data type");
+            }
+
+            return bpId;
         }
 
-       
         #endregion
+
     }
 }

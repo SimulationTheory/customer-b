@@ -7,7 +7,6 @@ using PSE.Customer.V1.Response;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using PSE.WebAPI.Core.Service.Enums;
 namespace PSE.Customer.V1.Logic.Interfaces
 {
     /// <summary>
@@ -39,6 +38,14 @@ namespace PSE.Customer.V1.Logic.Interfaces
         /// <param name="jwt"></param>
         /// <returns></returns>
         Task<IEnumerable<long>> PostPriorMoveIn(MoveInRequest request, long bp, string jwt);
+
+        /// <summary>
+        /// Initates a clean move in
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="jwt"></param>
+        /// <returns></returns>
+        Task<CleanMoveInResponse> PostCleanMoveIn(CleanMoveInRequest request, string jwt);
 
 
         /// <summary>

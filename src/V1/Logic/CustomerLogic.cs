@@ -425,7 +425,7 @@ namespace PSE.Customer.V1.Logic
 
                 var response = _mcfClient.GetStandardMailingAddress(jwt, bpId);
 
-                var addressId = response.Result.AddressID;
+                var addressId = response.Result?.AddressID;
 
                 if (addressId != null)
                 {

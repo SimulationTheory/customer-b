@@ -88,6 +88,36 @@ namespace PSE.Customer.V1.Controllers
         }
 
         /// <summary>
+        /// Clean move in.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns></returns>
+        [HttpPost("movein/{contractAccountId}")]
+        [ProducesResponseType(typeof(CleanMoveInResponse), 200)]
+        public async Task<IActionResult> PostCleanMoveIn([FromBody] CleanMoveInRequest request)
+        {
+
+            IActionResult result;
+
+            try
+            {
+                var jwt = GetJWToken();
+                var response = await _moveInLogic.PostCleanMoveIn(request, jwt);
+
+                result = Ok(response);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                result = e.ToActionResult();
+            }
+
+            return result;
+        }
+
+
+
+        /// <summary>
         /// Initiates move in for prior obligations 
         /// </summary>
         /// <param name="request"></param>

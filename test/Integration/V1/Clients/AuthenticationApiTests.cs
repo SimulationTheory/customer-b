@@ -9,6 +9,7 @@ using PSE.Customer.V1.Clients.Authentication.Models.Response;
 using PSE.Customer.V1.Response;
 using PSE.WebAPI.Core.Configuration;
 using PSE.WebAPI.Core.Configuration.Interfaces;
+using PSE.WebAPI.Core.Service.Interfaces;
 using RestSharp;
 using Shouldly;
 
@@ -24,9 +25,11 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
 
         private Mock<ICoreOptions> CoreOptionsMock { get; set; }
 
+        private Mock<IRequestContextAdapter> _requestContextMock;
+
         private IAuthenticationApi GetApi()
         {
-            var api = new AuthenticationApi(CoreOptionsMock?.Object);
+            var api = new AuthenticationApi(CoreOptionsMock?.Object, _requestContextMock?.Object);
             return api;
         }
 
@@ -41,6 +44,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             CoreOptionsMock = new Mock<ICoreOptions>();
             CoreOptionsMock.SetupGet(x => x.Configuration).Returns(
                 new WebConfiguration { LoadBalancerUrl = "http://selfservice-dev-alb.puget.com" });
+            _requestContextMock = new Mock<IRequestContextAdapter>();
         }
 
         #endregion

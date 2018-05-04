@@ -23,10 +23,10 @@ namespace PSE.Customer.V1.Models
         public string SDWaiverReason { get; set; }
         public string AllowCancelMO { get; set; }
         public string CustomerRole { get; set; }
-        public decimal Leaseamt { get; set; }
+        public string Leaseamt { get; set; }
         public string ContEndReason { get; set; }
         public string LeaseEquiNum { get; set; }
-        public decimal SecDepositAmt { get; set; }
+        public string SecDepositAmt { get; set; }
         public string ContractID { get; set; }
         public DateTimeOffset? AllowMIDteTo { get; set; }
         public string Description { get; set; }
@@ -47,6 +47,6 @@ namespace PSE.Customer.V1.Models
         public string Distributor { get; set; }
         public string SwitchServiceFlag { get; set; }
         public string MeterNumber { get; set; }
-        public bool HistoricFlag { get; set; }
+        public string NotificationNumber { get; set; }
     }
 }

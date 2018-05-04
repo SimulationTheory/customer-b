@@ -1,11 +1,11 @@
 ﻿using Newtonsoft.Json;
+using PSE.Customer.V1.Clients.Account.Models.Request;
 using PSE.Customer.V1.Clients.Account.Models.Response;
 using PSE.Customer.V1.Clients.Device.Interfaces;
 using PSE.Customer.V1.Clients.Extensions;
 using PSE.WebAPI.Core.Configuration.Interfaces;
 using PSE.WebAPI.Core.Service.Interfaces;
 using RestSharp;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace PSE.Customer.V1.Clients.Account
@@ -47,6 +47,19 @@ namespace PSE.Customer.V1.Clients.Account
             var response = await ExecuteAsync<GetAccountDetailsResponse>(restRequest);
 
             return JsonConvert.DeserializeObject<GetAccountDetailsResponse>(response.Content);
+        }
+
+        public async Task<CreateAccountResponse> PostCreateContractAccount(CreateAccountRequest request)
+        {
+            var requestBody = JsonConvert.SerializeObject(request);
+            var restRequest = new RestRequest($"/v{API_VERSION}/account", Method.POST);
+            restRequest.SetJwtAuthorization(_channelContext.JWT);
+            restRequest.AddHeader("request-channel", _channelContext.RequestChannel.ToString());
+            restRequest.AddParameter("application/json", requestBody, ParameterType.RequestBody);
+
+            var accountInfo = await ExecuteAsync<CreateAccountResponse>(restRequest);
+
+            return accountInfo.Data;
         }
     }
 }

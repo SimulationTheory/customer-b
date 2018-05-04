@@ -1,4 +1,5 @@
-﻿using PSE.Customer.V1.Clients.Account.Models.Response;
+﻿using PSE.Customer.V1.Clients.Account.Models.Request;
+using PSE.Customer.V1.Clients.Account.Models.Response;
 using RestSharp;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -23,5 +24,7 @@ namespace PSE.Customer.V1.Clients.Device.Interfaces
         /// <param name="contractAccountId">The contract account identifier.</param>
         /// <returns></returns>
         Task<GetAccountDetailsResponse> GetContractAccountDetails(long contractAccountId);
+
+        Task<CreateAccountResponse> PostCreateContractAccount(CreateAccountRequest request);
     }
 }

@@ -16,8 +16,6 @@ namespace PSE.Customer.Tests.Integration.TestObjects
         public TestStartup(ILogger<Startup> logger, IHostingEnvironment env) : base(logger, env)
         {
             _logger = logger;
-
-            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
             _loggerFactory = new LoggerFactory().AddConsole(LogLevel.Trace);
         }
 

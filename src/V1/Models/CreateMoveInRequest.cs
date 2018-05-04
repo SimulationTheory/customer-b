@@ -8,6 +8,6 @@ namespace PSE.Customer.V1.Models
         public string CustomerRole { get; set; }
         public string ProcessType { get; set; }
         public IEnumerable<ContractItemNav> ContractItemNav { get; set; }
-        public IEnumerable<ProdAttributes> ProdAttributes { get; set; }
+        public IEnumerable<ProdAttribute> ProdAttributes { get; set; }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Cassandra;
+using Cassandra.Mapping;
 using Microsoft.Extensions.Logging;
 using PSE.Cassandra.Core.Linq;
 using PSE.Cassandra.Core.Session.Interfaces;

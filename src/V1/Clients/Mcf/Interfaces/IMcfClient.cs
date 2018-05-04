@@ -67,7 +67,7 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// <param name="request"></param>
         /// <param name="jwt"></param>
         /// <returns></returns>
-        MoveInResponse PostPriorMoveIn(CreateMoveInRequest request, string jwt);
+        MoveInResponse PostMoveIn(CreateMoveInRequest request, string jwt);
 
         /// <summary>
         /// POSTs the work or home phone for the business partner

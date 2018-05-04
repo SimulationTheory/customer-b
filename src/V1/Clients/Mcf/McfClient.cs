@@ -1268,6 +1268,41 @@ namespace PSE.Customer.V1.Clients.Mcf
 
             return mcfResponse;
         }
+        public MoveInResponse PostMoveIn(CreateMoveInRequest request, string jwt)
+        {
+            var config = _coreOptions.Configuration;
+            _logger.LogInformation($"PostMoveIn(jwt, {nameof(request)}: {request}");
+            var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
+            var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
+            var cookies = restUtility.GetMcfCookies(jwt, _requestContext.RequestChannel.ToString());
+            var body = JsonConvert.SerializeObject(request);
+
+            var restRequest = new RestRequest("/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/ContractItems", Method.POST);
+            restRequest.AddCookies(cookies.Result);
+            restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
+            restRequest.AddHeader("ContentType", "application/json");
+            restRequest.AddHeader("Accept", "application/json");
+            restRequest.AddParameter("application/json", body, ParameterType.RequestBody);
+
+            _logger.LogInformation("Making MCF call");
+
+            var response = client.Execute(restRequest);
+            var mcfResponse = JsonConvert.DeserializeObject<McfResponse<MoveInResponse>>(response.Content);
+
+            if (mcfResponse.Error != null)
+            {
+                var errorMsg = mcfResponse.Error.Message.Value;
+                _logger.LogError(errorMsg);
+                throw new BadRequestException(errorMsg);
+
+            }
+
+            return mcfResponse.Result;
+        }
+
+
+
+
 
         /// <summary>
         /// Gets the owner accounts.
