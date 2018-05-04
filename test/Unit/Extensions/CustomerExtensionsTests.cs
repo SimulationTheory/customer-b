@@ -77,16 +77,7 @@ namespace PSE.Customer.Tests.Unit.Extensions
         #endregion Test Helper Methods
 
         #region ToModel Tests
-        [TestMethod]
-        public void ToModel_NullCustomerEntityThrows_Test()
-        {
-            // init vars
-            const CustomerEntity source = null;
-            const string expectedParamName = nameof(source);
 
-            // test target month
-            TestToModelNullParameters(source, expectedParamName);
-        }
 
         [TestMethod]
         public void ToModel_FullName_Test()
@@ -97,6 +88,7 @@ namespace PSE.Customer.Tests.Unit.Extensions
                 BusinessPartnerId = 1002647070,
                 FullName = "JENNIFER L POWERS",
                 FirstName = "JENNIFER",
+                MiddleName = "L",
                 LastName = "POWERS",
                 EmployerName = "Puget Sound Energy",
                 PvaIndicator = true
@@ -109,7 +101,9 @@ namespace PSE.Customer.Tests.Unit.Extensions
             model.CustomerName.ShouldBe(customerEntity.FullName);
             model.OrganizationName.ShouldBe(customerEntity.EmployerName);
             model.IsPva.ShouldBe(customerEntity.PvaIndicator);
-            model.MiddleName.ShouldBe("L");
+            model.FirstName.ShouldBe(customerEntity.FirstName);
+            model.MiddleName.ShouldBe(customerEntity.MiddleName);
+            model.LastName.ShouldBe(customerEntity.LastName);
         }
 
         [TestMethod]
@@ -121,6 +115,7 @@ namespace PSE.Customer.Tests.Unit.Extensions
                 BusinessPartnerId = 1002647070,
                 FullName = null,
                 FirstName = "JENNIFER",
+                MiddleName = "",
                 LastName = "POWERS",
                 EmployerName = "Puget Sound Energy",
                 PvaIndicator = true

@@ -32,9 +32,7 @@ namespace PSE.Customer.Extensions
                 CustomerName = source.FullName ?? source.FirstName + " " + source.LastName,
                 FirstName = source.FirstName,
                 LastName = source.LastName,
-                MiddleName = GetMiddleName(source.FullName, source.FirstName, source.LastName),
-                //TODO: Change after middle_name is added into Cassandra (currently only first_name, last_name, and full_name)
-                //source.MiddleName,
+                MiddleName = source.MiddleName,
                 FraudCheck = source.FraudCheck,
                 OrganizationName = source.EmployerName,
                 IsPva = source.PvaIndicator,
@@ -71,34 +69,6 @@ namespace PSE.Customer.Extensions
 
             model.PrimaryPhone = (model.Phones.Any()) ? model.Phones.First().Type : model.PrimaryPhone;
 
-        }
-        //TODO: Delete This Snippet When Middle Name Is Added To Cassandra
-        /// <summary>
-        /// Gets the name of the middle.
-        /// </summary>
-        /// <param name="fullName">The full name.</param>
-        /// <param name="firstName">The first name.</param>
-        /// <param name="lastName">The last name.</param>
-        /// <returns></returns>
-        private static string GetMiddleName(string fullName, string firstName, string lastName)
-        {
-            var middleName = string.Empty;
-
-            if (fullName != null)
-            {
-                middleName = fullName;
-
-                if (middleName.ToUpper().Contains(firstName.Trim().ToUpper()))
-                {
-                    middleName = middleName.Replace(firstName, string.Empty);
-                }
-                if (middleName.ToUpper().Contains(lastName.Trim().ToUpper()))
-                {
-                    middleName = middleName.Replace(lastName, string.Empty);
-                }
-
-            }
-            return middleName.Trim();
         }
 
 
