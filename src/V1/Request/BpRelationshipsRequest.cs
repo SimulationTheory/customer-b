@@ -20,9 +20,9 @@ namespace PSE.Customer.V1.Request
         public string Relationshipcategory { get; set; }
         public string Relationshiptype { get; set; }
         public string Relationshiptypenew { get; set; }
-        public DateTime Validfromdate { get; set; }
-        public DateTime Validfromdatenew { get; set; }
-        public DateTime Validtodate { get; set; }
-        public DateTime Validtodatenew { get; set; }
+        public DateTimeOffset Validfromdate { get; set; }
+        public DateTimeOffset Validfromdatenew { get; set; }
+        public DateTimeOffset Validtodate { get; set; }
+        public DateTimeOffset Validtodatenew { get; set; }
     }
 }

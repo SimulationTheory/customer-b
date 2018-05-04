@@ -45,6 +45,7 @@ namespace PSE.RestUtility.Core.Extensions
             source.AddHeader("X-Requested-With", "XMLHttpRequest");
             source.AddHeader("ContentType", "application/json");
             source.AddHeader("Accept", "application/json");
+            //source.AddHeader("Accept", "*/*");
             return source;
         }
     }

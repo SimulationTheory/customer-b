@@ -31,10 +31,10 @@ namespace PSE.Customer.V1.Clients.Mcf.Response
         public string Relationshipcategory { get; set; }
         public string Relationshiptype { get; set; }
         public string Relationshiptypenew { get; set; }
-        public DateTime Validfromdate { get; set; }
-        public DateTime? Validfromdatenew { get; set; }
-        public DateTime Validtodate { get; set; }
-        public DateTime? Validtodatenew { get; set; }
+        public string Validfromdate { get; set; }
+        public string Validfromdatenew { get; set; }
+        public string Validtodate { get; set; }
+        public string Validtodatenew { get; set; }
         public string RelDescription { get; set; }
     }
 }

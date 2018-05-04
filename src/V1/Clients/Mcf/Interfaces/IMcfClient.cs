@@ -286,5 +286,13 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// <param name="bpId">Business partner ID</param>
         /// <returns></returns>
         Task<McfResponse<McfResponseResults<OwnerAccountsSet>>> GetOwnerAccounts(string bpId);
+        /// <summary>
+        /// delete the business partner relationshipo
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="jwt"></param>
+        /// <returns></returns>
+        Task<BpRelationshipUpdateResponse> DeleteBusinessPartnerRelationship(BpRelationshipUpdateRequest request, string jwt);
+
     }
 }

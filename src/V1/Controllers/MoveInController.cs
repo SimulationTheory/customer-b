@@ -345,6 +345,34 @@ namespace PSE.Customer.V1.Controllers
             return result;
         }
 
+        /// <summary>
+        /// Delete bp relationsship for the given bp
+        /// </summary>
+        /// <returns>returns BPSearchResponse</returns>
+        [ProducesResponseType(typeof(BpRelationshipUpdateResponse), StatusCodes.Status200OK)]
+        [HttpDelete("contact/{bp}")]
+        public async Task<IActionResult> DeleteCustomerContact(string bp)
+        {
+            IActionResult result;
+
+            try
+            {
+                //get the Bp from the JWT              
+                var bpId = GetBpIdFromClaims();
+                var jwt = GetJWToken();
+                var resp = await _moveInLogic.DeleteBprelationship(bpId.ToString(), jwt, bp);
+                result = Ok(resp);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unable to DeleteCustomerContact BP for a customer", ex.Message);
+
+                result = ex.ToActionResult();
+            }
+
+            return result;
+        }
+
         #endregion
 
         /// <summary>

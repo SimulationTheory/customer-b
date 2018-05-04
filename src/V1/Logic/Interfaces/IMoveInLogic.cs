@@ -112,6 +112,14 @@ namespace PSE.Customer.V1.Logic.Interfaces
         Task<BpRelationshipsResponse> GetBprelationships(string bpId, string jwt);
 
         /// <summary>
+        /// Delete  relationships given a business partner id
+        /// </summary>
+        /// <param name="bpId"></param>
+        ///  /// <param name="jwt"></param>
+        /// <returns></returns>
+        Task<BpRelationshipUpdateResponse> DeleteBprelationship(string bpId, string jwt, string bpTodelete);
+
+        /// <summary>
         /// /Creates Authorized Contact
         /// </summary>
         /// <param name="authorizedContactRequest"></param>

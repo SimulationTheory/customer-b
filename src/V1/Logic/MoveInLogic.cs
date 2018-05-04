@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using PSE.Customer.Extensions;
 using PSE.Customer.V1.Clients.Account.Models.Request;
 using PSE.Customer.V1.Clients.Address.Interfaces;
@@ -196,6 +198,43 @@ namespace PSE.Customer.V1.Logic
                 throw ex;
             }
 
+        }
+
+        /// <summary>
+        /// Delete  relationships given a business partner id
+        /// </summary>
+        /// <param name="bpId"></param>
+        ///  <param name="jwt"></param>
+        ///  <param name="bpTodelete"></param>
+        /// <returns></returns>
+        public async Task<BpRelationshipUpdateResponse> DeleteBprelationship(string bpId, string jwt, string bpTodelete)
+        {
+            _logger.LogInformation($"DeleteBprelationship: DeleteBprelationship({nameof(bpId)} : {bpId})");
+            try
+            {
+                var resp = await _mcfClient.GetBprelationships(bpId, jwt);
+                var bprelations = MapBpRelations(resp, bpId);
+                var hasRelation = CheckRelationWithContact(bprelations, bpTodelete);
+
+                var hasActiveRelation = IsrelationShipActive(hasRelation);
+
+                if (hasRelation == null || !hasActiveRelation)
+                {
+                    throw new BadRequestException(
+                       $"The relationship between {bpId} and {bpTodelete} doesn't exist or is inactive");
+
+                }
+                //Update
+                var relationShipToupdate = GetRelationshipToDelete(hasRelation);
+                var updateResponse = _mcfClient.UpdateBusinessPartnerRelationship(relationShipToupdate, jwt);
+                
+                return updateResponse;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to DeleteBprelationship for {bpId}");
+                throw ex;
+            }
         }
         /// <summary>
         /// Creates Autorized contact
@@ -749,10 +788,30 @@ namespace PSE.Customer.V1.Logic
                 Defaultrelationship = false,
                 Differentiationtypevalue = "",
                 Relationshiptypenew = "",
-                Validfromdate = relationShip.Validfromdate.ToString(McfDateFormat),
-                Validtodate = relationShip.Validtodate.ToString(McfDateFormat),
+                Validfromdate = relationShip.Validfromdate,
+                Validtodate = relationShip.Validtodate,
+                //Validfromdatenew = DateTimeOffset.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss"),
+                //Validtodatenew = DateTimeOffset.MaxValue.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss"),
                 Validfromdatenew = DateTimeOffset.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss"),
                 Validtodatenew = DateTimeOffset.MaxValue.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss"),
+                Relationshipcategory = relationShip.Relationshipcategory,
+            };
+            return updateRelation;
+        }
+
+        private BpRelationshipUpdateRequest GetRelationshipToDelete(BpRelationshipResponse relationShip)
+        {
+            var updateRelation = new BpRelationshipUpdateRequest()
+            {
+                AccountID1 = long.TryParse(relationShip.BpId1, out long bp1) ? bp1 : 0,
+                AccountID2 = long.TryParse(relationShip.BpId2, out long bp2) ? bp2 : 0,
+                Defaultrelationship = false,
+                Differentiationtypevalue = "",
+                Relationshiptypenew = "",
+                Validfromdate = relationShip.Validfromdate,
+                Validtodate = relationShip.Validtodate,
+                Validfromdatenew = DateTimeOffset.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss"),
+                Validtodatenew = DateTimeOffset.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss"),
                 Relationshipcategory = relationShip.Relationshipcategory,
             };
             return updateRelation;
@@ -769,10 +828,10 @@ namespace PSE.Customer.V1.Logic
                 Relationshipcategory = relationShip.Relationshipcategory,
                 Differentiationtypevalue = "",
                 Defaultrelationship = false,
-                Validfromdate = relationShip.Validfromdate,
-                Validtodate = relationShip.Validtodate,
-                Validfromdatenew = DateTime.Parse(fromDate),
-                Validtodatenew = DateTime.Parse(toDate),
+                //Validfromdate = relationShip.Validfromdate,
+                //Validtodate = relationShip.Validtodate,
+                Validfromdatenew = DateTimeOffset.Parse(fromDate),
+                Validtodatenew = DateTimeOffset.Parse(toDate),
             };
 
 
@@ -782,8 +841,25 @@ namespace PSE.Customer.V1.Logic
 
         private bool IsrelationShipActive(BpRelationshipResponse checkRelationShip)
         {
-            bool valid = false;
-            if (checkRelationShip?.Validtodate < DateTime.Now || checkRelationShip?.Validfromdate > DateTime.Now)
+            bool valid = true;
+
+            if (checkRelationShip?.Validtodate == null)
+            {
+                throw new ArgumentException("Invalid Date");
+            }
+
+            if (checkRelationShip?.Validfromdate == null)
+            {
+                throw new ArgumentException("Invalid Date");
+            }
+            var to = "\"" + checkRelationShip?.Validtodate + "\"";
+            var from = "\"" + checkRelationShip?.Validfromdate + "\"";
+            
+            DateTimeOffset toDate = JsonConvert.DeserializeObject<DateTimeOffset>(to);
+            DateTimeOffset fromDate = JsonConvert.DeserializeObject<DateTimeOffset>(from);
+
+          
+            if (toDate < DateTime.UtcNow || fromDate > DateTime.UtcNow)
             {
                 valid = false;
             }

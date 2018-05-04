@@ -22,11 +22,18 @@ using PSE.WebAPI.Core.Configuration.Interfaces;
 using PSE.WebAPI.Core.Exceptions.Types;
 using PSE.WebAPI.Core.Service.Interfaces;
 using RestSharp;
+using PSE.Customer.V1.Clients.Mcf.Models;
+using System.Net;
+using System.Net.Http;
+using System.Net.Security;
+using System.Net.Sockets;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
 
 namespace PSE.Customer.V1.Clients.Mcf
 {
-    using PSE.Customer.V1.Clients.Mcf.Models;
-    using PSE.WebAPI.Core.Service.Enums;
+    
 
     /// <summary>
     /// Handles interaction with SAP via MCF calls
@@ -39,6 +46,12 @@ namespace PSE.Customer.V1.Clients.Mcf
         private readonly ICoreOptions _coreOptions;
         private readonly ILogger<McfClient> _logger;
         private readonly string _environment;
+        private readonly string _requestChannel;
+        /// <summary>
+        /// End of line marker for HTTP lines.
+        /// </summary>
+        private const string CRLF = "\x0d\x0a";
+        private const long ServerReturnedAnInvalidOrUnrecognizedResponse = 0x80072f78L;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="McfClient"/> class.
@@ -58,6 +71,7 @@ namespace PSE.Customer.V1.Clients.Mcf
             _environment = string.IsNullOrEmpty(environment) ? "Development" : environment;
         }
 
+        #region Business Partner and Account level services
         /// <inheritdoc/>
         public async Task<BpSearchResponse> GetDuplicateBusinessPartnerIfExists(BpSearchRequest request)
         {
@@ -669,6 +683,8 @@ namespace PSE.Customer.V1.Clients.Mcf
             }
         }
 
+        #endregion
+
         #region Move in/out
 
         /// <inheritdoc/>
@@ -1189,17 +1205,73 @@ namespace PSE.Customer.V1.Clients.Mcf
                 var cookies = restUtility.GetMcfCookies(jwt, _requestContext.ToString()).Result;
                
                 // URL for updating BP relationship
+                //string url = $"{config.McfEndpoint}/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/RelationshipsSet(AccountID1='{request.AccountID1}',AccountID2='{request.AccountID2}',Relationshipcategory='{request.Relationshipcategory}')";
                 string url = $"/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/RelationshipsSet(AccountID1='{request.AccountID1}',AccountID2='{request.AccountID2}',Relationshipcategory='{request.Relationshipcategory}')";
+                
 
                 var restRequest = new RestRequest(url, Method.PUT);
                 restRequest.AddCookies(cookies);
                 restRequest.AddMcfRequestHeaders();
-
-                restRequest.AddJsonBody<BpRelationshipUpdateRequest>(request);
+                var body = JsonConvert.SerializeObject(request);
+                restRequest.AddParameter("application/json", body, ParameterType.RequestBody);
+                //restRequest.AddJsonBody<BpRelationshipUpdateRequest>(request);
 
                 _logger.LogInformation("Making MCF call");
                 var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
                 var restResponse = client.Execute(restRequest);
+                if (!restResponse.IsSuccessful)
+                {
+                        var errorMsg = restResponse.Content;
+                        _logger.LogError(errorMsg);
+                        throw new BadRequestException(errorMsg);
+                }
+
+                response.status_code = restResponse.StatusCode.ToString();
+                response.status_reason = restResponse.StatusDescription;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                throw;
+            }
+
+            return response;
+        }
+
+
+        /// <summary>
+        /// delete the business partner relationshipo
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="jwt"></param>
+        /// <returns></returns>
+        public async Task<BpRelationshipUpdateResponse> DeleteBusinessPartnerRelationship(BpRelationshipUpdateRequest request, string jwt)
+        {
+            BpRelationshipUpdateResponse response = new BpRelationshipUpdateResponse();
+
+            try
+            {
+                _logger.LogInformation($"UpdateBusinessPartnerRelationship(jwt, {nameof(request)}: {request.ToJson()})");
+                var config = _coreOptions.Configuration;
+                var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
+                var cookies = restUtility.GetMcfCookies(jwt, _requestChannel.ToString()).Result;
+
+                // URL for updating BP relationship
+                string url = $"{config.McfEndpoint}/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/RelationshipsSet(AccountID1='{request.AccountID1}',AccountID2='{request.AccountID2}',Relationshipcategory='{request.Relationshipcategory}')";
+
+                
+                var restRequest = new RestRequest(url, Method.DELETE);
+                restRequest.AddCookies(cookies);
+                restRequest.AddMcfRequestHeaders();
+
+                //restRequest.AddJsonBody<BpRelationshipUpdateRequest>(request);
+
+                _logger.LogInformation("Making MCF call");
+
+                var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
+                var cancellationTokenSource = new CancellationTokenSource();
+                var restResponse = await client.ExecuteTaskAsync(restRequest, cancellationTokenSource.Token);
+
                 if (!restResponse.IsSuccessful)
                 {
                     var errorMsg = restResponse.Content;
@@ -1220,6 +1292,7 @@ namespace PSE.Customer.V1.Clients.Mcf
         }
         #endregion
 
+        #region Stop or Move out
         /// <inheritdoc />
         public McfResponse<GetContractItemMcfResponse> StopService(long contractItemId, long premiseId, DateTimeOffset moveoutDate)
         {
@@ -1301,9 +1374,6 @@ namespace PSE.Customer.V1.Clients.Mcf
         }
 
 
-
-
-
         /// <summary>
         /// Gets the owner accounts.
         /// </summary>
@@ -1352,6 +1422,7 @@ namespace PSE.Customer.V1.Clients.Mcf
 
             return response;
         }
+        #endregion
 
         #region Private methods
 
@@ -1400,6 +1471,117 @@ namespace PSE.Customer.V1.Clients.Mcf
                 throw new Exception(errormessage);
             }
         }
+
+
+        #region Kept this for testing/debuging 
+        /// Sends an Http Request via TCP client.
+        /// This is to circumvent cases when HttpClient is not capable of parsing a response.
+        /// An example is when the server replies with HttpStatusCode 204: in this case, 
+        /// HttpClient throws an exception (HttpRequestException with HResult 0x80072f78.
+        /// </summary>
+        /// <param name="request">
+        /// The request to be sent.
+        /// It must be a complete request, with at least:
+        /// * Full RequestUri
+        /// * Method
+        /// * All necessary headers
+        /// </param>
+        /// <returns>An McfResponseBase.</returns>
+        private async Task<string> SendHttpRequestWithTcpClientAsync(HttpRequestMessage request)
+        {
+            var path = request.RequestUri.PathAndQuery.Replace("'", "%27");
+
+            var httpMessage =
+                $"{request.Method.Method.ToUpperInvariant()} {path} HTTP/1.1{CRLF}" +
+                $"accept-encoding: gzip, deflate{CRLF}" +
+                $"content-length: 0{CRLF}" +
+                $"Connection: keep-alive{CRLF}" +
+                $"X-Requested-With: XMLHttpRequest{CRLF}" +
+                $"cache-control: no-cache{CRLF}" +
+                $"Accept: */*{CRLF}" +
+                $"Host: {request.RequestUri.Host}:{request.RequestUri.Port}{CRLF}";
+
+            foreach (var header in request.Headers.Select(h => new KeyValuePair<string, string>(h.Key.ToLowerInvariant(), h.Value.First())))
+            {
+                if (!httpMessage.ToLowerInvariant().Contains(header.Key + ":"))
+                {
+                    httpMessage += $"{header.Key}:{header.Value}{CRLF}";
+                }
+            }
+            httpMessage += CRLF;
+            var response = "";
+            using (var client = new TcpClient())
+            {
+                await client.ConnectAsync(request.RequestUri.Host, request.RequestUri.Port);
+                using (var stream = client.GetStream())
+                {
+                    if (request.RequestUri.Scheme == "https")
+                    {
+                        using (var sslStream = new SslStream(stream, false, AcceptAllServerCertificate, null))
+                        {
+                            await sslStream.AuthenticateAsClientAsync(this._coreOptions.Configuration.SecureMcfEndpoint, null, SslProtocols.Tls, false);
+                            response = await SendRequestThroughStreamAsync(sslStream, httpMessage);
+                        }
+                    }
+                    else
+                    {
+                        response = await SendRequestThroughStreamAsync(stream, httpMessage);
+                    }
+                }
+            }
+            var statusCode = (HttpStatusCode)int.Parse(response.Split(' ')[1]);
+            return statusCode.ToString();
+        }
+        /// <summary>
+        /// Inform SSL that we accept all server certificates.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="certificate"></param>
+        /// <param name="chain"></param>
+        /// <param name="sslPolicyErrors"></param>
+        /// <returns>Always true.</returns>
+        private static bool AcceptAllServerCertificate(
+            object sender,
+            X509Certificate certificate,
+            X509Chain chain,
+            SslPolicyErrors sslPolicyErrors) => true;
+        /// <summary>
+        /// Sends a message through a stream (for instance, a stream from a TCP Client), then immediately reads text lines through the stream until we receive an empty line.
+        /// This is the standard for HTTP traffic.
+        /// </summary>
+        /// <param name="stream">The stream to send the message, then to read the response.</param>
+        /// <param name="message">The message to be sent.</param>
+        /// <returns>The lines that were read, each line separated by CRLF.</returns>
+        private static async Task<string> SendRequestThroughStreamAsync(Stream stream, string message)
+        {
+            var response = new StringBuilder();
+            try
+            {
+                using (var writer = new StreamWriter(stream))
+                {
+                    using (var reader = new StreamReader(stream))
+                    {
+                        await writer.WriteAsync(message);
+                        await writer.FlushAsync();
+                        string line;
+                        while ((line = await reader.ReadLineAsync()) != string.Empty)
+                        {
+                            response.Append(line);
+                            response.Append(CRLF);
+                        }
+                    }
+                }
+                response.Append(CRLF);
+            }
+            catch (Exception e)
+            {
+                //_logger.LogInformation(e.Message);
+                response.Clear();
+                response.Append($"HTTP/1.1 500 Internal server error{CRLF}{CRLF}");
+            }
+            return response.ToString();
+        }
+        #endregion
 
         #endregion
     }

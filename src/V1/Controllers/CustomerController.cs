@@ -323,8 +323,7 @@ namespace PSE.Customer.V1.Controllers
         /// <param name="request">Request object containing business partner relationship ids, relationship type</param>
         /// <returns>200 if successful, 400 if address is not valid, 500 if exception</returns>
         [ProducesResponseType(typeof(OkResult), 200)]
-        [HttpPut("UpdateBPRelationship")]
-       
+        [HttpPut("UpdateBPRelationship")]     
         public async Task<IActionResult> UpdateBusinessPartnerRelationship([FromBody] BpRelationshipUpdateRequest request)
         {
             _logger.LogInformation($"UpdateBusinessPartnerRelationship({nameof(request)}: {request.ToJson()})");
