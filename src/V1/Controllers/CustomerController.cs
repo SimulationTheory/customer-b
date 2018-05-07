@@ -1,9 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Net;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -19,19 +14,14 @@ using PSE.Customer.V1.Logic.Interfaces;
 using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Request;
 using PSE.Customer.V1.Response;
+using PSE.WebAPI.Core.Exceptions;
+using PSE.WebAPI.Core.Exceptions.Types;
 using PSE.WebAPI.Core.Service;
 using System;
 using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
 using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.Http;
-using PSE.WebAPI.Core.Exceptions;
-using PSE.WebAPI.Core.Exceptions.Types;
-using PSE.Customer.V1.Clients.Mcf.Request;
-using PSE.Customer.V1.Clients.Mcf.Response;
-using PSE.RestUtility.Core.Mcf;
-using PSE.Customer.V1.Request;
+using System.Threading.Tasks;
 
 
 namespace PSE.Customer.V1.Controllers

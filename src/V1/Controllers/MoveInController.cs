@@ -533,7 +533,7 @@ namespace PSE.Customer.V1.Controllers
         /// (Anonymous call)
         /// </summary>
         /// <param name="identifierRequest"></param>
-        /// <returns>returns ValidateIdTypeResponse with Y or N</returns>
+        /// <returns>returns ValidateIdTypeResponse with true or false</returns>
         [ProducesResponseType(typeof(ValidateIdTypeResponse), StatusCodes.Status200OK)]
         [HttpPost("bp-id-type/validate")]
         [AllowAnonymous]
@@ -547,7 +547,7 @@ namespace PSE.Customer.V1.Controllers
             {
                 result = Ok(new ValidateIdTypeResponse
                 {
-                    PiiMatch = await _moveInLogic.ValidateIdType(identifierRequest) ? "Y" : "N"
+                    PiiMatch = await _moveInLogic.ValidateIdType(identifierRequest)
                 });
             }
             catch (Exception ex)

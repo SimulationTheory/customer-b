@@ -218,7 +218,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             response.Result.ShouldBeOfType(typeof(OkObjectResult));
             var result = (ValidateIdTypeResponse)((OkObjectResult)response.Result).Value;
             result.ShouldNotBeNull();
-            result.PiiMatch.ShouldBe("Y");
+            result.PiiMatch.ShouldBeTrue();
         }
 
         [TestMethod]
@@ -244,7 +244,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             response.Result.ShouldBeOfType(typeof(OkObjectResult));
             var result = (ValidateIdTypeResponse)((OkObjectResult)response.Result).Value;
             result.ShouldNotBeNull();
-            result.PiiMatch.ShouldBe("N");
+            result.PiiMatch.ShouldBeFalse();
         }
 
         #endregion
