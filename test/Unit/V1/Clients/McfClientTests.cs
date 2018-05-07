@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
@@ -118,6 +119,64 @@ namespace PSE.Customer.Tests.Unit.V1.Clients
 
         #endregion
 
+        #region GetPremises Tests
+
+        [TestMethod]
+        public void GetPremises_ResponseFromCustomerWithMultipleActiveAccounts_AccountsLoaded()
+        {
+            // Arrange
+            var testData = TestData.GetFromResources(TestData.GetPremisesMultiplePremises);
+
+            // Act
+            var response = JsonConvert.DeserializeObject<McfResponse<PremisesSet>>(testData);
+
+            // Assert
+            response.Error.ShouldBeNull();
+
+            var premiseSet = response.Result;
+            premiseSet.PremiseId.ShouldBe("7000012644");
+            premiseSet.PremiseTypeId.ShouldBe("");
+
+            var address = premiseSet.Address;
+            address.Standardaddress.ShouldBeFalse();
+            address.City.ShouldBe("Issaquah");
+            address.PostlCod1.ShouldBe("98029");
+            address.PoBox.ShouldBe("");
+            address.Street.ShouldBe("SE 45TH ST");
+            address.HouseNo.ShouldBe("18116");
+            address.Region.ShouldBe("WA");
+
+            var installations = premiseSet.Installations.Results.ToList();
+            installations.Count.ShouldBe(2);
+            var firstInstall = installations[0];
+            firstInstall.MoveInEligibility.ShouldBe("X");
+            firstInstall.InstallationId.ShouldBe("5000014928");
+            firstInstall.DivisionId.ShouldBe("10");
+            firstInstall.PremiseId.ShouldBe("7000012644");
+            firstInstall.MoveInDateFrom.ShouldNotBeNull();
+            firstInstall.MoveInDateFrom.Value.Date.ShouldBe(new DateTime(2018, 2, 3));
+            firstInstall.MoveInDateTo.ShouldNotBeNull();
+            firstInstall.MoveInDateTo.Value.Date.ShouldBe(new DateTime(2018, 5, 3));
+            firstInstall.FutureMoveInDate.ShouldBeNull();
+        }
+
+        [TestMethod]
+        public void GetPremises_ResponseFromCustomerWithNoActiveAccount_ErrorMessageReturned()
+        {
+            // Arrange
+            var testData = TestData.GetFromResources(TestData.GetPremisesNoActiveAccount);
+
+            // Act
+            var response = JsonConvert.DeserializeObject<McfResponse<McfResponseResults<PremisesSet>>>(testData);
+
+            // Assert
+            response.Error.ShouldNotBeNull();
+            response.Error.Message.Value.ShouldContain("Record 1201162132");
+            response.Error.Message.Value.ShouldContain("not found in table EVBS");
+        }
+
+        #endregion
+
         #region GetOwnerAccounts Tests
 
         [TestMethod]
@@ -164,11 +223,14 @@ namespace PSE.Customer.Tests.Unit.V1.Clients
             firstProperty.Property.ShouldBe("1300034560");
             firstProperty.Installation.ShouldBe("5000001007");
             firstProperty.Division.ShouldBe("20");
-            firstProperty.Opendate.ShouldBe("/Date(1364601600000)/");
-            firstProperty.Closedate.ShouldBe("/Date(253402214400000)/");
             firstProperty.Occupiedstatus.ShouldBe("Occupied");
+
+            // ReSharper disable PossibleInvalidOperationException
+            firstProperty.Opendate.Value.ToString("d", CultureInfo.InvariantCulture).ShouldBe("03/30/2013");
+            firstProperty.Closedate.Value.ToString("d", CultureInfo.InvariantCulture).ShouldBe("12/31/9999");
             firstProperty.Lastoccupied.ShouldBeNull();
-            firstProperty.Occupiedsince.ShouldBe("/Date(1386547200000)/");
+            firstProperty.Occupiedsince.Value.ToString("d", CultureInfo.InvariantCulture).ShouldBe("12/09/2013");
+            // ReSharper restore PossibleInvalidOperationException
         }
 
         [TestMethod]

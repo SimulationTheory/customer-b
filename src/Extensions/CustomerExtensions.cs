@@ -101,6 +101,25 @@ namespace PSE.Customer.Extensions
             return model;
         }
 
+        public static Address McfToCassandraModel(this McfAddress source)
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+
+            var model = new Address
+            {
+                AddressLine1 = string.IsNullOrEmpty(source.PoBox) ? $"{source.HouseNo?.Trim()} {source.Street?.Trim()}" : $"P.O. Box {source.PoBox}",
+                AddressLine2 = source.HouseNo2?.Trim(),
+                City = source.City.Trim(),
+                PostalCode = !string.IsNullOrEmpty(source.PostlCod1) ? source.PostlCod1.Trim() : source.PostlCod2?.Trim(),
+                State = source.Region?.Trim()
+            };
+
+            return model;
+        }
+
         #region private methods
         private static List<Phone> GetPhones(CustomerContactEntity source)
         {

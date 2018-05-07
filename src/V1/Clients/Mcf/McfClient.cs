@@ -1374,11 +1374,40 @@ namespace PSE.Customer.V1.Clients.Mcf
         }
 
 
-        /// <summary>
-        /// Gets the owner accounts.
-        /// </summary>
-        /// <param name="bpId">Business partner ID</param>
-        /// <returns></returns>
+        public async Task<McfResponse<McfResponseResults<PremisesSet>>> GetPremises(string bpId)
+        {
+            McfResponse<McfResponseResults<PremisesSet>> response;
+
+            try
+            {
+                _logger.LogInformation($"GetAllIdentifiers({nameof(bpId)}: {bpId}); {_requestContext.ToJson()})");
+                var config = _coreOptions.Configuration;
+                var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
+
+                var url = $"/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/Premises('{bpId}')?$expand=Installations&$format=json";
+                var restRequest = new RestRequest(url, Method.GET);
+
+                var cookies = restUtility.GetMcfCookies(_requestContext.JWT, _requestContext.RequestChannel.ToString()).Result;
+                restRequest.AddCookies(cookies);
+                restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
+                restRequest.AddHeader("Accept", "application/json");
+
+                _logger.LogInformation("Making MCF call");
+                var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
+                var restResponse = await client.ExecuteTaskAsync(restRequest);
+
+                response = JsonConvert.DeserializeObject<McfResponse<McfResponseResults<PremisesSet>>>(restResponse.Content);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Failed to get all identifiers {{{bpId}}}");
+                throw;
+            }
+
+            return response;
+        }
+
+        /// <inheritdoc />
         public async Task<McfResponse<McfResponseResults<OwnerAccountsSet>>> GetOwnerAccounts(string bpId)
         {
             McfResponse<McfResponseResults<OwnerAccountsSet>> response;
@@ -1392,19 +1421,8 @@ namespace PSE.Customer.V1.Clients.Mcf
                 var url = $"/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/Accounts('{bpId}')/OwnerAccounts?$expand=OwnerContractAccount/OwnerPremise/OwnerPremiseProperty&$format=json";
                 var restRequest = new RestRequest(url, Method.GET);
 
-                if (string.IsNullOrWhiteSpace(_requestContext.JWT))
-                {
-                    // Add anon bypass auth
-                    var mcfUserName = string.Empty;
-                    var mcfUserPassword = string.Empty;
-                    SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword);
-                    restRequest.AddBasicCredentials(mcfUserName, mcfUserPassword);
-                }
-                else
-                {
-                    var cookies = restUtility.GetMcfCookies(_requestContext.JWT, _requestContext.RequestChannel.ToString()).Result;
-                    restRequest.AddCookies(cookies);
-                }
+                var cookies = restUtility.GetMcfCookies(_requestContext.JWT, _requestContext.RequestChannel.ToString()).Result;
+                restRequest.AddCookies(cookies);
                 restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
                 restRequest.AddHeader("Accept", "application/json");
 

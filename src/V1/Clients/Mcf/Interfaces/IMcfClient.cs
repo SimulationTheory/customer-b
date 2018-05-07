@@ -281,7 +281,14 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         McfResponse<GetContractItemMcfResponse> StopService(long contractItemId, long premiseId, DateTimeOffset moveoutDate);
 
         /// <summary>
-        /// Gets the owner accounts. AccountID is retrieved from request context.
+        /// Gets the businss partners premises.
+        /// </summary>
+        /// <param name="bpId">Business partner ID</param>
+        /// <returns></returns>
+        Task<McfResponse<McfResponseResults<PremisesSet>>> GetPremises(string bpId);
+
+        /// <summary>
+        /// Gets the owner accounts.
         /// </summary>
         /// <param name="bpId">Business partner ID</param>
         /// <returns></returns>

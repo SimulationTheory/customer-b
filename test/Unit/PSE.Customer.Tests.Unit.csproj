@@ -12,6 +12,8 @@
     <None Remove="TestObjects\Data\GetInstallmentPlan.json" />
     <None Remove="TestObjects\Data\GetOwnerAccountMultiplePremises.json" />
     <None Remove="TestObjects\Data\GetOwnerAccountNoActiveAccount.json" />
+    <None Remove="TestObjects\Data\GetPremisesMultiplePremises.json" />
+    <None Remove="TestObjects\Data\GetPremisesNoProperties.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,6 +22,8 @@
     <EmbeddedResource Include="TestObjects\Data\GetInstallmentPlan.json" />
     <EmbeddedResource Include="TestObjects\Data\GetOwnerAccountMultiplePremises.json" />
     <EmbeddedResource Include="TestObjects\Data\GetOwnerAccountNoActiveAccount.json" />
+    <EmbeddedResource Include="TestObjects\Data\GetPremisesMultiplePremises.json" />
+    <EmbeddedResource Include="TestObjects\Data\GetPremisesNoProperties.json" />
   </ItemGroup>
 
   <ItemGroup>

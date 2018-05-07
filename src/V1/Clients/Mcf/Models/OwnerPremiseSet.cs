@@ -4,7 +4,7 @@ namespace PSE.Customer.V1.Clients.Mcf.Models
 {
     public class OwnerPremiseSet
     {
-        public OwnerPremiseAddress PremiseAddress { get; set; }
+        public McfAddress PremiseAddress { get; set; }
 
         public string Premise { get; set; }
 

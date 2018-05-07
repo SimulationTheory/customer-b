@@ -178,7 +178,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         #region UpdateIdType Tests
         [Ignore]
         [TestMethod]
-        public async Task UpdateIdType_ValidAccountAndType_SavedSuccessfully()
+        public void UpdateIdType_ValidAccountAndType_SavedSuccessfully()
         {
             // Arrange
             var controller = GetController();

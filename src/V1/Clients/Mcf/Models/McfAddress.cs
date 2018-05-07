@@ -1,6 +1,6 @@
 ﻿namespace PSE.Customer.V1.Clients.Mcf.Models
 {
-    public class OwnerPremiseAddress
+    public class McfAddress
     {
         public string HouseNo2 { get; set; }
 
@@ -17,6 +17,8 @@
         public string PoBox { get; set; }
 
         public string Street { get; set; }
+
+        public string Region { get; set; }
 
         public string HouseNo { get; set; }
 

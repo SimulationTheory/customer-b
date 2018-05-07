@@ -10,6 +10,8 @@ namespace PSE.Customer.Tests.Unit.TestObjects
         public static string GetInstallmentPlan = "PSE.Customer.Tests.Unit.TestObjects.Data.GetInstallmentPlan.json";
         public static string GetOwnerAccountMultiplePremises = "PSE.Customer.Tests.Unit.TestObjects.Data.GetOwnerAccountMultiplePremises.json";
         public static string GetOwnerAccountNoActiveAccount = "PSE.Customer.Tests.Unit.TestObjects.Data.GetOwnerAccountNoActiveAccount.json";
+        public static string GetPremisesMultiplePremises = "PSE.Customer.Tests.Unit.TestObjects.Data.GetPremisesMultiplePremises.json";
+        public static string GetPremisesNoActiveAccount = "PSE.Customer.Tests.Unit.TestObjects.Data.GetPremisesNoProperties.json";
 
         public static string GetFromResources(string resourceName)
         {

@@ -1,0 +1,117 @@
+﻿{
+    "d": {
+        "__metadata": {
+            "id": "http://ssapngdn2apv1.puget.com:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/Premises('7000012644')",
+            "uri": "http://ssapngdn2apv1.puget.com:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/Premises('7000012644')",
+            "type": "ERP_UTILITIES_UMC.Premise"
+        },
+        "Addressinfo": {
+            "__metadata": {
+                "type": "ERP_UTILITIES_UMC.Addressinfo"
+            },
+            "Standardaddress": false,
+            "City": "Issaquah",
+            "District": "",
+            "PostlCod1": "98029",
+            "PostlCod2": "",
+            "PoBox": "",
+            "Street": "SE 45TH ST",
+            "HouseNo": "18116",
+            "Building": "",
+            "Floor": "",
+            "RoomNo": "",
+            "Country": "US",
+            "Countryname": "",
+            "Region": "WA",
+            "Regionname": "",
+            "TimeZone": "PST",
+            "Taxjurcode": "ZZ00000000",
+            "Langu": "",
+            "Shortform": "18116 SE 45TH ST / Issaquah WA 98029",
+            "HouseNo2": "",
+            "COName": ""
+        },
+        "PremiseID": "7000012644",
+        "PremiseTypeID": "",
+        "StormModeAct": "",
+        "PremiseType": {
+            "__deferred": {
+                "uri": "http://ssapngdn2apv1.puget.com:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/Premises('7000012644')/PremiseType"
+            }
+        },
+        "Installations": {
+            "results": [
+                {
+                    "__metadata": {
+                        "id": "http://ssapngdn2apv1.puget.com:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/Installations('5000014928')",
+                        "uri": "http://ssapngdn2apv1.puget.com:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/Installations('5000014928')",
+                        "type": "ERP_UTILITIES_UMC.Installation"
+                    },
+                    "Discstatus": "",
+                    "MoveInEligibility": "X",
+                    "InstallationID": "5000014928",
+                    "DiscDate": null,
+                    "DivisionID": "10",
+                    "DiscSource": "",
+                    "PremiseID": "7000012644",
+                    "RateCat": "SCH_8E",
+                    "InstGuid": "051Mkcc47kY3lHap7N8yYW",
+                    "CurrPartner": "1200008309",
+                    "CurrOwner": "",
+                    "OwnerContAcc": "",
+                    "MIDateFrom": "/Date(1517616000000)/",
+                    "MIDateTo": "/Date(1525305600000)/",
+                    "FutureMoveIn": null,
+                    "Fraud": "",
+                    "StreetLight": "",
+                    "Lease": "",
+                    "LeaseAmt": "0.000",
+                    "Printed": "",
+                    "LeaseType": "",
+                    "ProcessVariant": "",
+                    "LastBillEndDte": null,
+                    "Division": {
+                        "__deferred": {
+                            "uri": "http://ssapngdn2apv1.puget.com:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/Installations('5000014928')/Division"
+                        }
+                    }
+                },
+                {
+                    "__metadata": {
+                        "id": "http://ssapngdn2apv1.puget.com:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/Installations('5000014942')",
+                        "uri": "http://ssapngdn2apv1.puget.com:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/Installations('5000014942')",
+                        "type": "ERP_UTILITIES_UMC.Installation"
+                    },
+                    "Discstatus": "",
+                    "MoveInEligibility": "X",
+                    "InstallationID": "5000014942",
+                    "DiscDate": null,
+                    "DivisionID": "20",
+                    "DiscSource": "",
+                    "PremiseID": "7000012644",
+                    "RateCat": "SCH_031GC",
+                    "InstGuid": "051Mkcc47jY6wxXuAxOzEm",
+                    "CurrPartner": "",
+                    "CurrOwner": "",
+                    "OwnerContAcc": "",
+                    "MIDateFrom": "/Date(1507161600000)/",
+                    "MIDateTo": "/Date(1525305600000)/",
+                    "FutureMoveIn": null,
+                    "Fraud": "",
+                    "StreetLight": "",
+                    "Lease": "",
+                    "LeaseAmt": "0.000",
+                    "Printed": "",
+                    "LeaseType": "",
+                    "ProcessVariant": "",
+                    "LastBillEndDte": null,
+                    "Division": {
+                        "__deferred": {
+                            "uri": "http://ssapngdn2apv1.puget.com:8002/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/Installations('5000014942')/Division"
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

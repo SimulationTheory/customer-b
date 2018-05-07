@@ -516,9 +516,9 @@
                                                     "Division": "10",
                                                     "Opendate": "/Date(1364601600000)/",
                                                     "Closedate": "/Date(253402214400000)/",
-                                                    "Occupiedstatus": "Occupied",
-                                                    "Lastoccupied": null,
-                                                    "Occupiedsince": "/Date(1467331200000)/"
+                                                    "Occupiedstatus": "Vacant",
+                                                    "Lastoccupied": "/Date(1467331200000)/",
+                                                    "Occupiedsince": null
                                                 },
                                                 {
                                                     "__metadata": {
@@ -531,9 +531,9 @@
                                                     "Division": "20",
                                                     "Opendate": "/Date(1364601600000)/",
                                                     "Closedate": "/Date(253402214400000)/",
-                                                    "Occupiedstatus": "Occupied",
-                                                    "Lastoccupied": null,
-                                                    "Occupiedsince": "/Date(1467331200000)/"
+                                                    "Occupiedstatus": "Vacant",
+                                                    "Lastoccupied": "/Date(1467331200000)/",
+                                                    "Occupiedsince": null
                                                 }
                                             ]
                                         }

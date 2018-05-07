@@ -1,0 +1,24 @@
+﻿{
+    "error": {
+        "code": "/IWFND/CM_BEC/026",
+        "message": {
+            "lang": "en",
+            "value": "RFC Error: Record 1201162132   not found in table EVBS"
+        },
+        "innererror": {
+            "application": {
+                "component_id": "",
+                "service_namespace": "/SAP/",
+                "service_id": "ZERP_UTILITIES_UMC_PSE_SRV",
+                "service_version": "0001"
+            },
+            "transactionid": "7D3D3E58D7080080E005ACF95592AD83",
+            "timestamp": "20180504004948.2425280",
+            "Error_Resolution": {
+                "SAP_Transaction": "Run transaction /IWFND/ERROR_LOG on SAP Gateway hub system (System Alias TE2CLNT100) and search for entries with the timestamp above for more details",
+                "SAP_Note": "See SAP Note 1797736 for error analysis (https://service.sap.com/sap/support/notes/1797736)"
+            },
+            "errordetails": []
+        }
+    }
+}

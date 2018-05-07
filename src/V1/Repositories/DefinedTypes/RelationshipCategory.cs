@@ -7,19 +7,19 @@ namespace PSE.Customer.V1.Repositories.DefinedTypes
     public enum RelationshipCategory
     {
 
-        // <summary>
+        /// <summary>
         /// Is Married To
         ///</summary>
         [EnumMember(Value = "BUR004")]
         Spouse,
 
-        // <summary>
+        /// <summary>
         /// Has Shared Living Arrangement Member
         ///</summary>
         [EnumMember(Value = "BUR003")]
         Roommate,
 
-        // <summary>
+        /// <summary>
         /// Property Manager
         ///</summary>
         [EnumMember(Value = "ZPMGR")]
