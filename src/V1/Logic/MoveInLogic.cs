@@ -64,9 +64,18 @@ namespace PSE.Customer.V1.Logic
             var reconnectStatus = new ReconnectStatusResponse()
             {
                 IsEligibile = paymentResponse.EligibleRc ?? false,
+                Reconnect = paymentResponse.ReconnectFlag ?? false,
+                ContractAccountId = paymentResponse.AccountNo,
+                PriorObligationContractAccountId = paymentResponse.PriorObligationAccount,
                 AmountPosted = paymentResponse.IncPayment,
                 MinimumPaymentRequired = paymentResponse.MinPayment,
-                AmountLeftover = paymentResponse.MinPayment - paymentResponse.IncPayment
+                AmountLeftover = paymentResponse.MinPayment - paymentResponse.IncPayment,
+                Deposit = paymentResponse.DepositAmount,
+                ReconnectAmount = paymentResponse.ReconAmount,
+                Reason = paymentResponse.Reason,
+                ReasonCode = paymentResponse.ReasonCode,
+                AccountType = paymentResponse.AccountType,
+                FirstLp = paymentResponse.FirstIp,
             };
 
             return reconnectStatus;
