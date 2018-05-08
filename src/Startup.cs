@@ -41,7 +41,7 @@ namespace PSE.Customer
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             env = env ?? throw new ArgumentNullException(nameof(env));
 
-            _logger.LogInformation("Starting the account microservice.");
+            _logger.LogInformation("Starting the customer microservice.");
 
             try
             {

@@ -1336,7 +1336,7 @@ namespace PSE.Customer.V1.Clients.Mcf
 
             if (mcfResponse.Error != null)
             {
-                _logger.LogInformation(mcfResponse.Error.Message.Value);
+                _logger.LogError($"Error from StopService mcf call: contractItemId: {contractItemId}, premiseId: {premiseId}, moveoutDate: {moveoutDate}, code: {mcfResponse.Error.Code}, message: {mcfResponse.Error.Message.Value}");
             }
 
             return mcfResponse;
