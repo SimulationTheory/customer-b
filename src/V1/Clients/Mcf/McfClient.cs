@@ -1144,6 +1144,47 @@ namespace PSE.Customer.V1.Clients.Mcf
             return mcfResponse;
         }
 
+        /// <summary>
+        /// Gets Bp Relationships for tenant bp using serv account
+        /// </summary>
+        /// <param name="tenantBp"></param>
+        /// <returns></returns>
+        public async Task<BpRelationshipsMcfResponse> GetBprelationships(string tenantBp)
+        {
+            BpRelationshipsMcfResponse mcfResponse = null;
+
+            try
+            {
+                var config = _coreOptions.Configuration;
+                var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
+                var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
+               
+                var request = new RestRequest($"/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/Accounts('{tenantBp}')/Relationships", Method.GET);
+                //TODO Add basic credential once we know which service account to use
+                request.AddMcfRequestHeaders();
+
+                _logger.LogInformation("Making MCF call");
+
+                var cancellationTokenSource = new CancellationTokenSource();
+                var restResponse = await client.ExecuteTaskAsync(request, cancellationTokenSource.Token);
+                if (!restResponse.IsSuccessful)
+                {
+                    HandleErrorResponse(tenantBp, restResponse);
+                }
+
+                var resp = JsonConvert.DeserializeObject<McfResponse<BpRelationshipsMcfResponse>>(restResponse.Content);
+
+                mcfResponse = resp.Result;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                throw;
+            }
+
+            return mcfResponse;
+        }
+
 
         /// <summary>
         /// /Creates Bp Relation ships
@@ -1455,7 +1496,7 @@ namespace PSE.Customer.V1.Clients.Mcf
 
         #region Private methods
 
-        //TODO Merge the GetCustomerMcfCredentials and SetMcfAnonCredentials once we verify we can use the UMC_ANM_SRV user for all anonymous
+        //TODO remove this method once we update the references
         // Note: making these "out" parameters rather than "ref" since these set not read
         private void SetMcfAnonCredentials(ref string userName, ref string password)
         {
@@ -1466,6 +1507,35 @@ namespace PSE.Customer.V1.Clients.Mcf
             var isLocal = (_environment?.Equals("Development") ?? true) || string.IsNullOrEmpty(_environment);
             var mcfCustomerUserNameParamName = $"/CI/MS/{_environment}/MCF/CustomerUserName";
             var mcfCustomerUserPasswordParamName = $"/CI/MS/{_environment}/MCF/CustomerUserPassword";
+
+
+            if (!isLocal)
+            {
+                userName = _options.GetValueFromParameterStore(mcfCustomerUserNameParamName, false);
+                // TODO: this eventually should be updated to an encrypted param store
+                password = _options.GetValueFromParameterStore(mcfCustomerUserPasswordParamName, false);
+            }
+            else
+            {
+                var fileLocation = Path.Combine(Directory.GetCurrentDirectory(), "localParameterStore.json");
+                var json = File.ReadAllText(fileLocation);
+                IEnumerable<KeyValuePair<string, string>> parameters = JsonConvert.DeserializeObject<IEnumerable<KeyValuePair<string, string>>>(json);
+
+                userName = parameters.FirstOrDefault(x => x.Key.Equals(mcfCustomerUserNameParamName)).Value;
+                password = parameters.FirstOrDefault(x => x.Key.Equals(mcfCustomerUserPasswordParamName)).Value;
+            }
+        }
+
+        //TODO We will replace all calls to basic credentials to use this method instead of the above
+        private void SetMcfAnonCredentials(ref string userName, ref string password, ref string userNamekey, ref string passwordKey)
+        {
+            _logger.LogInformation("SetMcfAnonCredentials()");
+            var options = new CoreOptions(ServiceConfiguration.AppName);
+            ICoreOptions _options = options;
+
+            var isLocal = (_environment?.Equals("Development") ?? true) || string.IsNullOrEmpty(_environment);
+            var mcfCustomerUserNameParamName = $"/CI/MS/{_environment}/MCF/{userNamekey}";
+            var mcfCustomerUserPasswordParamName = $"/CI/MS/{_environment}/MCF/{passwordKey}";
 
 
             if (!isLocal)

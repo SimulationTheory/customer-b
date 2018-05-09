@@ -29,6 +29,16 @@ namespace PSE.Customer.V1.Request
         public long AccountID2 { get; set; }
 
         /// <summary>
+        /// Gets or sets the tenant Bp Id to be used to update relationship
+        /// we will use it in place of AccountID1 aboe in Landlord scenarios
+        /// </summary>
+        /// <value>
+        ///   The business partner identifier.
+        /// </value>
+        [JsonConverter(typeof(ToStringJsonConverter))]
+        public long TenantBpId { get; set; }
+
+        /// <summary>
         /// Gets or sets the note about BP update
         /// </summary>
         /// <value>

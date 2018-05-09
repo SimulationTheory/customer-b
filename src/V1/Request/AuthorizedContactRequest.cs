@@ -7,6 +7,7 @@ namespace PSE.Customer.V1.Request
     /// </summary>
     public class AuthorizedContactRequest :IAPIRequest
     {
-        public CreateBusinesspartnerRequest AuthorizedContact { get; set; }     
+        public CreateBusinesspartnerRequest AuthorizedContact { get; set; }
+        public string TenantBpId { get; set; }
     }
 }

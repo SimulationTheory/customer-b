@@ -203,6 +203,8 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// <returns>createbprelationship</returns>
         Task<CreateBusinessPartnerMcfResponse> CreateBusinessPartner(CreateBusinesspartnerMcfRequest businesPartnerequest);
 
+        
+
         /// <summary>
         /// Creates a Customer Interaction Record
         /// </summary>
@@ -261,6 +263,13 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// /// <param name="jwt"></param>
         /// <returns></returns>
         Task<BpRelationshipsMcfResponse> GetBprelationships(string bpId, string jwt);
+
+        /// <summary>
+        /// Gets Bp Relationships for tenant bp using serv account
+        /// </summary>
+        /// <param name="tenantBp"></param>
+        /// <returns></returns>
+        Task<BpRelationshipsMcfResponse> GetBprelationships(string tenantBp);
 
         /// <summary>
         /// Update the business partner relationshipo

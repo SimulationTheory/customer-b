@@ -106,10 +106,10 @@ namespace PSE.Customer.V1.Logic.Interfaces
         /// <summary>
         /// Gets relationships given a business partner id
         /// </summary>
-        /// <param name="bpId"></param>
-        ///  /// <param name="jwt"></param>
+        /// <param name="BprelationRequestParam"></param>
+      
         /// <returns></returns>
-        Task<BpRelationshipsResponse> GetBprelationships(string bpId, string jwt);
+        Task<BpRelationshipsResponse> GetBprelationships(BpRelationshipRequestParam bprelationRequestParam);
 
         /// <summary>
         /// Delete  relationships given a business partner id

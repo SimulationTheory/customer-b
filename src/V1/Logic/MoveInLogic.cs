@@ -194,19 +194,31 @@ namespace PSE.Customer.V1.Logic
         /// <param name="bpId"></param>
         /// /// <param name="jwt"></param>
         /// <returns></returns>
-        public async Task<BpRelationshipsResponse> GetBprelationships(string bpId, string jwt)
+        public async Task<BpRelationshipsResponse> GetBprelationships(BpRelationshipRequestParam bprelationRequestParam)
         {
-            _logger.LogInformation($"GetBprelationshipsr: GetBprelationships({nameof(bpId)} : {bpId})");
+            _logger.LogInformation($"GetBprelationshipsr: GetBprelationships({nameof(bprelationRequestParam.LoggedInBp)} : {bprelationRequestParam.LoggedInBp})");
             try
             {
-                var resp = await _mcfClient.GetBprelationships(bpId, jwt);
-                var bprelations = MapBpRelations(resp, bpId);
+                BpRelationshipsMcfResponse resp;
+                string bpToMap;
+                if (!string.IsNullOrEmpty(bprelationRequestParam.TenantBp))
+                {
+                    resp = await _mcfClient.GetBprelationships(bprelationRequestParam.TenantBp);
+                    bpToMap = bprelationRequestParam.TenantBp;
+                }
+                else
+                {
+                    resp = await _mcfClient.GetBprelationships(bprelationRequestParam.LoggedInBp, bprelationRequestParam.Jwt);
+                    bpToMap = bprelationRequestParam.LoggedInBp;
+                }
+                
+                var bprelations = MapBpRelations(resp, bprelationRequestParam.LoggedInBp);
 
                 return bprelations;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Failed to GetBprelationships for {bpId}");
+                _logger.LogError(ex, $"Failed to GetBprelationships for {bprelationRequestParam.LoggedInBp}");
                 throw ex;
             }
 
@@ -298,7 +310,14 @@ namespace PSE.Customer.V1.Logic
                     // if no relation ship exist then create a relation ship
                     var contactBp = bpExists.BpId.ToString();
                     authorizedContactresponse.BpId = bpExists.BpId.ToString();
-                    var checkRelationShip = await GetBprelationships(loggedInBp, jwt);
+                    var bpRelationParam = new BpRelationshipRequestParam()
+                    {
+                        LoggedInBp = loggedInBp,
+                        Jwt = jwt,
+                        TenantBp = null //TODO add TenanID
+
+                    };
+                    var checkRelationShip = await GetBprelationships(bpRelationParam);
                     var hasRelation = CheckRelationWithContact(checkRelationShip, contactBp);
                     var hasActiveRelation = IsrelationShipActive(hasRelation);
 

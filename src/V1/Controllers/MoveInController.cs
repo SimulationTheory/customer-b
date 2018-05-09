@@ -323,7 +323,7 @@ namespace PSE.Customer.V1.Controllers
         /// <returns>returns BPSearchResponse</returns>
         [ProducesResponseType(typeof(BpRelationshipsResponse), StatusCodes.Status200OK)]
         [HttpGet("bp-relationships")]       
-        public async Task<IActionResult> GetAllBpRelationships()
+        public async Task<IActionResult> GetAllBpRelationships([FromQuery] string tenantBpId)
         {
             IActionResult result;
 
@@ -332,7 +332,14 @@ namespace PSE.Customer.V1.Controllers
                 //get the Bp from the JWT              
                 var bpId = GetBpIdFromClaims();
                 var jwt = GetJWToken();
-                var resp = await _moveInLogic.GetBprelationships(bpId.ToString(), jwt);
+                var bpRelationParam = new BpRelationshipRequestParam()
+                {
+                    LoggedInBp = bpId.ToString(),
+                    Jwt = jwt,
+                    TenantBp = tenantBpId
+
+                };
+                var resp = await _moveInLogic.GetBprelationships(bpRelationParam);
                 result = Ok(resp);
             }
             catch (Exception ex)
