@@ -33,7 +33,7 @@ using System.Text;
 
 namespace PSE.Customer.V1.Clients.Mcf
 {
-    
+
 
     /// <summary>
     /// Handles interaction with SAP via MCF calls
@@ -75,6 +75,9 @@ namespace PSE.Customer.V1.Clients.Mcf
         /// <inheritdoc/>
         public async Task<BpSearchResponse> GetDuplicateBusinessPartnerIfExists(BpSearchRequest request)
         {
+
+            BpSearchResponse result;
+
             try
             {
                 // Format and log request input
@@ -86,7 +89,7 @@ namespace PSE.Customer.V1.Clients.Mcf
 
                 var restRequest = new RestRequest(
                     $"/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/BPSearchSet?$filter=" +
-                                                  $" Channel eq '{_requestContext.ToString()}'" +
+                                                  $" Channel eq '{_requestChannel}'" +
                                                   $" and FirstName eq '{request.FirstName}'" +
                                                   $" and MiddleName eq '{request.MiddleName}'" +
                                                   $" and LastName eq '{request.LastName}'" +
@@ -120,10 +123,18 @@ namespace PSE.Customer.V1.Clients.Mcf
                 if (mcfResponse.Error != null && mcfResponse.Result == null)
                 {
                     _logger.LogError(mcfResponse.Error.Message.Value, mcfResponse.Error.InnerError);
-                    throw new BadRequestException(mcfResponse.Error.Message.Value);
+
+                    result = new BpSearchResponse()
+                    {
+                        ReasonCode = $"{restResponse.StatusCode.GetHashCode()} {restResponse.StatusCode.ToString()}",
+                        Reason = mcfResponse.Error.Message.Value
+                    };
+                }
+                else
+                {
+                    result = mcfResponse.Result.Results.FirstOrDefault();
                 }
 
-                var result = mcfResponse.Result.Results.FirstOrDefault();
                 return result;
             }
             catch (Exception e)
@@ -174,7 +185,7 @@ namespace PSE.Customer.V1.Clients.Mcf
             return response;
         }
 
-        
+
 
         /// <summary>
         /// POSTs the primary email address
@@ -641,7 +652,7 @@ namespace PSE.Customer.V1.Clients.Mcf
             return response;
         }
 
-      
+
         /// <summary>
         /// PUTs address to contract account.
         /// </summary>
@@ -1132,7 +1143,7 @@ namespace PSE.Customer.V1.Clients.Mcf
 
             return mcfResponse;
         }
-        
+
 
         /// <summary>
         /// /Creates Bp Relation ships
@@ -1203,11 +1214,11 @@ namespace PSE.Customer.V1.Clients.Mcf
                 var config = _coreOptions.Configuration;
                 var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
                 var cookies = restUtility.GetMcfCookies(jwt, _requestContext.ToString()).Result;
-               
+
                 // URL for updating BP relationship
                 //string url = $"{config.McfEndpoint}/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/RelationshipsSet(AccountID1='{request.AccountID1}',AccountID2='{request.AccountID2}',Relationshipcategory='{request.Relationshipcategory}')";
                 string url = $"/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/RelationshipsSet(AccountID1='{request.AccountID1}',AccountID2='{request.AccountID2}',Relationshipcategory='{request.Relationshipcategory}')";
-                
+
 
                 var restRequest = new RestRequest(url, Method.PUT);
                 restRequest.AddCookies(cookies);
@@ -1221,9 +1232,9 @@ namespace PSE.Customer.V1.Clients.Mcf
                 var restResponse = client.Execute(restRequest);
                 if (!restResponse.IsSuccessful)
                 {
-                        var errorMsg = restResponse.Content;
-                        _logger.LogError(errorMsg);
-                        throw new BadRequestException(errorMsg);
+                    var errorMsg = restResponse.Content;
+                    _logger.LogError(errorMsg);
+                    throw new BadRequestException(errorMsg);
                 }
 
                 response.status_code = restResponse.StatusCode.ToString();
@@ -1259,7 +1270,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                 // URL for updating BP relationship
                 string url = $"{config.McfEndpoint}/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/RelationshipsSet(AccountID1='{request.AccountID1}',AccountID2='{request.AccountID2}',Relationshipcategory='{request.Relationshipcategory}')";
 
-                
+
                 var restRequest = new RestRequest(url, Method.DELETE);
                 restRequest.AddCookies(cookies);
                 restRequest.AddMcfRequestHeaders();

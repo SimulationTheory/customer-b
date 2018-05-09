@@ -167,9 +167,9 @@ namespace PSE.Customer.V1.Controllers
         /// "OrgName":"Company123",
         /// }
         /// </remarks>
-        /// <param name="request">The business partner search criteria.<seealso cref="PSE.Customer.V1.Clients.Mcf.Request.BpSearchRequest" /></param>
-        /// <returns>A BPSearchResponse object.</returns>
-        [ProducesResponseType(typeof(BpSearchResponse), StatusCodes.Status200OK)]
+        /// <param name="request">The business partner search criteria.<seealso cref="PSE.Customer.V1.Models.BpSearchModel" /></param>
+        /// <returns>A business partner with associated set of identifiers, or a reason why no match was found.</returns>
+        [ProducesResponseType(typeof(BpSearchModel), StatusCodes.Status200OK)]
         [HttpGet("bpsearch")]
         [AllowAnonymous]
         public async Task<IActionResult> BpSearch([FromQuery]BpSearchRequest request)

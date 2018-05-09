@@ -98,20 +98,23 @@ namespace PSE.Customer.V1.Logic
                 {
                     var response = new BpSearchModel();
 
-                    if (mcfResponse.Threshhold.ToUpper().Contains("X") && Convert.ToInt32(mcfResponse.Unique) == 1)
+                    if (mcfResponse.Threshhold != null
+                                            && mcfResponse.Threshhold.ToUpper().Contains("X")
+                                            && mcfResponse.Unique != null
+                                            && Convert.ToInt32(mcfResponse.Unique) == 1)
                     {
                         response.MatchFound = true;
                         response.BpId = Convert.ToInt64(mcfResponse.BpId);
-                        response.BpSearchIdentifiers = mcfResponse.BpSearchIdInfoSet.Results.ToList();
+                        response.BpSearchIdentifiers = mcfResponse.BpSearchIdInfoSet.Results?.ToList();
                         response.Reason = mcfResponse.Reason;
                         response.ReasonCode = mcfResponse.ReasonCode;
                     }
                     else
                     {
                         response.MatchFound = false;
-                        response.Reason = string.IsNullOrEmpty(mcfResponse.Reason) ? "The threshhold for a match was not met." : mcfResponse.Reason;
-                        var resultCount = mcfResponse.BpSearchIdInfoSet.Results.ToList().Count;
-                        response.ReasonCode = string.IsNullOrEmpty(mcfResponse.ReasonCode) ? $"{resultCount} records returned as a possible match." : mcfResponse.Reason;
+                        var resultCount = mcfResponse.BpSearchIdInfoSet != null ? mcfResponse.BpSearchIdInfoSet.Results.ToList().Count : 0;
+                        response.Reason = string.IsNullOrEmpty(mcfResponse.Reason) ? $"{resultCount} search results found as partial match." : mcfResponse.Reason;
+                        response.ReasonCode = string.IsNullOrEmpty(mcfResponse.ReasonCode) ? $"Threshhold not met." : mcfResponse.ReasonCode;
                     }
 
                     return response;
@@ -236,7 +239,7 @@ namespace PSE.Customer.V1.Logic
                 //Update
                 var relationShipToupdate = GetRelationshipToDelete(hasRelation);
                 var updateResponse = _mcfClient.UpdateBusinessPartnerRelationship(relationShipToupdate, jwt);
-                
+
                 return updateResponse;
             }
             catch (Exception ex)
@@ -476,7 +479,7 @@ namespace PSE.Customer.V1.Logic
             //
             var addressInfoResponse = await _customerLogic.GetMailingAddressesAsync(bpId, true, jwt);
             var addressInfo = addressInfoResponse.FirstOrDefault();
-          
+
             var accountRequest = new CreateAccountRequest()
             {
                 Description = "New Move In"
@@ -863,11 +866,11 @@ namespace PSE.Customer.V1.Logic
             }
             var to = "\"" + checkRelationShip?.Validtodate + "\"";
             var from = "\"" + checkRelationShip?.Validfromdate + "\"";
-            
+
             DateTimeOffset toDate = JsonConvert.DeserializeObject<DateTimeOffset>(to);
             DateTimeOffset fromDate = JsonConvert.DeserializeObject<DateTimeOffset>(from);
 
-          
+
             if (toDate < DateTime.UtcNow || fromDate > DateTime.UtcNow)
             {
                 valid = false;
