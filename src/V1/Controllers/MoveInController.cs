@@ -54,7 +54,7 @@ namespace PSE.Customer.V1.Controllers
         {
             _config = (appSettings ?? throw new ArgumentNullException(nameof(appSettings))).Value;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _moveInLogic = moveInLogic ?? throw new ArgumentNullException(nameof(moveInLogic));                 
+            _moveInLogic = moveInLogic ?? throw new ArgumentNullException(nameof(moveInLogic));
         }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace PSE.Customer.V1.Controllers
             IActionResult result;
             var jwt = GetJWToken();
             var bp = GetBpIdFromClaims();
-           
+
             try
             {
                 var response = new LateMoveInResponse()
@@ -396,7 +396,7 @@ namespace PSE.Customer.V1.Controllers
 
             try
             {
-                if(authorizedContactRequest == null || authorizedContactRequest.AuthorizedContact == null)
+                if (authorizedContactRequest == null || authorizedContactRequest.AuthorizedContact == null)
                 {
                     return BadRequest();
                 }
@@ -421,18 +421,30 @@ namespace PSE.Customer.V1.Controllers
         /// <summary>
         /// Gets all ID types but not values for a BP from MCF.
         /// </summary>
+        /// <param name="tenantBpId">A tenant's business partner identification number, provided by a landlord.</param>
         /// <returns>returns IndentifierResponse</returns>
         [ProducesResponseType(typeof(GetBpIdTypeResponse), 200)]
         [HttpGet("bp-id-types")]
-        public async Task<IActionResult> GetAllIdTypes()
+        public async Task<IActionResult> GetAllIdTypes([FromQuery] long tenantBpId = -1)
         {
-            IActionResult result;
             _logger.LogInformation("GetAllIdTypes()");
+
+            IActionResult result;
+            long bpId;
 
             try
             {
-                // Get BP from user's authorization claims
-                var bpId = GetBpIdFromClaims();
+                if (tenantBpId != -1)
+                {
+                    // set the bpId based on what the tenant has provided
+                    bpId = tenantBpId;
+                }
+                else
+                {
+                    // Get BP from user's authorization claims
+                    bpId = GetBpIdFromClaims();
+                }
+
                 result = Ok(new GetBpIdTypeResponse
                 {
                     Identifiers = await _moveInLogic.GetAllIdTypes(bpId)
@@ -452,18 +464,31 @@ namespace PSE.Customer.V1.Controllers
         /// Get ID type but not value for a BP from MCF.
         /// </summary>
         /// <param name="type">Represents identifier types such as last 4 SSN, drivers license number, etc.</param>
+        /// <param name="tenantBpId">A tenant's business partner identification number, provided by a landlord.</param>
         /// <returns>returns IndentifierResponse</returns>
         [ProducesResponseType(typeof(GetBpIdTypeResponse), 200)]
         [HttpGet("bp-id-type/{type}")]
-        public async Task<IActionResult> GetIdType([FromRoute] IdentifierType type)
+        public async Task<IActionResult> GetIdType([FromRoute] IdentifierType type, [FromQuery] long tenantBpId = -1)
         {
             IActionResult result;
+            long bpId;
             _logger.LogInformation($"GetIdType({nameof(type)}: {type.ToJson()})");
 
             try
             {
-                // Get BP from user's authorization claims
-                var bpId = GetBpIdFromClaims();
+                // check to see if a tenantBpId value was passed. 
+                // default is -1, indicating that nothing has overridden it.
+                if (tenantBpId != -1)
+                {
+                    // set the bpId based on what the tenant has provided
+                    bpId = tenantBpId;
+                }
+                else
+                {
+                    // Get BP from user's authorization claims
+                    bpId = GetBpIdFromClaims();
+                }
+
                 result = Ok(new GetBpIdTypeResponse
                 {
                     Identifiers = await _moveInLogic.GetIdType(bpId, type)
