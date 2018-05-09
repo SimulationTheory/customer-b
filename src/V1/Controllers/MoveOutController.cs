@@ -49,7 +49,7 @@ namespace PSE.Customer.V1.Controllers
         }
 
         /// <summary>
-        /// Stop service on the given contract account Id
+        /// Stop service on the given contract account Id in MCF.
         /// for the given installationIds.
         /// </summary>
         /// <remarks>

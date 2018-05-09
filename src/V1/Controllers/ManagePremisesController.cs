@@ -32,7 +32,7 @@ namespace PSE.Customer.V1.Controllers
         }
 
         /// <summary>
-        /// Gets all of the premises, which has a list of properties for a business partner
+        /// Gets all of the premises, which has a list of properties for a business partner from MCF.
         /// </summary>
         /// <param name="bpId"></param>
         [HttpGet("premises")]
@@ -58,8 +58,9 @@ namespace PSE.Customer.V1.Controllers
 
         /// <summary>
         /// Gets all of the owner accounts for landlords, which has a list of properties for a business partner
+        /// in MCF.
         /// </summary>
-        /// <param name="bpId"></param>
+        /// <param name="bpId">The business partner ID</param>
         [HttpGet("owner-accounts")]
         [ProducesResponseType(typeof(GetOwnerAccountsResponse), 200)]
         public async Task<IActionResult> GetOwnerAccounts(string bpId)

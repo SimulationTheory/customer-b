@@ -58,7 +58,8 @@ namespace PSE.Customer.V1.Controllers
         }
 
         /// <summary>
-        /// Check if the contract account provided is eligible for reconnection after successful payment/move in contract account when given reconnection flag
+        /// Check if the contract account provided in MCF is eligible for reconnection after successful 
+        /// payment/move in contract account when given reconnection flag.
         /// </summary>
         /// <param name="contractAccountId"></param>
         /// /// <param name="reconnectionFlag"></param>
@@ -87,7 +88,7 @@ namespace PSE.Customer.V1.Controllers
         }
 
         /// <summary>
-        /// Clean move in.
+        /// Clean move in in MCF.
         /// </summary>
         /// <param name="request">The request.</param>
         /// <returns></returns>
@@ -117,9 +118,9 @@ namespace PSE.Customer.V1.Controllers
 
 
         /// <summary>
-        /// Initiates move in for prior obligations 
+        /// Initiates move in for prior obligations in MCF.
         /// </summary>
-        /// <param name="request"></param>
+        /// <param name="request">The request</param>
         /// <returns></returns>
         [HttpPost("movein-latepayment/{contractAccountId}")]
         [ProducesResponseType(typeof(LateMoveInResponse), 200)]
@@ -152,7 +153,7 @@ namespace PSE.Customer.V1.Controllers
         #region Start/Stop/Transfer Endpoints
 
         /// <summary>
-        /// Search BP given both a customer first and last name, or given an organization name.
+        /// Search BP given both a customer first and last name, or given an organization name in MCF.
         /// </summary>
         /// <remarks>
         /// Sample Request:
@@ -210,7 +211,7 @@ namespace PSE.Customer.V1.Controllers
         }
 
         /// <summary>
-        /// Posts a cancel move-in request to a user account.
+        /// Posts a cancel move-in request to a user account in MCF.
         /// </summary>
         /// <param name="cancelRequest">The request body, including a Contract Id to cancel.</param>
         /// <returns>An action result.</returns>
@@ -234,7 +235,7 @@ namespace PSE.Customer.V1.Controllers
         }
 
         /// <summary>
-        /// Gets invalid movein dates (holidays and weekends) for a given date range.
+        /// Gets invalid movein dates (holidays and weekends) for a given date range in MCF.
         /// </summary>
         /// <remarks>
         /// Sample request:
@@ -281,9 +282,9 @@ namespace PSE.Customer.V1.Controllers
         }
 
         /// <summary>
-        /// Creates a Business Partner 
+        /// Creates a Business Partner in MCF.
         /// </summary>
-        /// <param name="createBusinesspartnerRequest"></param>
+        /// <param name="createBusinesspartnerRequest">the request</param>
         /// <returns></returns>
         [ProducesResponseType(typeof(BusinessPartnerResponse), StatusCodes.Status200OK)]
         [HttpPost("business-partner")]
@@ -317,7 +318,7 @@ namespace PSE.Customer.V1.Controllers
         }
 
         /// <summary>
-        /// Get all bp relationsships
+        /// Get all bp relationsships from MCF.
         /// </summary>
         /// <returns>returns BPSearchResponse</returns>
         [ProducesResponseType(typeof(BpRelationshipsResponse), StatusCodes.Status200OK)]
@@ -345,7 +346,7 @@ namespace PSE.Customer.V1.Controllers
         }
 
         /// <summary>
-        /// Delete bp relationsship for the given bp
+        /// Delete bp relationsship for the given bp in MCF.
         /// </summary>
         /// <returns>returns BPSearchResponse</returns>
         [ProducesResponseType(typeof(BpRelationshipUpdateResponse), StatusCodes.Status200OK)]
@@ -375,7 +376,7 @@ namespace PSE.Customer.V1.Controllers
         #endregion
 
         /// <summary>
-        /// Create Authorized Contact and create or update a bp relation ship with the parent bp
+        /// Create Authorized Contact and create or update a bp relation ship with the parent bp in MCF.
         /// </summary>
         /// <param name="authorizedContactRequest"></param>
         /// <returns>returns CreateAuthorizedContact</returns>
@@ -411,7 +412,7 @@ namespace PSE.Customer.V1.Controllers
         #region Business Partner ID Type
 
         /// <summary>
-        /// Gets all ID types but not values for a BP
+        /// Gets all ID types but not values for a BP from MCF.
         /// </summary>
         /// <returns>returns IndentifierResponse</returns>
         [ProducesResponseType(typeof(GetBpIdTypeResponse), 200)]
@@ -441,7 +442,7 @@ namespace PSE.Customer.V1.Controllers
         }
 
         /// <summary>
-        /// Get ID type but not value for a BP
+        /// Get ID type but not value for a BP from MCF.
         /// </summary>
         /// <param name="type">Represents identifier types such as last 4 SSN, drivers license number, etc.</param>
         /// <returns>returns IndentifierResponse</returns>
@@ -472,7 +473,7 @@ namespace PSE.Customer.V1.Controllers
         }
 
         /// <summary>
-        /// Create identifier for a BP
+        /// Create identifier for a BP in MCF.
         /// </summary>
         /// <param name="identifierRequest"></param>
         /// <returns>returns BPSearchResponse</returns>
@@ -500,7 +501,7 @@ namespace PSE.Customer.V1.Controllers
         }
 
         /// <summary>
-        /// Update identifier for a BP
+        /// Update identifier for a BP in MCF.
         /// </summary>
         /// <param name="identifierRequest"></param>
         /// <returns>returns BPSearchResponse</returns>

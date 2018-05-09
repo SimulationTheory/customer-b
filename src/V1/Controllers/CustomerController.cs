@@ -58,7 +58,7 @@ namespace PSE.Customer.V1.Controllers
         }
 
         /// <summary>
-        /// Lookup Customer by given customer name and account number
+        /// Lookup Customer by given customer name and account number in Cassandra.
         /// </summary>
         /// <remarks>
         /// Sample request:
@@ -109,7 +109,7 @@ namespace PSE.Customer.V1.Controllers
         }
 
         /// <summary>
-        /// Gets Customer Profile by loggedIn user
+        /// Gets Customer Profile by loggedIn user from Cassandra.
         /// </summary>
         /// <param name="bpId"></param>
         /// <returns>returns CustomerProfile information</returns>
@@ -145,7 +145,7 @@ namespace PSE.Customer.V1.Controllers
         
 
         /// <summary>
-        /// Creates the web profile.
+        /// Creates the web profile in MCF, Cassandra, and Cognito.
         /// </summary>
         /// <param name="webProfile">The web profile.</param>
         /// <returns></returns>
@@ -230,7 +230,11 @@ namespace PSE.Customer.V1.Controllers
             return result;
         }
 
-
+        /// <summary>
+        /// Creates the business partner relationship in MCF.
+        /// </summary>
+        /// <param name="request">The bp relationship request</param>
+        /// <returns></returns>
        [ProducesResponseType(typeof(bool), 200)]
        [HttpPost("bpRelationship")]
        [AllowAnonymous]
@@ -257,7 +261,7 @@ namespace PSE.Customer.V1.Controllers
 
 
         /// <summary>
-        /// Updates postal mail address for logged in user
+        /// Updates postal mail address for logged in user in MCF and Cassandra.
         /// </summary>
         /// <param name="request">Populated address to write to database</param>
         /// <returns>200 if successful, 400 if address is not valid, 500 if exception</returns>
@@ -307,7 +311,7 @@ namespace PSE.Customer.V1.Controllers
         }
 
         /// <summary>
-        /// Updates business partner relationship for logged in user
+        /// Updates business partner relationship for logged in user in MCF.
         /// </summary>
         /// <param name="request">Request object containing business partner relationship ids, relationship type</param>
         /// <returns>200 if successful, 400 if address is not valid, 500 if exception</returns>
@@ -349,7 +353,7 @@ namespace PSE.Customer.V1.Controllers
         }
 
         /// <summary>
-        /// Updates email address for logged in user
+        /// Updates email address for logged in user in MCF and Cassandra.
         /// </summary>
         /// <param name="emailAddress">Email address to write to database</param>
         /// <returns>200 if successful, 400 if address is not valid, 500 if exception</returns>
@@ -391,7 +395,7 @@ namespace PSE.Customer.V1.Controllers
         }
 
         /// <summary>
-        /// Updates the location independent phone number for logged in user
+        /// Updates the location independent phone number for logged in user in MCF and Cassandra.
         /// </summary>
         /// <param name="phone">Phone number to write to database</param>
         /// <returns>200 if successful, 400 if address is not valid, 500 if exception</returns>
@@ -427,7 +431,7 @@ namespace PSE.Customer.V1.Controllers
 
 
         /// <summary>
-        ///  Gets BP Level Addresses of the authenticated user and store it into Redis
+        ///  Gets BP Level Addresses of the authenticated user from MCF and store it into Redis.
         /// </summary>
         /// <param name="isStandardOnly"></param>
         /// <returns></returns>
@@ -477,7 +481,8 @@ namespace PSE.Customer.V1.Controllers
         }
 
         /// <summary>
-        /// Creates interaction record for logged in user, valid priority levels are 1 (very high), 2(high),3(normal),4(low),5(very low)
+        /// Creates interaction record for logged in user, valid priority levels are 
+        /// 1 (very high), 2(high),3(normal),4(low),5(very low) in MCF.
         /// </summary>
         /// <param name="createCustomerInteraction"></param>
         /// <returns>returns GetCustomerInteractionResponse</returns>
