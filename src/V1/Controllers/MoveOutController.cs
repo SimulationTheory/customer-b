@@ -64,7 +64,7 @@ namespace PSE.Customer.V1.Controllers
         /// <response code="200">Successfully stopped service.</response>
         /// <response code="401">Unauthorized.  Requires a valid JWT.</response>
         /// <response code="404">ContractAccountId not found or installationIds not found on contract account.</response>
-        [HttpPost("moveout-stop-service/{contractAccountId}")]
+        [HttpPost("moveout-stop-service")]
         [ProducesResponseType(typeof(MoveOutStopServiceResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

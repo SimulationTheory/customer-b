@@ -17,12 +17,12 @@ namespace PSE.Customer.V1.Request
         public long ContractAccountId { get; set; }
 
         /// <summary>
-        /// The tenant BP id.
+        /// The optional tenant BP id.  This is used for landlord based requests.
         /// </summary>
         /// <value>
         /// The tenant BP id.
         /// </value>
-        public long tenantBPId { get; set; }
+        public long TenantBPId { get; set; }
         /// <summary>
         /// The move out date.
         /// </summary>
