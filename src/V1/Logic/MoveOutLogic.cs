@@ -82,7 +82,7 @@ namespace PSE.Customer.V1.Logic
                     foreach (long installationId in stopServiceRequest.InstallationIds)
                     {
                         var installation = await _deviceApi.GetInstallationDetail(installationId);
-                        if (installation.Data != null)
+                        if (installation?.Data?.Installation != null)
                         {
                             // Get the contract info for that installlation
                             var contractItem = contractItems.Find(ci => ci.PointOfDeliveryGuid.ToLower() == installation.Data.Installation.InstallationGuid.ToLower());
