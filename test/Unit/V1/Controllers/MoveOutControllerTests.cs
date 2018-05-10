@@ -92,7 +92,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         public void PostStopService_Valid_Request_Returns_Valid_Response()
         {
             // Arrange
-            var logicResonse = new MoveOutStopServiceResponse
+            var logicResonse = new StopServiceResponse
             {
                 WarmHomeFund = 123.45M,
                 FinalBillDate = DateTimeOffset.Now,
@@ -122,7 +122,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
 
             // Assert
             response.Result.ShouldBeOfType<OkObjectResult>();
-            var result = ((OkObjectResult)response.Result).Value as MoveOutStopServiceResponse;
+            var result = ((OkObjectResult)response.Result).Value as StopServiceResponse;
             result.ShouldNotBeNull();
             result.Status.Count.ShouldBe(2);
         }
@@ -131,7 +131,7 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
         public void PostStopService_InValid_Request_Returns_NotFound_Response()
         {
             // Arrange
-            MoveOutStopServiceResponse logicResonse = null;
+            StopServiceResponse logicResonse = null;
             MoveOutLogicMock.Setup(lm => lm.StopService(It.IsAny<MoveOutStopServiceRequest>())).Returns(Task.FromResult(logicResonse));
             var controller = GetController();
 

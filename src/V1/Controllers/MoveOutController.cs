@@ -65,7 +65,7 @@ namespace PSE.Customer.V1.Controllers
         /// <response code="401">Unauthorized.  Requires a valid JWT.</response>
         /// <response code="404">ContractAccountId not found or installationIds not found on contract account.</response>
         [HttpPost("moveout-stop-service")]
-        [ProducesResponseType(typeof(MoveOutStopServiceResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(StopServiceResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> PostStopService([FromBody] MoveOutStopServiceRequest stopServiceRequest)
@@ -90,6 +90,50 @@ namespace PSE.Customer.V1.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, $"Error in PostStopService: {JsonConvert.SerializeObject(stopServiceRequest, Formatting.Indented)}");
+                result = e.ToActionResult();
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Gets the account summary for the Stop Service workflow.
+        /// </summary>
+        /// <param name="contractAccountId">The contract account identifier.</param>
+        /// <returns></returns>
+        /// <response code="200">Success.</response>
+        /// <response code="401">Unauthorized.  Requires a valid JWT.</response>
+        /// <response code="404">ContractAccountId not found.</response>
+        [AllowAnonymous]
+        [HttpPost("moveout-stop-service/summary/{contractAccountId}")]
+        [ProducesResponseType(typeof(StopServiceSummaryResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult GetStopServiceSummary(long contractAccountId)
+        {
+            IActionResult result;
+            _logger.LogInformation($"GetStopServiceSummary({contractAccountId})");
+
+            try
+            {
+                var response = new StopServiceSummaryResponse          //await _moveOutLogic.StopServiceSummary(contractAccountId);
+                {
+                    SecurityDepositAmount = 0,
+                };
+
+                if (response == null)
+                {
+                    result = NotFound();
+                }
+                else
+                {
+                    result = Ok(response);
+                    _logger.LogInformation($"GetStopServiceSummary: {JsonConvert.SerializeObject(response, Formatting.Indented)}");
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Error in GetStopServiceSummary({contractAccountId})");
                 result = e.ToActionResult();
             }
 

@@ -14,6 +14,6 @@ namespace PSE.Customer.V1.Logic.Interfaces
         /// </summary>
         /// <param name="stopServiceRequest">The stop service request.</param>
         /// <returns></returns>
-        Task<MoveOutStopServiceResponse> StopService(MoveOutStopServiceRequest stopServiceRequest);
+        Task<StopServiceResponse> StopService(MoveOutStopServiceRequest stopServiceRequest);
     }
 }

@@ -59,10 +59,10 @@ namespace PSE.Customer.V1.Logic
         }
 
         /// <inheritdoc />
-        public async Task<MoveOutStopServiceResponse> StopService(MoveOutStopServiceRequest stopServiceRequest)
+        public async Task<StopServiceResponse> StopService(MoveOutStopServiceRequest stopServiceRequest)
         {
             const int BillDueDays = 15;
-            var response = new MoveOutStopServiceResponse();
+            var response = new StopServiceResponse();
             response.Status = new Dictionary<long, string>();
 
             // ContractItem and installation have a 1 to 1 relationship.

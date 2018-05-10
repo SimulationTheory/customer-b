@@ -10,7 +10,7 @@ namespace PSE.Customer.V1.Response
     /// Response to handle a moveout stop service request.
     /// </summary>
     /// <seealso cref="PSE.WebAPI.Core.Interfaces.IAPIResponse" />
-    public class MoveOutStopServiceResponse : IAPIResponse
+    public class StopServiceResponse : IAPIResponse
     {
         /// <summary>
         /// The final bill date.
