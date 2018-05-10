@@ -1,19 +1,14 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PSE.Customer.Configuration;
 using PSE.Customer.V1.Logic.Interfaces;
-using PSE.Customer.V1.Models;
-using PSE.Customer.V1.Request;
-using PSE.Customer.Configuration;
 using PSE.WebAPI.Core.Exceptions;
 using PSE.WebAPI.Core.Service;
 using PSE.WebAPI.Core.Startup.Attributes;
 using System;
 using System.Threading.Tasks;
-using PSE.Customer.V1.Repositories.Entities;
 using PSE.WebAPI.Core.Service.Interfaces;
 
 namespace PSE.Account.V1.Controllers
@@ -21,7 +16,7 @@ namespace PSE.Account.V1.Controllers
 
     [ApiVersion("1.0")]
     [Produces("application/json")]
-    [Route("v{version:apiVersion}/private/account")]
+    [Route("v{version:apiVersion}/private/customer")]
     public class SyncController : PSEController
     {
         private readonly AppSettings _config;
@@ -29,18 +24,17 @@ namespace PSE.Account.V1.Controllers
         private readonly ICustomerLogic _customerSummaryLogic;
         private readonly IRequestContextAdapter _contextAdapter;
         /// <summary>
-        /// Initializes a new instance of the <see cref="SyncController"/> class.
+        /// Initializes a new instance of the <see cref="SyncController" /> class.
         /// </summary>
         /// <param name="appSettings">The application settings.</param>
         /// <param name="logger">The logger.</param>
-        /// <param name="accountSummaryLogic">The account summary logic.</param>
-        /// <exception cref="ArgumentNullException">
-        /// appSettings
+        /// <param name="customerSummaryLogic">The customer summary logic.</param>
+        /// <param name="requestContextAdapter">The request context adapter.</param>
+        /// <exception cref="ArgumentNullException">appSettings
         /// or
         /// logger
         /// or
-        /// accountSummaryLogic
-        /// </exception>
+        /// accountSummaryLogic</exception>
         public SyncController(
             IOptions<AppSettings> appSettings,
             ILogger<SyncController> logger,
@@ -57,6 +51,7 @@ namespace PSE.Account.V1.Controllers
         /// Puts the customer data from MCF to Cassandra asynchronous.
         /// </summary>
         /// <returns></returns>
+        [ApiExplorerSettings(IgnoreApi = true)]
         [ProducesResponseType(typeof(OkResult), 200)]
         [RequestChannelSkipValidation]
         [AllowAnonymous]
