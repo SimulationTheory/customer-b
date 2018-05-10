@@ -11,7 +11,7 @@ namespace PSE.Customer.V1.Request
     public class CleanMoveInRequest
     {
         public string ContractAccountId { get; set; }
-        public string BpId { get; set; }
+        public string tenantBPId { get; set; }
         public IEnumerable<ProductInfo> ProductEnrollments { get; set; }
         public IEnumerable<Installation> Installations { get; set; }
         public string IncomeSource { get; set; }

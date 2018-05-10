@@ -17,6 +17,13 @@ namespace PSE.Customer.V1.Request
         public long ContractAccountId { get; set; }
 
         /// <summary>
+        /// The tenant BP id.
+        /// </summary>
+        /// <value>
+        /// The tenant BP id.
+        /// </value>
+        public long tenantBPId { get; set; }
+        /// <summary>
         /// The move out date.
         /// </summary>
         /// <value>

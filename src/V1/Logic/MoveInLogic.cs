@@ -493,7 +493,7 @@ namespace PSE.Customer.V1.Logic
         public async Task<CleanMoveInResponse> PostCleanMoveIn(CleanMoveInRequest request, string jwt)
         {
 
-            var bpId = ParseBpFromString(request.BpId);
+            var bpId = ParseBpFromString(request.tenantBPId);
 
             //
             var addressInfoResponse = await _customerLogic.GetMailingAddressesAsync(bpId, true, jwt);
@@ -507,7 +507,7 @@ namespace PSE.Customer.V1.Logic
 
             var mcfMoveInRequest = new CreateMoveInRequest()
             {
-                AccountID = request.BpId,
+                AccountID = request.tenantBPId,
                 CustomerRole = "",
                 ProcessType = "",
                 ContractItemNav = await CreateCleanMoveInContractItemNavList(request, accountResponse.ContractAccountId.ToString()),
