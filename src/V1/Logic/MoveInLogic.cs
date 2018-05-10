@@ -17,6 +17,7 @@ using PSE.Customer.V1.Logic.Extensions;
 using PSE.Customer.V1.Logic.Interfaces;
 using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
+using PSE.Customer.V1.Repositories.Interfaces;
 using PSE.Customer.V1.Request;
 using PSE.Customer.V1.Response;
 using PSE.WebAPI.Core.Exceptions.Types;
@@ -35,6 +36,7 @@ namespace PSE.Customer.V1.Logic
         private static string ValidToMcfmaxdata = new DateTime(9999, 12, 31).ToString(McfDateFormat);
         private readonly IDeviceApi _deviceApi;
         private readonly IAccountApi _accountApi;
+        private readonly ICustomerRepository _customerRespository;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MoveInLogic"/> class.
@@ -45,7 +47,7 @@ namespace PSE.Customer.V1.Logic
         /// <param name="accountApi"></param>
         /// <param name="deviceApi">The deviceApi.</param>
         /// <param name="customerLogic"></param>
-        public MoveInLogic(ILogger<MoveInLogic> logger, IMcfClient mcfClient, IAddressApi addressApi, IAccountApi accountApi, IDeviceApi deviceApi, ICustomerLogic customerLogic)
+        public MoveInLogic(ILogger<MoveInLogic> logger, IMcfClient mcfClient, IAddressApi addressApi, IAccountApi accountApi, IDeviceApi deviceApi, ICustomerLogic customerLogic, ICustomerRepository customerRepository)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _mcfClient = mcfClient ?? throw new ArgumentNullException(nameof(mcfClient));
@@ -53,6 +55,7 @@ namespace PSE.Customer.V1.Logic
             _accountApi = accountApi ?? throw new ArgumentNullException(nameof(accountApi));
             _deviceApi = deviceApi ?? throw new ArgumentNullException(nameof(deviceApi));
             _customerLogic = customerLogic ?? throw new ArgumentNullException(nameof(customerLogic));
+            _customerRespository = customerRepository ?? throw new ArgumentNullException(nameof(customerRepository));
         }
 
         /// <inheritdoc />
@@ -175,8 +178,15 @@ namespace PSE.Customer.V1.Logic
                 {
                     BpId = mcfResp.PartnerId
                 };
-
+                           
+                if (resp.BpId != "0")
+                {
+                    UpdateCustomerDetailsInCassandra(request, Int64.Parse(resp.BpId), false);
+                }
                 return resp;
+            
+
+
             }
 
             catch (Exception ex)
@@ -911,8 +921,22 @@ namespace PSE.Customer.V1.Logic
 
             return bpId;
         }
+        private bool UpdateCustomerDetailsInCassandra(CreateBusinesspartnerRequest createBusinessPartnerData, long bpID, bool update)
+        {
+            try
+            {
+                _customerRespository.UpdateCassandraCustomerInformation(bpID, createBusinessPartnerData);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Cassandra update was not successful for bp id :{bpID.ToString()} {ex.Message}");
+                return false;
+            }
+        }
 
         #endregion
 
     }
 }
+     

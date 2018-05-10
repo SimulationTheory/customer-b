@@ -25,6 +25,8 @@ namespace PSE.Customer.V1.Request
         //[JsonConverter(typeof(StringEnumConverter))]
         public Phone Phone { get; set; }
 
+        public Phone MobilePhone { get; set; }
+
         [JsonConverter(typeof(StringEnumConverter))]
         public RelationshipCategory Relationshipcategory { get; set; }
 

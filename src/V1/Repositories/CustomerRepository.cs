@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Cassandra;
 using Cassandra.Mapping;
@@ -11,6 +12,7 @@ using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Repositories.Entities;
 using PSE.Customer.V1.Repositories.Interfaces;
+using PSE.Customer.V1.Request;
 
 namespace PSE.Customer.V1.Repositories
 {
@@ -126,6 +128,56 @@ namespace PSE.Customer.V1.Repositories
                 "WHERE bp_id = ?;");
 
             return session.ExecuteAsync(statement.Bind(emailAddress, bpId));
+        }
+        /// <summary>
+        /// Updates the customer information at the BP level
+        /// </summary>
+        /// <param name="emailAddress">email address</param>
+        /// <param name="bpId">bpID</param>
+        public bool UpdateCassandraCustomerInformation(long bpId, CreateBusinesspartnerRequest createBusinessPartnerData)
+        {
+            try
+            {
+                
+                    _logger.LogInformation($"UpdateNewCustomerInformation({nameof(CreateBusinesspartnerRequest)}: {createBusinessPartnerData.ToJson()}," +
+                                           $"{nameof(bpId)}: {bpId})");
+                    // populate customer data
+                    var session = _session.Session();
+                    
+                    var statement = session.Prepare(
+                        "INSERT INTO customer(bp_id,employer_name,first_name, full_name, last_name, middle_name, refresh_time) " +
+                        "VALUES(?,?,?,?,?,?,?);");
+                    string fullName = createBusinessPartnerData.FirstName + " " + createBusinessPartnerData.MiddleName + " " + createBusinessPartnerData.LastName;
+                    DateTimeOffset dtoffset = DateTimeOffset.Now;
+                    session.ExecuteAsync(statement.Bind(bpId, createBusinessPartnerData.OrgName, createBusinessPartnerData.FirstName, fullName, createBusinessPartnerData.LastName, createBusinessPartnerData.MiddleName, dtoffset));
+
+                    // populate customer contact data
+                    Dictionary<string, PhoneDefinedType> Phones = new Dictionary<string, PhoneDefinedType>();
+                    Phones.Add(createBusinessPartnerData.Phone.Type.ToString(), new PhoneDefinedType() { Number = createBusinessPartnerData.Phone.Number, Extension = createBusinessPartnerData.Phone.Extension });
+                    Phones.Add(createBusinessPartnerData.MobilePhone.Type.ToString(), new PhoneDefinedType() { Number = createBusinessPartnerData.MobilePhone.Number, Extension = createBusinessPartnerData.MobilePhone.Extension });
+                    AddressDefinedType newCustomerStreetAddress = new AddressDefinedType()
+                    {
+                        AddressLine1 = createBusinessPartnerData.Address.AddressLine1,
+                        AddressLine2 = createBusinessPartnerData.Address.AddressLine2,
+                        City = createBusinessPartnerData.Address.City,
+                        State = createBusinessPartnerData.Address.State,
+                        PostalCode = createBusinessPartnerData.Address.PostalCode,
+                        Country = createBusinessPartnerData.Address.Country,
+                        CareOf = createBusinessPartnerData.Address.CareOf
+                    };
+                    statement = session.Prepare(
+                      "INSERT INTO customer_contact(bp_id,email,mailing_address,phones) " +
+                      "VALUES(?,?,?,?);");
+                    session.ExecuteAsync(statement.Bind(bpId, createBusinessPartnerData.Email, newCustomerStreetAddress, Phones));
+                    return true;
+              
+            }   
+            catch (Exception ex)
+            {
+                _logger.LogError($"Database update was not successful for bp id : {bpId.ToString()} {ex.Message}");
+                return false;
+
+            }
         }
 
         /// <summary>

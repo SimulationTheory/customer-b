@@ -54,6 +54,13 @@ namespace PSE.Customer.V1.Clients.Mcf.Response
         public McfResponseResults<GetEmailResponse> AccountAddressIndependentEmails { get; set; }
 
         /// <summary>
+        /// Gets or sets the account address independent mobile phone numbers.
+        /// </summary>
+        /// <value>
+        /// Collection of the BP level mobile phone numbers
+        /// </value>
+        public McfResponseResults<GetPhoneResponse> AccountAddressIndependentMobilePhones { get; set; }
+        /// <summary>
         /// Gets or sets the account address independent phones.
         /// </summary>
         /// <value>

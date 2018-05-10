@@ -1,5 +1,6 @@
 ﻿using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using PSE.Caching.Core.Redis;
 using PSE.RestUtility.Core.Interfaces;
@@ -65,6 +66,29 @@ namespace PSE.RestUtility.Core
                 request.AddHeader("Authorization", jwtToken);
                 request.AddHeader("request-channel", channel);
                 var result = client.Execute(request);
+
+                cookiesJson = result.Content;
+
+            }
+
+            cookies = JsonConvert.DeserializeObject<TokenCookies>(cookiesJson);
+
+            return cookies;
+        }
+
+        public async Task<TokenCookies> GetMcfCookiesByBpAsync(long bpNumber)
+        {
+            TokenCookies cookies = null;
+
+            RedisKey key = $"authentication:mcf:nojwt:{bpNumber}";
+            var cookiesJson = _redis.StringGet(key);
+
+            if (cookiesJson.IsNullOrEmpty)
+            {
+                var client = GetRestClient(_loadBalancerUrl, true);
+                var request = new RestRequest($"/v1.0/authentication/mcf-token/{bpNumber}", Method.GET);
+
+                var result = await client.ExecuteTaskAsync(request);
 
                 cookiesJson = result.Content;
 

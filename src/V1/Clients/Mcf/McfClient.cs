@@ -160,9 +160,18 @@ namespace PSE.Customer.V1.Clients.Mcf
 
             try
             {
+                IEnumerable<System.Net.Cookie> cookies;
+
                 var config = _coreOptions.Configuration;
                 var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
-                var cookies = restUtility.GetMcfCookies(jwt, _requestContext.RequestChannel.ToString()).Result;
+                if (!String.IsNullOrEmpty(jwt))
+                {
+                    cookies = restUtility.GetMcfCookies(jwt, _requestContext.RequestChannel.ToString()).Result;
+                }
+                else
+                {
+                    cookies = restUtility.GetMcfCookiesByBpAsync(Int64.Parse(bpId)).Result.Result;
+                }
 
                 var restRequest = new RestRequest(
                     $"/sap/opu/odata/sap/ZERP_UTILITIES_UMC_PSE_SRV/Accounts('{bpId}')?$expand=AccountAddressIndependentEmails," +
@@ -449,9 +458,17 @@ namespace PSE.Customer.V1.Clients.Mcf
 
             try
             {
+                IEnumerable<System.Net.Cookie> cookies;
                 var config = _coreOptions.Configuration;
                 var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
-                var cookies = restUtility.GetMcfCookies(jwt, _requestContext.RequestChannel.ToString()).Result;
+                if (!String.IsNullOrEmpty(jwt))
+                {
+                    cookies = restUtility.GetMcfCookies(jwt, _requestContext.RequestChannel.ToString()).Result;
+                }
+                else
+                {
+                    cookies = restUtility.GetMcfCookiesByBpAsync(bpId).Result.Result;
+                }
 
                 var restRequest = new RestRequest($"/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/Accounts('{bpId}')/StandardAccountAddress?$format=json", Method.GET);
                 restRequest.AddCookies(cookies);

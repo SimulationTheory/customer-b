@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Cassandra;
 using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories.DefinedTypes;
+using PSE.Customer.V1.Request;
 
 namespace PSE.Customer.V1.Repositories.Interfaces
 {
@@ -55,5 +56,15 @@ namespace PSE.Customer.V1.Repositories.Interfaces
         /// <param name="bpId">Business partner ID</param>
         /// <returns></returns>
         Task<RowSet> UpdateCustomerPhoneNumber(Phone phone, long bpId);
+
+        /// <summary>
+        /// Updates the Cassandra table with new BP information
+        /// </summary>
+        /// <param name="bpId">New customer's BP ID</param>
+        /// <param name="createBusinessPartnerData">new business partner information</param>
+         /// <returns></returns>
+        bool UpdateCassandraCustomerInformation(long bpId, CreateBusinesspartnerRequest createBusinessPartnerData);
+
+
     }
 }

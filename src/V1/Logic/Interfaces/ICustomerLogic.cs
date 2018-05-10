@@ -121,6 +121,13 @@ namespace PSE.Customer.V1.Logic.Interfaces
         /// <param name="jwt"></param>
         /// <returns></returns>
         bool CreateBpRelationshipAsync(CreateBpRelationshipRequest request, string jwt);
+        // <summary>
+        /// Sync customer information by BP id
+        /// </summary>
+        /// <param name="bpID"></param>
+        /// <returns></returns>
+        Task<bool> SyncCustomerByBpId(long bpID);
+
 
     }
 

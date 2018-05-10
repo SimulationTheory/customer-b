@@ -12,7 +12,6 @@ using PSE.Customer.V1.Clients.Mcf.Interfaces;
 using PSE.Customer.V1.Clients.Mcf.Request;
 using PSE.Customer.V1.Clients.Mcf.Response;
 using PSE.Customer.V1.Logic.Interfaces;
-using PSE.Customer.V1.Models;
 using PSE.Customer.V1.Repositories;
 using PSE.Customer.V1.Repositories.DefinedTypes;
 using PSE.Customer.V1.Repositories.Entities;
@@ -32,6 +31,12 @@ using System.Threading.Tasks;
 using System.Net;
 using PSE.Customer.V1.Response;
 using System.Globalization;
+using System.IdentityModel.Tokens.Jwt;
+using PSE.RestUtility.Core.Models;
+using StackExchange.Redis;
+using Newtonsoft.Json;
+using PSE.Customer.V1.Clients.Mcf.Models;
+using PSE.Customer.V1.Models;
 
 namespace PSE.Customer.V1.Logic
 {
@@ -93,6 +98,75 @@ namespace PSE.Customer.V1.Logic
             _requestContextAdapter = requestContextAdapter ?? throw new ArgumentNullException(nameof(requestContextAdapter));
         }
 
+        /// <summary>
+        /// Gets bp ID and acct status while validating acct ID and fullName.
+        /// </summary>
+        /// <param name="bpID">The business partner id to sync information for in the Cassandra database.</param>
+        /// <returns></returns>
+        public async Task<bool> SyncCustomerByBpId(long bpID)
+        {
+            // Get customer for this bp
+            CustomerEntity customerEntity = await _customerRepository.GetCustomerByBusinessPartnerId(bpID);
+            
+                try
+                {
+                    // getting the latest customer and customer contact detail information from SAP
+                    McfResponse<BusinessPartnerContactInfoResponse> businessPartnerContactInfo = _mcfClient.GetBusinessPartnerContactInfo(String.Empty, bpID.ToString());
+                    McfResponse<GetAccountAddressesResponse> addressResponse = _mcfClient.GetStandardMailingAddress(String.Empty, bpID);
+                    McfAddressinfo mcfAddressInfo = addressResponse.Result.AddressInfo;
+
+                    // populating object with customer and customer contact information to send to function to update Cassandra data
+                    CreateBusinesspartnerRequest newCassandraRecordData = new CreateBusinesspartnerRequest();
+                    newCassandraRecordData.Address = new AddressDefinedTypeRequest();
+                    newCassandraRecordData.Phone = new Phone();
+                    newCassandraRecordData.MobilePhone = new Phone();
+                    // populating name and address information
+                    if (mcfAddressInfo.POBox.Length > 0)
+                    {
+                        newCassandraRecordData.Address.AddressLine1 = $"P. O. Box {mcfAddressInfo.POBox}";
+                    }
+                    else
+                    {
+                        newCassandraRecordData.Address.AddressLine1 = $"{mcfAddressInfo.HouseNo}  {mcfAddressInfo.Street}";
+                    }
+                    newCassandraRecordData.FirstName = businessPartnerContactInfo.Result.FirstName;
+                    newCassandraRecordData.LastName = businessPartnerContactInfo.Result.LastName;
+                    // populating phone contact information
+                    GetPhoneResponse phone = new GetPhoneResponse();
+                    if (businessPartnerContactInfo.Result.AccountAddressIndependentPhones.Results.Count() > 0)
+                    {
+                        phone = businessPartnerContactInfo.Result.AccountAddressIndependentPhones.Results.Last();
+                        newCassandraRecordData.Phone.Number = phone.PhoneNo;
+                        newCassandraRecordData.Phone.Type = PhoneType.Work;
+                        newCassandraRecordData.Phone.Extension = phone.Extension;
+                    }
+                    if (businessPartnerContactInfo.Result.AccountAddressIndependentMobilePhones.Results.Count() > 0)
+                    {
+                        phone = businessPartnerContactInfo.Result.AccountAddressIndependentMobilePhones.Results.Last();
+                        newCassandraRecordData.MobilePhone.Number = phone.PhoneNo;
+                        newCassandraRecordData.MobilePhone.Type = PhoneType.Cell;
+                        newCassandraRecordData.MobilePhone.Extension = phone.Extension;
+                    }
+                    // populating email information
+                    if (businessPartnerContactInfo.Result.AccountAddressIndependentEmails.Results.Count() > 0)
+                    {
+                        GetEmailResponse email = businessPartnerContactInfo.Result.AccountAddressIndependentEmails.Results.Last();
+                        newCassandraRecordData.Email = email.Email;
+                    }
+                    newCassandraRecordData.Address.City = mcfAddressInfo.City;
+                    newCassandraRecordData.Address.Country = mcfAddressInfo.CountryID;
+                    newCassandraRecordData.Address.PostalCode = mcfAddressInfo.PostalCode;
+                    // updating or inserting cassandra record with new data from SAP
+                    UpdateCustomerDetailsInCassandra(newCassandraRecordData, bpID);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    return false;
+                }
+         }
+            
+  
         /// <summary>
         /// Gets bp ID and acct status while validating acct ID and fullName.
         /// </summary>
@@ -159,7 +233,7 @@ namespace PSE.Customer.V1.Logic
 
 
         /// <summary>
-        /// Returns CustomerProfileModel based customer and customer contact information retrieved from Cassandra
+        /// Create customer interaction record through Cassandra
         /// </summary>
         /// <param name="createCustomerInteraction">Interaction record</param>
         /// /// <param name="Jwt"></param>
@@ -511,6 +585,7 @@ namespace PSE.Customer.V1.Logic
        }
 
         #region private methods
+      
         private async Task SaveSecurityQuestions(WebProfile webprofile, IRestResponse<OkResult> resp)
         {
             try
@@ -556,6 +631,22 @@ namespace PSE.Customer.V1.Logic
 
             return _mcfClient.CreateAddress(jwt, request);
         }
+
+        private bool UpdateCustomerDetailsInCassandra(CreateBusinesspartnerRequest createBusinessPartnerData, long bpID)
+        {
+            try
+            {
+                
+                _customerRepository.UpdateCassandraCustomerInformation(bpID, createBusinessPartnerData);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Cassandra update was not successful for bp id : " + bpID.ToString() + " " + ex.Message);
+                return false;
+            }
+        }
+
 
         #endregion
     }
