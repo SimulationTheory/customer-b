@@ -750,7 +750,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
                 DocumentStatusID = "E0003"
             };
 
-           GetCustomerInteractionResponse response = McfClient.CreateCustomerInteractionRecord(newInteraction, user.JwtEncodedString);
+            GetCustomerInteractionResponse response = McfClient.CreateCustomerInteractionRecord(newInteraction, user.JwtEncodedString);
             Assert.AreEqual(response.Success, "True");
             Assert.IsNotNull(response.InteractionRecordID);
         }
@@ -806,6 +806,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         #endregion
 
         #region CreateCancelMoveInForContractId Tests
+        [Ignore]
         [TestMethod]
         public void CreateCancelMoveInForContractId_SuccessOnCancel()
         {
@@ -813,7 +814,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
                 This might be tough to test, and may need to be done manually.
                 Each time a move-in is cancelled, I don't think that it can be re-cancelled.
                 A new move-in may need to be scheduled first, then cancelled.
-                If so, we should make the test schedule a move-in and then cancel it.
+                If so, we should make a test that would schedule a move-in and then cancel it.
             */
 
             // Arrange
@@ -827,23 +828,6 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
 
             // Assert
             Assert.AreEqual(true, response.Result.Success);
-            Assert.IsNotNull(response.Result.StatusMessage);
-        }
-
-        [TestMethod]
-        public void CreateCancelMoveInForContractId_FailedOnCancel()
-        {
-            // Arrange
-            var request = new CancelMoveInRequest()
-            {
-                ContractId = "a 123 % & -++_* bcdef" // bad input
-            };
-
-            // Act
-            var response = McfClient.PostCancelMoveIn(request);
-
-            // Assert
-            Assert.AreEqual(false, response.Result.Success);
             Assert.IsNotNull(response.Result.StatusMessage);
         }
 

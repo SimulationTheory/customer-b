@@ -115,7 +115,39 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             ArrangeController(controller, user);
 
             // Act
-            var response = controller.GetAllIdTypes();
+            var response = controller.GetAllIdTypes(null);
+
+            // Assert
+            var result = (OkObjectResult)response.Result;
+            var idResponse = (GetBpIdTypeResponse)result.Value;
+            idResponse.Identifiers.Count.ShouldBe(2);
+            idResponse.Identifiers[0].IdentifierType.ShouldBe(IdentifierType.ZLAST4);
+            idResponse.Identifiers[1].IdentifierType.ShouldBe(IdentifierType.ZDOB);
+        }
+
+        [TestMethod]
+        public void GetAllIdTypes_ValidAccount_TenantBpId_ReturnsValues()
+        {
+            // Arrange
+            var user = TestHelper.PaDev1;
+            MoveInLogicMock.
+                Setup(x => x.GetAllIdTypes(It.IsAny<long>())).
+                Returns(Task.FromResult(new List<IdentifierTypeResponse>
+                {
+                    new IdentifierTypeResponse
+                    {
+                        IdentifierType = IdentifierType.ZLAST4
+                    },
+                    new IdentifierTypeResponse
+                    {
+                        IdentifierType = IdentifierType.ZDOB
+                    }
+                }));
+            var controller = GetController();
+            ArrangeController(controller, user);
+
+            // Act
+            var response = controller.GetAllIdTypes(1002287692);
 
             // Assert
             var result = (OkObjectResult)response.Result;
@@ -147,7 +179,33 @@ namespace PSE.Customer.Tests.Unit.V1.Controllers
             ArrangeController(controller, user);
 
             // Act
-            var response = controller.GetIdType(IdentifierType.ZDOB);
+            var response = controller.GetIdType(IdentifierType.ZDOB, null);
+
+            // Assert
+            var result = (OkObjectResult)response.Result;
+            var idResponse = (GetBpIdTypeResponse)result.Value;
+            idResponse.Identifiers.Count.ShouldBe(1);
+        }
+
+        [TestMethod]
+        public void GetIdType_ValidAccount_TenantBpId_ReturnsValue()
+        {
+            // Arrange
+            var user = TestHelper.PaDev1;
+            MoveInLogicMock.
+                Setup(x => x.GetIdType(It.IsAny<long>(), It.IsAny<IdentifierType>())).
+                Returns(Task.FromResult(new List<IdentifierTypeResponse>
+                {
+                    new IdentifierTypeResponse
+                    {
+                        IdentifierType = IdentifierType.ZDOB
+                    }
+                }));
+            var controller = GetController();
+            ArrangeController(controller, user);
+
+            // Act
+            var response = controller.GetIdType(IdentifierType.ZDOB, 1002287692);
 
             // Assert
             var result = (OkObjectResult)response.Result;

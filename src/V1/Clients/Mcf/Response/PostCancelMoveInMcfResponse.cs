@@ -7,7 +7,7 @@ namespace PSE.Customer.V1.Clients.Mcf.Response
     /// <summary>
     /// Model for Cancel Move In MCF responses.
     /// </summary>
-    public class CancelMoveInResponse : IMcfResult
+    public class PostCancelMoveInMcfResponse : IMcfResult
     {
         /// <inheritdoc />
         public McfMetadata Metadata { get; set; }
@@ -16,7 +16,7 @@ namespace PSE.Customer.V1.Clients.Mcf.Response
         /// Gets or sets a value indicating whether move in has been cancelled.
         /// </summary>
         public bool Success { get; set; }
-        
+
         /// <summary>
         /// Gets or sets a message associated with the success flag. 
         /// </summary>

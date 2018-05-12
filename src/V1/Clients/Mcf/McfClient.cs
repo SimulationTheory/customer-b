@@ -33,8 +33,6 @@ using System.Text;
 
 namespace PSE.Customer.V1.Clients.Mcf
 {
-
-
     /// <summary>
     /// Handles interaction with SAP via MCF calls
     /// </summary>
@@ -753,6 +751,7 @@ namespace PSE.Customer.V1.Clients.Mcf
 
             return mcfResponse;
         }
+
         /// <summary>
         /// Get reconnection payment details from mcf
         /// </summary>
@@ -792,9 +791,9 @@ namespace PSE.Customer.V1.Clients.Mcf
         }
 
         /// <inheritdoc />
-        public async Task<CancelMoveInResponse> PostCancelMoveIn(CancelMoveInRequest request)
+        public async Task<PostCancelMoveInMcfResponse> PostCancelMoveIn(CancelMoveInRequest request)
         {
-            var response = new CancelMoveInResponse();
+            var response = new PostCancelMoveInMcfResponse();
 
             this._logger.LogInformation($"CreateCancelMoveInForContractId({nameof(request)}: {request.ToJson()})");
 
@@ -804,29 +803,23 @@ namespace PSE.Customer.V1.Clients.Mcf
                 var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
                 var restRequest = new RestRequest($"/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/CancelMoveIn?ContractID='{request.ContractId}'", Method.POST);
 
-                // Add basic auth for anon service account
-                var mcfUserName = string.Empty;
-                var mcfUserPassword = string.Empty;
-                SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword);
-                restRequest.AddBasicCredentials(mcfUserName, mcfUserPassword);
                 restRequest.AddMcfRequestHeaders();
-
-                // adding headers
                 restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
                 restRequest.AddHeader("ContentType", "application/json");
                 restRequest.AddHeader("Accept", "application/json");
+                var cookies = restUtility.GetMcfCookies(_requestContext.JWT, _requestContext.ToString());
+                restRequest.AddCookies(cookies.Result);
 
                 // executing request and response
                 var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
                 var cancellationTokenSource = new CancellationTokenSource();
                 var restResponse = await client.ExecuteTaskAsync(restRequest, cancellationTokenSource.Token);
 
-                var mcfResponse = JsonConvert.DeserializeObject<McfResponse<CancelMoveInResponse>>(restResponse.Content);
+                var mcfResponse = JsonConvert.DeserializeObject<McfResponse<PostCancelMoveInMcfResponse>>(restResponse.Content);
                 if (mcfResponse.Error != null && mcfResponse.Result == null)
                 {
                     var errorMessage = mcfResponse.Error.Message?.Value;
                     _logger.LogError(errorMessage);
-
                     response.Success = false;
                     response.StatusMessage = $"Cancellation Error - {restResponse.StatusCode}: {errorMessage}";
                 }
@@ -1175,7 +1168,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                 var config = _coreOptions.Configuration;
                 var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
                 var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
-               
+
                 var request = new RestRequest($"/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/Accounts('{tenantBp}')/Relationships", Method.GET);
                 //TODO Add basic credential once we know which service account to use
                 request.AddMcfRequestHeaders();
@@ -1590,6 +1583,7 @@ namespace PSE.Customer.V1.Clients.Mcf
 
 
         #region Kept this for testing/debuging 
+        /// <summary>
         /// Sends an Http Request via TCP client.
         /// This is to circumvent cases when HttpClient is not capable of parsing a response.
         /// An example is when the server replies with HttpStatusCode 204: in this case, 

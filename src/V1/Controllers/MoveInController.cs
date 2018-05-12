@@ -19,7 +19,6 @@ using PSE.WebAPI.Core.Exceptions;
 using PSE.WebAPI.Core.Exceptions.Types;
 using PSE.WebAPI.Core.Service;
 
-
 namespace PSE.Customer.V1.Controllers
 {
     /// <summary>
@@ -114,9 +113,7 @@ namespace PSE.Customer.V1.Controllers
 
             return result;
         }
-
-
-
+        
         /// <summary>
         /// Initiates move in for prior obligations in MCF.
         /// </summary>
@@ -185,7 +182,7 @@ namespace PSE.Customer.V1.Controllers
                     throw new ArgumentNullException($"The request was empty.");
                 }
 
-                // confirm that something has been included in the request
+                // confirm that something valid has been included in the request
                 if ((request.FirstName == null || request.LastName == null)
                     && (request.OrgName == null))
                 {
@@ -217,7 +214,6 @@ namespace PSE.Customer.V1.Controllers
         /// <returns>An action result.</returns>
         [ProducesResponseType(typeof(CancelMoveInResponse), StatusCodes.Status200OK)]
         [HttpPost("cancelmovein")]
-        [AllowAnonymous]
         public async Task<IActionResult> CancelMoveIn([FromBody]CancelMoveInRequest cancelRequest)
         {
             _logger.LogInformation($"CancelMoveIn({nameof(cancelRequest)}): {cancelRequest.ToJson()}");
@@ -322,7 +318,7 @@ namespace PSE.Customer.V1.Controllers
         /// </summary>
         /// <returns>returns BPSearchResponse</returns>
         [ProducesResponseType(typeof(BpRelationshipsResponse), StatusCodes.Status200OK)]
-        [HttpGet("bp-relationships")]       
+        [HttpGet("bp-relationships")]
         public async Task<IActionResult> GetAllBpRelationships([FromQuery] string tenantBpId)
         {
             IActionResult result;
@@ -403,7 +399,7 @@ namespace PSE.Customer.V1.Controllers
                 var bpId = GetBpIdFromClaims();
                 var jwt = GetJWToken();
                 var contact = await _moveInLogic.CreateAuthorizedContact(authorizedContactRequest, bpId.ToString(), jwt);
-               
+
                 result = Ok(contact);
             }
             catch (Exception ex)
@@ -425,25 +421,15 @@ namespace PSE.Customer.V1.Controllers
         /// <returns>returns IndentifierResponse</returns>
         [ProducesResponseType(typeof(GetBpIdTypeResponse), 200)]
         [HttpGet("bp-id-types")]
-        public async Task<IActionResult> GetAllIdTypes([FromQuery] long tenantBpId = -1)
+        public async Task<IActionResult> GetAllIdTypes([FromQuery] long? tenantBpId)
         {
-            _logger.LogInformation("GetAllIdTypes()");
-
             IActionResult result;
-            long bpId;
+            _logger.LogInformation("GetAllIdTypes()");
 
             try
             {
-                if (tenantBpId != -1)
-                {
-                    // set the bpId based on what the tenant has provided
-                    bpId = tenantBpId;
-                }
-                else
-                {
-                    // Get BP from user's authorization claims
-                    bpId = GetBpIdFromClaims();
-                }
+                // set the bpId based on whether the tenant's bpId has been provided by landlord
+                var bpId = tenantBpId ?? GetBpIdFromClaims();
 
                 result = Ok(new GetBpIdTypeResponse
                 {
@@ -453,7 +439,6 @@ namespace PSE.Customer.V1.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unable to Get All ID types and values for BP");
-
                 result = ex.ToActionResult();
             }
 
@@ -464,40 +449,25 @@ namespace PSE.Customer.V1.Controllers
         /// Get ID type but not value for a BP from MCF.
         /// </summary>
         /// <param name="type">Represents identifier types such as last 4 SSN, drivers license number, etc.</param>
-        /// <param name="tenantBpId">A tenant's business partner identification number, provided by a landlord.</param>
         /// <returns>returns IndentifierResponse</returns>
         [ProducesResponseType(typeof(GetBpIdTypeResponse), 200)]
         [HttpGet("bp-id-type/{type}")]
-        public async Task<IActionResult> GetIdType([FromRoute] IdentifierType type, [FromQuery] long tenantBpId = -1)
+        public async Task<IActionResult> GetIdType([FromRoute] IdentifierType type, [FromQuery] long? tenantBpId)
         {
             IActionResult result;
-            long bpId;
             _logger.LogInformation($"GetIdType({nameof(type)}: {type.ToJson()})");
 
             try
             {
-                // check to see if a tenantBpId value was passed. 
-                // default is -1, indicating that nothing has overridden it.
-                if (tenantBpId != -1)
+                // set the bpId based on whether the tenant's bpId has been provided by landlord
+                result = base.Ok(new GetBpIdTypeResponse
                 {
-                    // set the bpId based on what the tenant has provided
-                    bpId = tenantBpId;
-                }
-                else
-                {
-                    // Get BP from user's authorization claims
-                    bpId = GetBpIdFromClaims();
-                }
-
-                result = Ok(new GetBpIdTypeResponse
-                {
-                    Identifiers = await _moveInLogic.GetIdType(bpId, type)
+                    Identifiers = await _moveInLogic.GetIdType(tenantBpId ?? GetBpIdFromClaims(), type)
                 });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unable to Get All ID types and values for BP", ex.Message);
-
                 result = ex.ToActionResult();
             }
 
@@ -595,6 +565,7 @@ namespace PSE.Customer.V1.Controllers
         #endregion
 
         #region Helper Methods
+
         /// <summary>
         /// Gets JWT token from the request Header. Copied from paymentarrangement
         /// </summary>
@@ -603,8 +574,7 @@ namespace PSE.Customer.V1.Controllers
             HttpContext.Request.Headers.ContainsKey("Authorization")
                 ? HttpContext.Request.Headers["Authorization"].ToString()
                 : null;
-
-
+        
         /// <summary>
         /// Gets the Business Partner ID (bpId) from an authenticated users claims
         /// </summary>

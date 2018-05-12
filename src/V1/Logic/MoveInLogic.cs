@@ -83,8 +83,7 @@ namespace PSE.Customer.V1.Logic
 
             return reconnectStatus;
         }
-
-
+        
         /// <inheritdoc />
         public async Task<BpSearchModel> GetDuplicateBusinessPartnerIfExists(BpSearchRequest request)
         {
@@ -142,7 +141,11 @@ namespace PSE.Customer.V1.Logic
             try
             {
                 var cancelResponse = await _mcfClient.PostCancelMoveIn(request);
-                return cancelResponse;
+                return new CancelMoveInResponse()
+                {
+                    Success = cancelResponse.Success,
+                    StatusMessage = cancelResponse.StatusMessage
+                };
             }
             catch (Exception e)
             {
@@ -194,9 +197,7 @@ namespace PSE.Customer.V1.Logic
                 _logger.LogError(ex, "Failed to create Buiness Partner");
                 throw;
             }
-
         }
-
 
         /// <summary>
         /// Get Bp relationship based on a given BP
@@ -231,7 +232,6 @@ namespace PSE.Customer.V1.Logic
                 _logger.LogError(ex, $"Failed to GetBprelationships for {bprelationRequestParam.LoggedInBp}");
                 throw ex;
             }
-
         }
 
         /// <summary>
@@ -270,6 +270,7 @@ namespace PSE.Customer.V1.Logic
                 throw ex;
             }
         }
+
         /// <summary>
         /// Creates Autorized contact
         /// Get Customer Relationships Get /v{version}/customer/bp-relationships

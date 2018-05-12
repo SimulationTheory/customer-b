@@ -253,8 +253,8 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// Creates a cancellation for move in for a contract id.
         /// </summary>
         /// <param name="request">A cancel move in request object: <seealso cref="CancelMoveInRequest"/></param>
-        /// <returns>A cancel move in response object: <seealso cref="CancelMoveInResponse"/></returns>
-        Task<CancelMoveInResponse> PostCancelMoveIn(CancelMoveInRequest request);
+        /// <returns>A cancel move in response object: <seealso cref="PostCancelMoveInMcfResponse"/></returns>
+        Task<PostCancelMoveInMcfResponse> PostCancelMoveIn(CancelMoveInRequest request);
 
         /// <summary>
         /// Gets the BP relationships for a given BP
