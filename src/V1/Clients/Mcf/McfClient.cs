@@ -103,7 +103,9 @@ namespace PSE.Customer.V1.Clients.Mcf
                 // Get and add credentials for Anonymous Service user account 
                 var mcfUserName = string.Empty;
                 var mcfUserPassword = string.Empty;
-                SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword);
+                var userNameKey = "CustomerUserName";
+                var passwordKey = "CustomerUserPassword";
+                SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword, ref userNameKey, ref passwordKey);
                 restRequest.AddBasicCredentials(mcfUserName, mcfUserPassword);
 
                 // Add headers
@@ -191,8 +193,6 @@ namespace PSE.Customer.V1.Clients.Mcf
 
             return response;
         }
-
-
 
         /// <summary>
         /// POSTs the primary email address
@@ -605,7 +605,6 @@ namespace PSE.Customer.V1.Clients.Mcf
             return response;
         }
 
-
         /// <summary>
         /// POSTs a new customer interaction record.
         /// </summary>
@@ -638,7 +637,9 @@ namespace PSE.Customer.V1.Clients.Mcf
                     // Add anon bypass auth
                     var mcfUserName = string.Empty;
                     var mcfUserPassword = string.Empty;
-                    SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword);
+                    var userNameKey = "CustomerUserName";
+                    var passwordKey = "CustomerUserPassword";
+                    SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword, ref userNameKey, ref passwordKey);
                     restRequest.AddBasicCredentials(mcfUserName, mcfUserPassword);
                 }
 
@@ -666,7 +667,6 @@ namespace PSE.Customer.V1.Clients.Mcf
 
             return response;
         }
-
 
         /// <summary>
         /// PUTs address to contract account.
@@ -731,7 +731,9 @@ namespace PSE.Customer.V1.Clients.Mcf
                 // Add anon bypass auth
                 var mcfUserName = string.Empty;
                 var mcfUserPassword = string.Empty;
-                SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword);
+                var userNameKey = "CustomerUserName";
+                var passwordKey = "CustomerUserPassword";
+                SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword, ref userNameKey, ref passwordKey);
                 request.AddBasicCredentials(mcfUserName, mcfUserPassword);
                 request.AddHeader("Accept", "application/json");
 
@@ -886,7 +888,9 @@ namespace PSE.Customer.V1.Clients.Mcf
                 // Add basic auth for anon service account
                 var mcfUserName = string.Empty;
                 var mcfUserPassword = string.Empty;
-                SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword);
+                var userNameKey = "CustomerUserName";
+                var passwordKey = "CustomerUserPassword";
+                SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword, ref userNameKey, ref passwordKey);
                 restRequest.AddBasicCredentials(mcfUserName, mcfUserPassword);
                 restRequest.AddMcfRequestHeaders();
 
@@ -941,7 +945,9 @@ namespace PSE.Customer.V1.Clients.Mcf
                     // Add anon bypass auth
                     var mcfUserName = string.Empty;
                     var mcfUserPassword = string.Empty;
-                    SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword);
+                    var userNameKey = "CustomerUserName";
+                    var passwordKey = "CustomerUserPassword";
+                    SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword, ref userNameKey, ref passwordKey);
                     restRequest.AddBasicCredentials(mcfUserName, mcfUserPassword);
                 }
                 else
@@ -987,7 +993,9 @@ namespace PSE.Customer.V1.Clients.Mcf
                     // Add anon bypass auth
                     var mcfUserName = string.Empty;
                     var mcfUserPassword = string.Empty;
-                    SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword);
+                    var userNameKey = "CustomerUserName";
+                    var passwordKey = "CustomerUserPassword";
+                    SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword, ref userNameKey, ref passwordKey);
                     restRequest.AddBasicCredentials(mcfUserName, mcfUserPassword);
                 }
                 else
@@ -1506,37 +1514,6 @@ namespace PSE.Customer.V1.Clients.Mcf
 
         #region Private methods
 
-        //TODO remove this method once we update the references
-        // Note: making these "out" parameters rather than "ref" since these set not read
-        private void SetMcfAnonCredentials(ref string userName, ref string password)
-        {
-            _logger.LogInformation("SetMcfAnonCredentials()");
-            var options = new CoreOptions(ServiceConfiguration.AppName);
-            ICoreOptions _options = options;
-
-            var isLocal = (_environment?.Equals("Development") ?? true) || string.IsNullOrEmpty(_environment);
-            var mcfCustomerUserNameParamName = $"/CI/MS/{_environment}/MCF/CustomerUserName";
-            var mcfCustomerUserPasswordParamName = $"/CI/MS/{_environment}/MCF/CustomerUserPassword";
-
-
-            if (!isLocal)
-            {
-                userName = _options.GetValueFromParameterStore(mcfCustomerUserNameParamName, false);
-                // TODO: this eventually should be updated to an encrypted param store
-                password = _options.GetValueFromParameterStore(mcfCustomerUserPasswordParamName, false);
-            }
-            else
-            {
-                var fileLocation = Path.Combine(Directory.GetCurrentDirectory(), "localParameterStore.json");
-                var json = File.ReadAllText(fileLocation);
-                IEnumerable<KeyValuePair<string, string>> parameters = JsonConvert.DeserializeObject<IEnumerable<KeyValuePair<string, string>>>(json);
-
-                userName = parameters.FirstOrDefault(x => x.Key.Equals(mcfCustomerUserNameParamName)).Value;
-                password = parameters.FirstOrDefault(x => x.Key.Equals(mcfCustomerUserPasswordParamName)).Value;
-            }
-        }
-
-        //TODO We will replace all calls to basic credentials to use this method instead of the above
         private void SetMcfAnonCredentials(ref string userName, ref string password, ref string userNamekey, ref string passwordKey)
         {
             _logger.LogInformation("SetMcfAnonCredentials()");
@@ -1547,12 +1524,11 @@ namespace PSE.Customer.V1.Clients.Mcf
             var mcfCustomerUserNameParamName = $"/CI/MS/{_environment}/MCF/{userNamekey}";
             var mcfCustomerUserPasswordParamName = $"/CI/MS/{_environment}/MCF/{passwordKey}";
 
-
             if (!isLocal)
             {
-                userName = _options.GetValueFromParameterStore(mcfCustomerUserNameParamName, false);
-                // TODO: this eventually should be updated to an encrypted param store
-                password = _options.GetValueFromParameterStore(mcfCustomerUserPasswordParamName, false);
+                // this is hardcoded to retrieve secure strings
+                userName = _options.GetValueFromParameterStore(mcfCustomerUserNameParamName, true);
+                password = _options.GetValueFromParameterStore(mcfCustomerUserPasswordParamName, true);
             }
             else
             {
@@ -1580,7 +1556,6 @@ namespace PSE.Customer.V1.Clients.Mcf
                 throw new Exception(errormessage);
             }
         }
-
 
         #region Kept this for testing/debuging 
         /// <summary>
@@ -1642,6 +1617,7 @@ namespace PSE.Customer.V1.Clients.Mcf
             var statusCode = (HttpStatusCode)int.Parse(response.Split(' ')[1]);
             return statusCode.ToString();
         }
+
         /// <summary>
         /// Inform SSL that we accept all server certificates.
         /// </summary>
@@ -1655,6 +1631,7 @@ namespace PSE.Customer.V1.Clients.Mcf
             X509Certificate certificate,
             X509Chain chain,
             SslPolicyErrors sslPolicyErrors) => true;
+
         /// <summary>
         /// Sends a message through a stream (for instance, a stream from a TCP Client), then immediately reads text lines through the stream until we receive an empty line.
         /// This is the standard for HTTP traffic.
@@ -1681,6 +1658,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                         }
                     }
                 }
+
                 response.Append(CRLF);
             }
             catch (Exception e)
