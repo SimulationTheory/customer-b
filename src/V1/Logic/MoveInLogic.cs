@@ -59,7 +59,7 @@ namespace PSE.Customer.V1.Logic
         }
 
         /// <inheritdoc />
-        public ReconnectStatusResponse GetMoveInLatePayment(long contractAccountId, bool reconnectionFlag, string jwt)
+        public async Task<ReconnectStatusResponse> GetMoveInLatePaymentAsync(long contractAccountId, long bp, bool reconnectionFlag, string jwt)
         {
             _logger.LogInformation($"Getting elibigbility info: GetMoveInLatePaymentResponse({nameof(contractAccountId)} : {contractAccountId})");
             var paymentResponse = _mcfClient.GetMoveInLatePaymentsResponse(contractAccountId, reconnectionFlag, jwt);
@@ -80,6 +80,14 @@ namespace PSE.Customer.V1.Logic
                 AccountType = paymentResponse.AccountType,
                 FirstLp = paymentResponse.FirstIp,
             };
+
+            var syncRequest = new SynchronizeAccountRequest
+            {
+                BusinessPartnerId = bp,
+                ContractAccountId = reconnectStatus.ContractAccountId
+            };
+
+            await _accountApi.SynchronizeAccountAsync(syncRequest);
 
             return reconnectStatus;
         }

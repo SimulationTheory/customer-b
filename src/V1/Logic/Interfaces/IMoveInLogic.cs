@@ -25,10 +25,11 @@ namespace PSE.Customer.V1.Logic.Interfaces
         /// Get move in late payment costs associated with provided contract account id 
         /// </summary>
         /// <param name="contractAccountId"></param>
+        /// <param name="bp"></param>
         /// /// <param name="reconnectionFlag"></param>
         /// <param name="jwt"></param>
         /// <returns></returns>
-        ReconnectStatusResponse GetMoveInLatePayment(long contractAccountId, bool reconnectionFlag, string jwt);
+        Task<ReconnectStatusResponse> GetMoveInLatePaymentAsync(long contractAccountId, long bp, bool reconnectionFlag, string jwt);
 
         /// <summary>
         /// Posts late move in 

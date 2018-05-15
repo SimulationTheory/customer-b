@@ -73,8 +73,9 @@ namespace PSE.Customer.V1.Controllers
             try
             {
                 var jwt = GetJWToken();
+                var bp = GetBpIdFromClaims();
                 _logger.LogInformation($"GetMoveInLatePayment({nameof(contractAccountId)} : {contractAccountId})");
-                var response = _moveInLogic.GetMoveInLatePayment(contractAccountId, reconnectionFlag, jwt);
+                var response = _moveInLogic.GetMoveInLatePaymentAsync(contractAccountId, bp, reconnectionFlag, jwt);
 
                 result = Ok(response);
             }

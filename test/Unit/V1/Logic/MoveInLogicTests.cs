@@ -19,6 +19,7 @@ using PSE.Customer.V1.Clients.Device.Interfaces;
 using PSE.WebAPI.Core.Service.Interfaces;
 using PSE.Customer.V1.Logic.Interfaces;
 using PSE.Customer.V1.Repositories.Interfaces;
+using System.Threading.Tasks;
 
 namespace PSE.Customer.Tests.Unit.V1.Logic
 {
@@ -48,9 +49,10 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
         }
 
         [TestMethod]
-        public void GetMoveInLatePayment_Returns_MoveInLatePaymentsResponse_Given_Valid_Input()
+        public async Task GetMoveInLatePayment_Returns_MoveInLatePaymentsResponse_Given_Valid_Input()
         {
             //Arrange
+            var businessPartner = 10222222;
             var contractAccount = 11111111;
             var minPayment = 300m;
             var jwt = "token";
@@ -74,7 +76,7 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
                 _customerRepositoryMock.Object);
 
             //Act
-            var actual = target.GetMoveInLatePayment(contractAccount, reconnect, jwt);
+            var actual = await target.GetMoveInLatePaymentAsync(contractAccount, businessPartner, reconnect, jwt);
 
             //Assert
             actual.ShouldNotBeNull();

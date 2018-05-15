@@ -25,6 +25,11 @@ namespace PSE.Customer.V1.Clients.Account
             _channelContext = channelContext;
         }
 
+        /// <summary>
+        /// Gets the contract items for a given contract account ID.
+        /// </summary>
+        /// <param name="contractAccountId">The contract account identifier.</param>
+        /// <returns></returns>
         /// <inheritdoc />
         public async Task<GetContractItemsResponse> GetContractItems(long contractAccountId)
         {
@@ -37,6 +42,11 @@ namespace PSE.Customer.V1.Clients.Account
             return JsonConvert.DeserializeObject<GetContractItemsResponse>(response.Content);
         }
 
+        /// <summary>
+        /// Gets the contract account detail for a specific contractAccountId.
+        /// </summary>
+        /// <param name="contractAccountId">The contract account identifier.</param>
+        /// <returns></returns>
         /// <inheritdoc />
         public async Task<GetAccountDetailsResponse> GetContractAccountDetails(long contractAccountId)
         {
@@ -49,6 +59,11 @@ namespace PSE.Customer.V1.Clients.Account
             return JsonConvert.DeserializeObject<GetAccountDetailsResponse>(response.Content);
         }
 
+        /// <summary>
+        /// Posts the create contract account.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns></returns>
         public async Task<CreateAccountResponse> PostCreateContractAccount(CreateAccountRequest request)
         {
             var requestBody = JsonConvert.SerializeObject(request);
@@ -60,6 +75,21 @@ namespace PSE.Customer.V1.Clients.Account
             var accountInfo = await ExecuteAsync<CreateAccountResponse>(restRequest);
 
             return accountInfo.Data;
+        }
+
+        /// <summary>
+        /// Puts the synchronize account asynchronous.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public async Task SynchronizeAccountAsync(SynchronizeAccountRequest user)
+        {
+            var request = new RestRequest($"/v{API_VERSION}/private/account/{user.ContractAccountId}/sync", Method.PUT);
+            var body = JsonConvert.SerializeObject(user);
+
+            request.AddParameter("application/json", body, ParameterType.RequestBody);
+
+            var response = await ExecuteAsync(request);
         }
     }
 }

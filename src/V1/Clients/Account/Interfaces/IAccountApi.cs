@@ -25,6 +25,18 @@ namespace PSE.Customer.V1.Clients.Device.Interfaces
         /// <returns></returns>
         Task<GetAccountDetailsResponse> GetContractAccountDetails(long contractAccountId);
 
+        /// <summary>
+        /// Posts the create contract account.
+        /// </summary>
+        /// <param name="request">The request.</param>
+        /// <returns></returns>
         Task<CreateAccountResponse> PostCreateContractAccount(CreateAccountRequest request);
+
+        /// <summary>
+        /// Synchronizes the account asynchronous.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns></returns>
+        Task SynchronizeAccountAsync(SynchronizeAccountRequest user);
     }
 }
