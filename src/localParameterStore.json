@@ -8,6 +8,15 @@
     "Value": "nM7O=GH$"
   },
   {
+    "Key": "/CI/MS/Development/MCF/Landlord/UserName",
+    "Value": "UMC_LRD_SRV"
+  },
+  {
+    "Key": "/CI/MS/Development/MCF/Landlord/Password",
+    "Value": "nM7O=GH$"
+  },
+
+  {
     "Key": "/CI/MS/Development/UserPool",
     "Value": "us-west-2_Zfg0fUSpS"
   },

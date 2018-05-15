@@ -211,19 +211,16 @@ namespace PSE.Customer.V1.Logic
             try
             {
                 BpRelationshipsMcfResponse resp;
-                string bpToMap;
                 if (!string.IsNullOrEmpty(bprelationRequestParam.TenantBp))
                 {
                     resp = await _mcfClient.GetBprelationships(bprelationRequestParam.TenantBp);
-                    bpToMap = bprelationRequestParam.TenantBp;
                 }
                 else
                 {
                     resp = await _mcfClient.GetBprelationships(bprelationRequestParam.LoggedInBp, bprelationRequestParam.Jwt);
-                    bpToMap = bprelationRequestParam.LoggedInBp;
                 }
                 
-                var bprelations = MapBpRelations(resp, bprelationRequestParam.LoggedInBp);
+                var bprelations = MapBpRelations(resp);
 
                 return bprelations;
             }
@@ -247,7 +244,7 @@ namespace PSE.Customer.V1.Logic
             try
             {
                 var resp = await _mcfClient.GetBprelationships(bpId, jwt);
-                var bprelations = MapBpRelations(resp, bpId);
+                var bprelations = MapBpRelations(resp);
                 var hasRelation = CheckRelationWithContact(bprelations, bpTodelete);
 
                 var hasActiveRelation = IsrelationShipActive(hasRelation);
@@ -309,7 +306,8 @@ namespace PSE.Customer.V1.Logic
                     {
                         FirstAccountBpId = bpId,
                         SecondAccountBpId = bp.BpId,
-                        Relationshipcategory = authorizedContactRequest.AuthorizedContact?.Relationshipcategory.GetEnumMemberValue()
+                        Relationshipcategory = authorizedContactRequest.AuthorizedContact?.Relationshipcategory.GetEnumMemberValue(),
+                        TenantBpId = authorizedContactRequest.TenantBpId
                     };
                     var createRelation = _customerLogic.CreateBpRelationshipAsync(bpCreateRelation, jwt);
 
@@ -325,7 +323,7 @@ namespace PSE.Customer.V1.Logic
                     {
                         LoggedInBp = loggedInBp,
                         Jwt = jwt,
-                        TenantBp = null //TODO add TenanID
+                        TenantBp = authorizedContactRequest.TenantBpId
 
                     };
                     var checkRelationShip = await GetBprelationships(bpRelationParam);
@@ -336,6 +334,7 @@ namespace PSE.Customer.V1.Logic
                     {
                         //Update
                         var relationShipToupdate = GetRelationshipToupdate(hasRelation);
+                        relationShipToupdate.TenantBpId = ParseBpFromString(authorizedContactRequest.TenantBpId);
                         _mcfClient.UpdateBusinessPartnerRelationship(relationShipToupdate, jwt);
 
                     }
@@ -346,7 +345,8 @@ namespace PSE.Customer.V1.Logic
                         {
                             FirstAccountBpId = bpId,
                             SecondAccountBpId = contactBp,
-                            Relationshipcategory = authorizedContactRequest.AuthorizedContact?.Relationshipcategory.GetEnumMemberValue()
+                            Relationshipcategory = authorizedContactRequest.AuthorizedContact?.Relationshipcategory.GetEnumMemberValue(),
+                            TenantBpId = authorizedContactRequest.TenantBpId
                         };
                         var createRelation = _customerLogic.CreateBpRelationshipAsync(bpCreateRelation, jwt);
                     }
@@ -775,7 +775,7 @@ namespace PSE.Customer.V1.Logic
             return response;
         }
 
-        private BpRelationshipsResponse MapBpRelations(BpRelationshipsMcfResponse resp, string bpId)
+        private BpRelationshipsResponse MapBpRelations(BpRelationshipsMcfResponse resp)
         {
 
             var relationShips = new BpRelationshipsResponse()
@@ -792,8 +792,8 @@ namespace PSE.Customer.V1.Logic
             {
                 var relResp = new BpRelationshipResponse()
                 {
-                    BpId1 = rel.AccountID2,
-                    BpId2 = rel.AccountID1,
+                    PrimaryBpId = rel.AccountID2,
+                    AuthorizedBpId = rel.AccountID1,
                     Message = rel.Message,
                     Relationshipcategory = rel.Relationshipcategory,
                     Validfromdate = rel.Validfromdate,
@@ -825,8 +825,8 @@ namespace PSE.Customer.V1.Logic
         {
             var updateRelation = new BpRelationshipUpdateRequest()
             {
-                AccountID1 = long.TryParse(relationShip.BpId1, out long bp1) ? bp1 : 0,
-                AccountID2 = long.TryParse(relationShip.BpId2, out long bp2) ? bp2 : 0,
+                AccountID1 = long.TryParse(relationShip.PrimaryBpId, out long bp1) ? bp1 : 0,
+                AccountID2 = long.TryParse(relationShip.AuthorizedBpId, out long bp2) ? bp2 : 0,
                 Defaultrelationship = false,
                 Differentiationtypevalue = "",
                 Relationshiptypenew = "",
@@ -845,8 +845,8 @@ namespace PSE.Customer.V1.Logic
         {
             var updateRelation = new BpRelationshipUpdateRequest()
             {
-                AccountID1 = long.TryParse(relationShip.BpId1, out long bp1) ? bp1 : 0,
-                AccountID2 = long.TryParse(relationShip.BpId2, out long bp2) ? bp2 : 0,
+                AccountID1 = long.TryParse(relationShip.PrimaryBpId, out long bp1) ? bp1 : 0,
+                AccountID2 = long.TryParse(relationShip.AuthorizedBpId, out long bp2) ? bp2 : 0,
                 Defaultrelationship = false,
                 Differentiationtypevalue = "",
                 Relationshiptypenew = "",
@@ -865,8 +865,8 @@ namespace PSE.Customer.V1.Logic
             var toDate = DateTimeOffset.MaxValue.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss");
             var mcfRequest = new BpRelationshipRequest()
             {
-                AccountID1 = relationShip.BpId1,
-                AccountID2 = relationShip.BpId2,
+                AccountID1 = relationShip.PrimaryBpId,
+                AccountID2 = relationShip.AuthorizedBpId,
                 Relationshipcategory = relationShip.Relationshipcategory,
                 Differentiationtypevalue = "",
                 Defaultrelationship = false,
@@ -910,7 +910,7 @@ namespace PSE.Customer.V1.Logic
 
         private BpRelationshipResponse CheckRelationWithContact(BpRelationshipsResponse checkRelationShip, string contactBp)
         {
-            var bprelation = checkRelationShip?.RelationShips?.FirstOrDefault(r => (r.BpId1 == contactBp || r.BpId2 == contactBp));
+            var bprelation = checkRelationShip?.RelationShips?.FirstOrDefault(r => (r.PrimaryBpId == contactBp || r.AuthorizedBpId == contactBp));
             return bprelation;
         }
         private long ParseBpFromString(string bp)

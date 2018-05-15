@@ -235,7 +235,8 @@ namespace PSE.Customer.V1.Controllers
         /// </summary>
         /// <param name="request">The bp relationship request</param>
         /// <returns></returns>
-       [ProducesResponseType(typeof(bool), 200)]
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [ProducesResponseType(typeof(bool), 200)]
        [HttpPost("bpRelationship")]
        [AllowAnonymous]
        public async Task<IActionResult> CreateBpRelationship([FromBody] CreateBpRelationshipRequest request)
@@ -315,6 +316,7 @@ namespace PSE.Customer.V1.Controllers
         /// </summary>
         /// <param name="request">Request object containing business partner relationship ids, relationship type</param>
         /// <returns>200 if successful, 400 if address is not valid, 500 if exception</returns>
+        [ApiExplorerSettings(IgnoreApi = true)]
         [ProducesResponseType(typeof(OkResult), 200)]
         [HttpPut("UpdateBPRelationship")]     
         public async Task<IActionResult> UpdateBusinessPartnerRelationship([FromBody] BpRelationshipUpdateRequest request)

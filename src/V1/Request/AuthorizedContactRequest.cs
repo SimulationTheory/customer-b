@@ -1,4 +1,5 @@
 ﻿using PSE.WebAPI.Core.Interfaces;
+using System.ComponentModel.DataAnnotations;
 
 namespace PSE.Customer.V1.Request
 {
@@ -9,5 +10,7 @@ namespace PSE.Customer.V1.Request
     {
         public CreateBusinesspartnerRequest AuthorizedContact { get; set; }
         public string TenantBpId { get; set; }
+        [Required]
+        public string ContractAccountId { get; set; }
     }
 }

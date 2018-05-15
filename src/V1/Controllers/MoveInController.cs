@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -317,8 +318,8 @@ namespace PSE.Customer.V1.Controllers
         /// Get all bp relationsships from MCF.
         /// </summary>
         /// <returns>returns BPSearchResponse</returns>
-        [ProducesResponseType(typeof(BpRelationshipsResponse), StatusCodes.Status200OK)]
-        [HttpGet("bp-relationships")]
+        [ProducesResponseType(typeof(BpRelationResponse), StatusCodes.Status200OK)]
+        [HttpGet("bp-relationships")]       
         public async Task<IActionResult> GetAllBpRelationships([FromQuery] string tenantBpId)
         {
             IActionResult result;
@@ -336,7 +337,8 @@ namespace PSE.Customer.V1.Controllers
 
                 };
                 var resp = await _moveInLogic.GetBprelationships(bpRelationParam);
-                result = Ok(resp);
+                var bpRelation = MapToBpRelation(resp);
+                result = Ok(bpRelation);
             }
             catch (Exception ex)
             {
@@ -347,6 +349,8 @@ namespace PSE.Customer.V1.Controllers
 
             return result;
         }
+
+        
 
         /// <summary>
         /// Delete bp relationsship for the given bp in MCF.
@@ -597,6 +601,33 @@ namespace PSE.Customer.V1.Controllers
             }
 
             return bpId;
+        }
+
+        /// <summary>
+        /// retruns the related bp ids and their relationship category
+        /// </summary>
+        /// <param name="resp"></param>
+        /// <returns></returns>
+        private BpRelationResponse MapToBpRelation(BpRelationshipsResponse resp)
+        {
+            List<Bprelationship> relationships = new List<Bprelationship>();
+            foreach (var rel in resp?.RelationShips)
+            {
+                var relResp = new Bprelationship()
+                {
+                    PrimaryBpId = rel.AuthorizedBpId,
+                    AuthorizedBpId = rel.AuthorizedBpId,
+                    Relationshipcategory = rel.Relationshipcategory,
+
+                };
+                relationships.Add(relResp);
+            }
+
+            var response = new BpRelationResponse()
+            {
+                BpRelationShips = relationships
+            };
+            return response;
         }
 
         #endregion

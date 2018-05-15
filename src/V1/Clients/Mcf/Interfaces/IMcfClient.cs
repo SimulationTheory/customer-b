@@ -246,8 +246,9 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// /// </summary>
         /// <param name="jwt"></param>
         /// <param name="request"></param>
+        /// /// <param name="request"></param>
         /// <returns></returns>
-        bool CreateBpRelationship(string jwt, BpRelationshipRequest request);
+        bool CreateBpRelationship(string jwt, BpRelationshipRequest request, string tenantBpId);
 
         /// <summary>
         /// Creates a cancellation for move in for a contract id.

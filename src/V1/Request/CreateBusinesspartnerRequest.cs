@@ -18,11 +18,9 @@ namespace PSE.Customer.V1.Request
         public string FirstName { get; set; }
         public string MiddleName { get; set; }
         public string LastName { get; set; }
-        public string OrgName { get; set; }
-       
+        public string OrgName { get; set; }     
         public string Email { get; set; }
 
-        //[JsonConverter(typeof(StringEnumConverter))]
         public Phone Phone { get; set; }
 
         public Phone MobilePhone { get; set; }

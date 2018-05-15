@@ -122,7 +122,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         #region GetJwtToken Tests
 
         [TestMethod]
-        [Ignore]
+        //[Ignore]
         public async Task GetJwtToken_TestUser1_ReturnsTrue()
         {
             // Arrange
@@ -138,8 +138,8 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         }
 
         [TestMethod]
-        [Ignore]
-        [ExpectedException(typeof(XmlException))]
+        //[Ignore]
+        //[ExpectedException(typeof(XmlException))]
         public async Task GetJwtToken_UnknownUsername_ThrowsException()
         {
             // Arrange

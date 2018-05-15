@@ -579,7 +579,7 @@ namespace PSE.Customer.V1.Logic
                 Validtodatenew = DateTime.Parse(toDate),
             };
 
-            var response = _mcfClient.CreateBpRelationship(jwt, mcfRequest);
+            var response = _mcfClient.CreateBpRelationship(jwt, mcfRequest, request.TenantBpId);
 
             return response; 
        }

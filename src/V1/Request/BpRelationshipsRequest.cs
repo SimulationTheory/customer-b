@@ -14,6 +14,7 @@ namespace PSE.Customer.V1.Request
         public string AccountID1 { get; set; }
 
         public string AccountID2 { get; set; }
+
         public string Message { get; set; }
         public bool Defaultrelationship { get; set; }
         public string Differentiationtypevalue { get; set; }

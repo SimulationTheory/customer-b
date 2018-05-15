@@ -50,6 +50,11 @@ namespace PSE.Customer.V1.Clients.Mcf
         /// </summary>
         private const string CRLF = "\x0d\x0a";
         private const long ServerReturnedAnInvalidOrUnrecognizedResponse = 0x80072f78L;
+        private const string lrdServiceUserName = "Landlord/UserName";
+        private const string lrdServiceUserPassword = "Landlord/Password";
+        private const string customerAnonServiceUserName = "CustomerUserName";
+        private const string customerAnonServiceUserPassword = "CustomerUserPassword";
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="McfClient"/> class.
@@ -103,9 +108,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                 // Get and add credentials for Anonymous Service user account 
                 var mcfUserName = string.Empty;
                 var mcfUserPassword = string.Empty;
-                var userNameKey = "CustomerUserName";
-                var passwordKey = "CustomerUserPassword";
-                SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword, ref userNameKey, ref passwordKey);
+                SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword, customerAnonServiceUserName, customerAnonServiceUserPassword);
                 restRequest.AddBasicCredentials(mcfUserName, mcfUserPassword);
 
                 // Add headers
@@ -637,9 +640,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                     // Add anon bypass auth
                     var mcfUserName = string.Empty;
                     var mcfUserPassword = string.Empty;
-                    var userNameKey = "CustomerUserName";
-                    var passwordKey = "CustomerUserPassword";
-                    SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword, ref userNameKey, ref passwordKey);
+                    SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword, customerAnonServiceUserName, customerAnonServiceUserPassword);
                     restRequest.AddBasicCredentials(mcfUserName, mcfUserPassword);
                 }
 
@@ -731,9 +732,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                 // Add anon bypass auth
                 var mcfUserName = string.Empty;
                 var mcfUserPassword = string.Empty;
-                var userNameKey = "CustomerUserName";
-                var passwordKey = "CustomerUserPassword";
-                SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword, ref userNameKey, ref passwordKey);
+                SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword, customerAnonServiceUserName, customerAnonServiceUserPassword);
                 request.AddBasicCredentials(mcfUserName, mcfUserPassword);
                 request.AddHeader("Accept", "application/json");
 
@@ -888,9 +887,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                 // Add basic auth for anon service account
                 var mcfUserName = string.Empty;
                 var mcfUserPassword = string.Empty;
-                var userNameKey = "CustomerUserName";
-                var passwordKey = "CustomerUserPassword";
-                SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword, ref userNameKey, ref passwordKey);
+                SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword, customerAnonServiceUserName, customerAnonServiceUserPassword);
                 restRequest.AddBasicCredentials(mcfUserName, mcfUserPassword);
                 restRequest.AddMcfRequestHeaders();
 
@@ -945,9 +942,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                     // Add anon bypass auth
                     var mcfUserName = string.Empty;
                     var mcfUserPassword = string.Empty;
-                    var userNameKey = "CustomerUserName";
-                    var passwordKey = "CustomerUserPassword";
-                    SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword, ref userNameKey, ref passwordKey);
+                    SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword, customerAnonServiceUserName, customerAnonServiceUserPassword);
                     restRequest.AddBasicCredentials(mcfUserName, mcfUserPassword);
                 }
                 else
@@ -993,9 +988,7 @@ namespace PSE.Customer.V1.Clients.Mcf
                     // Add anon bypass auth
                     var mcfUserName = string.Empty;
                     var mcfUserPassword = string.Empty;
-                    var userNameKey = "CustomerUserName";
-                    var passwordKey = "CustomerUserPassword";
-                    SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword, ref userNameKey, ref passwordKey);
+                    SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword, customerAnonServiceUserName, customerAnonServiceUserPassword);
                     restRequest.AddBasicCredentials(mcfUserName, mcfUserPassword);
                 }
                 else
@@ -1178,14 +1171,19 @@ namespace PSE.Customer.V1.Clients.Mcf
                 var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
 
                 var request = new RestRequest($"/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/Accounts('{tenantBp}')/Relationships", Method.GET);
-                //TODO Add basic credential once we know which service account to use
+                
+                // Add tenant service auth
+                var mcfUserName = string.Empty;
+                var mcfUserPassword = string.Empty;
+                SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword, lrdServiceUserName,lrdServiceUserPassword);
+                request.AddBasicCredentials(mcfUserName, mcfUserPassword);
                 request.AddMcfRequestHeaders();
 
                 _logger.LogInformation("Making MCF call");
 
                 var cancellationTokenSource = new CancellationTokenSource();
                 var restResponse = await client.ExecuteTaskAsync(request, cancellationTokenSource.Token);
-                if (!restResponse.IsSuccessful)
+                if (!restResponse.IsSuccessful || restResponse.ContentType.Equals("text/html; charset=utf-8"))
                 {
                     HandleErrorResponse(tenantBp, restResponse);
                 }
@@ -1210,7 +1208,7 @@ namespace PSE.Customer.V1.Clients.Mcf
         /// <param name="jwt"></param>
         /// <param name="request"></param>
         /// <returns></returns>
-        public bool CreateBpRelationship(string jwt, BpRelationshipRequest request)
+        public bool CreateBpRelationship(string jwt, BpRelationshipRequest request, string tenantBpId)
         {
 
 
@@ -1220,16 +1218,33 @@ namespace PSE.Customer.V1.Clients.Mcf
                 _logger.LogInformation($"CreateBpRelationship(jwt, {nameof(request)}: {requestBody})");
                 var config = _coreOptions.Configuration;
                 var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
-                var cookies = restUtility.GetMcfCookies(jwt, _requestContext.ToString()).Result;
+                //var cookies = restUtility.GetMcfCookies(jwt, _requestContext.ToString()).Result;
 
                 string url = $"sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/Accounts('{request.AccountID1}')/Relationships";
-
                 var restRequest = new RestRequest(url, Method.POST);
-                restRequest.AddCookies(cookies);
-                restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
-                restRequest.AddHeader("ContentType", "application/json");
-                restRequest.AddHeader("Accept", "application/json");
-                restRequest.AddParameter("application/json", requestBody, ParameterType.RequestBody);
+
+                if(!string.IsNullOrEmpty(tenantBpId))
+                {
+                    url = $"sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/Accounts('{tenantBpId}')/Relationships";
+                    restRequest = new RestRequest(url, Method.POST);
+                    // Add tenant service auth
+                    var mcfUserName = string.Empty;
+                    var mcfUserPassword = string.Empty;
+                    SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword, lrdServiceUserName, lrdServiceUserPassword);
+                    restRequest.AddBasicCredentials(mcfUserName, mcfUserPassword);
+                    restRequest.AddMcfRequestHeaders();
+                    request.AccountID1 = tenantBpId;                  
+                }
+                else
+                {
+                    var cookies = restUtility.GetMcfCookies(jwt, _requestContext.ToString()).Result;
+                    restRequest.AddCookies(cookies);
+                    restRequest.AddHeader("X-Requested-With", "XMLHttpRequest");
+                    restRequest.AddHeader("ContentType", "application/json");
+                    restRequest.AddHeader("Accept", "application/json");
+                }
+
+                restRequest.AddJsonBody<BpRelationshipRequest>(request);
 
                 _logger.LogInformation("Making MCF call");
                 var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
@@ -1270,22 +1285,31 @@ namespace PSE.Customer.V1.Clients.Mcf
             try
             {
                 _logger.LogInformation($"UpdateBusinessPartnerRelationship(jwt, {nameof(request)}: {request.ToJson()})");
+
+
+                var mcfBprelationUpdateRequest = MaptoMcfBpUpdateRequest(request);
                 var config = _coreOptions.Configuration;
                 var restUtility = new RestUtility.Core.Utility(config.LoadBalancerUrl, config.RedisOptions);
-                var cookies = restUtility.GetMcfCookies(jwt, _requestContext.ToString()).Result;
-
+               
                 // URL for updating BP relationship
                 //string url = $"{config.McfEndpoint}/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/RelationshipsSet(AccountID1='{request.AccountID1}',AccountID2='{request.AccountID2}',Relationshipcategory='{request.Relationshipcategory}')";
-                string url = $"/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/RelationshipsSet(AccountID1='{request.AccountID1}',AccountID2='{request.AccountID2}',Relationshipcategory='{request.Relationshipcategory}')";
-
-
+                string url = $"/sap/opu/odata/sap/ZCRM_UTILITIES_UMC_PSE_SRV/RelationshipsSet(AccountID1='{mcfBprelationUpdateRequest.AccountID1}',AccountID2='{mcfBprelationUpdateRequest.AccountID2}',Relationshipcategory='{mcfBprelationUpdateRequest.Relationshipcategory}')";
                 var restRequest = new RestRequest(url, Method.PUT);
-                restRequest.AddCookies(cookies);
                 restRequest.AddMcfRequestHeaders();
-                var body = JsonConvert.SerializeObject(request);
+                var body = JsonConvert.SerializeObject(mcfBprelationUpdateRequest);
                 restRequest.AddParameter("application/json", body, ParameterType.RequestBody);
-                //restRequest.AddJsonBody<BpRelationshipUpdateRequest>(request);
-
+                if (request.TenantBpId > 0)
+                {
+                    var mcfUserName = string.Empty;
+                    var mcfUserPassword = string.Empty;
+                    SetMcfAnonCredentials(ref mcfUserName, ref mcfUserPassword, lrdServiceUserName, lrdServiceUserPassword);
+                    restRequest.AddBasicCredentials(mcfUserName, mcfUserPassword);
+                }
+                else
+                {
+                    var cookies = restUtility.GetMcfCookies(jwt, _requestContext.ToString()).Result;
+                    restRequest.AddCookies(cookies);
+                }
                 _logger.LogInformation("Making MCF call");
                 var client = restUtility.GetRestClient(config.SecureMcfEndpoint);
                 var restResponse = client.Execute(restRequest);
@@ -1307,7 +1331,6 @@ namespace PSE.Customer.V1.Clients.Mcf
 
             return response;
         }
-
 
         /// <summary>
         /// delete the business partner relationshipo
@@ -1514,7 +1537,8 @@ namespace PSE.Customer.V1.Clients.Mcf
 
         #region Private methods
 
-        private void SetMcfAnonCredentials(ref string userName, ref string password, ref string userNamekey, ref string passwordKey)
+        
+        private void SetMcfAnonCredentials(ref string userName, ref string password, string userNamekey, string passwordKey)
         {
             _logger.LogInformation("SetMcfAnonCredentials()");
             var options = new CoreOptions(ServiceConfiguration.AppName);
@@ -1542,9 +1566,8 @@ namespace PSE.Customer.V1.Clients.Mcf
         }
 
         private void HandleErrorResponse(string bpId, IRestResponse restResponse)
-        {
-            var errorResponse = JsonConvert.DeserializeObject<McfResponse<BpRelationshipsMcfResponse>>(restResponse.Content);
-            var errormessage = $"Accounts('{bpId}')/Relationships was not successfull with Error {errorResponse.ToJson()}";
+        {           
+            var errormessage = $"Accounts('{bpId}')/Relationships was not successfull with Error {restResponse.Content}";
             _logger.LogError(errormessage);
             if (restResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
@@ -1555,6 +1578,26 @@ namespace PSE.Customer.V1.Clients.Mcf
 
                 throw new Exception(errormessage);
             }
+        }
+
+        private BpRelationshipUpdateMcfRequest MaptoMcfBpUpdateRequest(BpRelationshipUpdateRequest request)
+        {
+            var bpUpdaterelation = new BpRelationshipUpdateMcfRequest()
+            {
+                AccountID1 = request.AccountID1,
+                AccountID2 = request.AccountID2,
+                Defaultrelationship = request.Defaultrelationship,
+                Differentiationtypevalue = request.Differentiationtypevalue,
+                Message = request.Message,
+                Relationshipcategory = request.Relationshipcategory,
+                Relationshiptypenew = request.Relationshiptypenew,
+                Validfromdate = request.Validfromdate,
+                Validfromdatenew = request.Validfromdatenew,
+                Validtodate = request.Validtodate,
+                Validtodatenew = request.Validtodatenew,
+
+            };
+            return bpUpdaterelation;
         }
 
         #region Kept this for testing/debuging 
