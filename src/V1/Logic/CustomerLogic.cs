@@ -368,22 +368,20 @@ namespace PSE.Customer.V1.Logic
             if (response?.Error != null)
             {
                 _logger.LogError($"Failure saving phone number to SAP: {response.Error.ToJson()}");
-                throw new Exception($"Failure saving phone number to SAP: {response.Error.Message}");
+                throw new Exception($"Failure saving phone number to SAP: {response.Error.Message.Value}");
             }
-            else if (addressResponse?.Error != null)
+
+            if (addressResponse?.Error != null)
             {
                 _logger.LogError($"Failure getting standard mail address: {addressResponse.Error.ToJson()}");
-                throw new Exception($"Failure getting standard mail address: {addressResponse.Error.Message}");
+                throw new Exception($"Failure getting standard mail address: {addressResponse.Error.Message.Value}");
             }
-            else
-            {
-                _logger.LogInformation($"Success saving phone number to SAP: {response?.Result.ToJson()}");
 
-                // This returns an empty set and the IsFullyFetched property is true.
-                // There is apparently no way to determine if any rows were updated or not,
-                // so unless an exception occurs, NoContent will always be returned.
-                await _customerRepository.UpdateCustomerPhoneNumber(phone, bpId);
-            }
+            // This returns an empty set and the IsFullyFetched property is true.
+            // There is apparently no way to determine if any rows were updated or not,
+            // so unless an exception occurs, NoContent will always be returned.
+            await _customerRepository.UpdateCustomerPhoneNumber(phone, bpId);
+            _logger.LogInformation($"Success saving phone number to SAP: {response?.Result.ToJson()}");
         }
 
         /// <summary>

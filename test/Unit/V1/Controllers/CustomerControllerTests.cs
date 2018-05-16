@@ -23,7 +23,6 @@ using Shouldly;
 
 namespace PSE.Customer.Tests.Unit.V1.Controllers
 {
-
     [TestClass]
     public class CustomerControllerTests
     {

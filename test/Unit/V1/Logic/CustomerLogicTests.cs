@@ -497,9 +497,9 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
             // Act
             await logic.PutPhoneNumberAsync(user.JwtToken, user.Phones[0], user.BpNumber);
         }
-        [Ignore]
+
         [TestMethod]
-        public async Task PutPhoneNumbersAsync_FailureUpdatingBusinessPartnerMobilePhone_CassandraNotUpdated()
+        public void PutPhoneNumbersAsync_FailureUpdatingBusinessPartnerMobilePhone_CassandraNotUpdated()
         {
             // Arrange
             var user = TestHelper.PaDev1;
@@ -521,22 +521,16 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
                 });
 
             // Act
-            try
-            {
-                await logic.PutPhoneNumberAsync(user.JwtToken, user.Phones[0], user.BpNumber);
-                Assert.Fail();
-            }
-            catch (Exception ex)
-            {
-               // Assert.ThrowsException
-            }
+            Func<Task> func = async () => { await logic.PutPhoneNumberAsync(user.JwtToken, user.Phones[0], user.BpNumber); };
+
             // Assert
+            func.ShouldThrow<Exception>().
+                Message.ShouldContain("Failure saving phone number to SAP: Some Error");
             mockCustomerRepository.Verify(m => m.UpdateCustomerPhoneNumber(It.IsAny<Phone>(), It.IsAny<long>()), Times.Never);
         }
 
         [TestMethod]
-        [Ignore]
-        public async Task PutPhoneNumbersAsync_FailureGettingStandardAddress_CassandraNotUpdated()
+        public void PutPhoneNumbersAsync_FailureGettingStandardAddress_CassandraNotUpdated()
         {
             // Arrange
             var user = TestHelper.PaDev1;
@@ -558,21 +552,16 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
                 });
 
             // Act
-            try
-            {
-                await logic.PutPhoneNumberAsync(user.JwtToken, user.Phones[1], user.BpNumber);
-                Assert.Fail();
-            }
-            catch
-            {
+            Func<Task> func = async () => { await logic.PutPhoneNumberAsync(user.JwtToken, user.Phones[1], user.BpNumber); };
 
-            }
             // Assert
+            func.ShouldThrow<Exception>().
+                Message.ShouldContain("Failure getting standard mail address: Some Error");
             mockCustomerRepository.Verify(m => m.UpdateCustomerPhoneNumber(It.IsAny<Phone>(), It.IsAny<long>()), Times.Never);
         }
-        [Ignore]
+
         [TestMethod]
-        public async Task PutPhoneNumbersAsync_FailureUpdatingLocationSpecificPhone_CassandraNotUpdated()
+        public void PutPhoneNumbersAsync_FailureUpdatingLocationSpecificPhone_CassandraNotUpdated()
         {
             // Arrange
             var user = TestHelper.PaDev1;
@@ -604,9 +593,11 @@ namespace PSE.Customer.Tests.Unit.V1.Logic
                 });
 
             // Act
-            await logic.PutPhoneNumberAsync(user.JwtToken, user.Phones[1], user.BpNumber);
+            Func<Task> func = async () => { await logic.PutPhoneNumberAsync(user.JwtToken, user.Phones[1], user.BpNumber); };
 
             // Assert
+            func.ShouldThrow<Exception>().
+                Message.ShouldContain("Failure saving phone number to SAP: Some Error");
             mockCustomerRepository.Verify(m => m.UpdateCustomerPhoneNumber(It.IsAny<Phone>(), It.IsAny<long>()), Times.Never);
         }
 

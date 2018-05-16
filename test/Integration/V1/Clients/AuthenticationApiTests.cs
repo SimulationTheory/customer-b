@@ -138,8 +138,8 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
         }
 
         [TestMethod]
-        //[Ignore]
-        //[ExpectedException(typeof(XmlException))]
+        //[Ignore("TODO: Alter ClientProxy approach to handle error return types as well as success return types"]
+        [ExpectedException(typeof(XmlException))]
         public async Task GetJwtToken_UnknownUsername_ThrowsException()
         {
             // Arrange

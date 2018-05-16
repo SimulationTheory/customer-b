@@ -332,10 +332,7 @@ namespace PSE.Customer.V1.Controllers
 
                     if (HttpContext.Request.Headers.TryGetValue("Authorization", out StringValues jwt))
                     {
-                       
                         BpRelationshipUpdateResponse response =_customerLogic.UpdateBPRelationship(request, jwt);
-
-                    
                         result = Ok(response);
                     }
                     else

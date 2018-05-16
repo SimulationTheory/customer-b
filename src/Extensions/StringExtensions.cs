@@ -38,8 +38,9 @@ namespace PSE.Customer.Extensions
         /// <returns>The object formatted as a JSON string</returns>
         public static string ToJson(this object serializableObject, Formatting formatting = Formatting.Indented, NullValueHandling nullValueHandling = NullValueHandling.Ignore)
         {
-            return JsonConvert.SerializeObject(serializableObject, formatting,
+            var json = JsonConvert.SerializeObject(serializableObject, formatting,
                 new JsonSerializerSettings { NullValueHandling = nullValueHandling });
+            return json;
         }
 
         /// <summary>
