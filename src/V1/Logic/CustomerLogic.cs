@@ -347,7 +347,7 @@ namespace PSE.Customer.V1.Logic
                     var mcfDepRequest = new CreateAddressDependantPhoneRequest
                     {
                         BusinessPartnerId = bpId,
-                        AddressId = addressResponse.Result.AddressID.ToString(),
+                        AddressID = addressResponse.Result.AddressID.ToString(),
                         PhoneNumber = phone.Number,
                         Extension = phone.Extension ?? "",
                         IsHome = true,

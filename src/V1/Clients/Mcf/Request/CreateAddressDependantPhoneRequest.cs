@@ -24,7 +24,7 @@ namespace PSE.Customer.V1.Clients.Mcf.Request
         /// <value>
         /// The address identifier to associate the phone number with (standard address)
         /// </value>
-        public string AddressId { get; set; }
+        public string AddressID { get; set; }
 
         /// <summary>
         /// Gets or sets the phone number.

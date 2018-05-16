@@ -260,7 +260,7 @@ namespace PSE.Customer.Tests.Integration.V1.Clients
             };
 
             var addressResponse = McfClient.GetStandardMailingAddress(user.JwtEncodedString, user.BPNumber);
-            request.AddressId = addressResponse.Result.AddressID.ToString();
+            request.AddressID = addressResponse.Result.AddressID.ToString();
 
             if (request.BusinessPartnerId == user.BPNumber)
             {
