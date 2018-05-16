@@ -368,10 +368,12 @@ namespace PSE.Customer.V1.Logic
             if (response?.Error != null)
             {
                 _logger.LogError($"Failure saving phone number to SAP: {response.Error.ToJson()}");
+                throw new Exception($"Failure saving phone number to SAP: {response.Error.Message}");
             }
             else if (addressResponse?.Error != null)
             {
                 _logger.LogError($"Failure getting standard mail address: {addressResponse.Error.ToJson()}");
+                throw new Exception($"Failure getting standard mail address: {addressResponse.Error.Message}");
             }
             else
             {
