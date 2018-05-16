@@ -1434,6 +1434,7 @@ namespace PSE.Customer.V1.Clients.Mcf
 
             return mcfResponse;
         }
+
         public MoveInResponse PostMoveIn(CreateMoveInRequest request, string jwt)
         {
             var config = _coreOptions.Configuration;
@@ -1465,7 +1466,6 @@ namespace PSE.Customer.V1.Clients.Mcf
 
             return mcfResponse.Result;
         }
-
 
         public async Task<McfResponse<McfResponseResults<PremisesSet>>> GetPremises(string bpId)
         {

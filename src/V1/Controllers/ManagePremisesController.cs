@@ -37,6 +37,7 @@ namespace PSE.Customer.V1.Controllers
         /// <param name="bpId"></param>
         [HttpGet("premises")]
         [ProducesResponseType(typeof(GetPremisesResponse), 200)]
+        [AllowAnonymous]
         public async Task<IActionResult> GetPremises(string bpId)
         {
             IActionResult result;
@@ -63,6 +64,7 @@ namespace PSE.Customer.V1.Controllers
         /// <param name="bpId">The business partner ID</param>
         [HttpGet("owner-accounts")]
         [ProducesResponseType(typeof(GetOwnerAccountsResponse), 200)]
+        [AllowAnonymous]
         public async Task<IActionResult> GetOwnerAccounts(string bpId)
         {
             IActionResult result;
@@ -81,6 +83,5 @@ namespace PSE.Customer.V1.Controllers
 
             return result;
         }
-
     }
 }

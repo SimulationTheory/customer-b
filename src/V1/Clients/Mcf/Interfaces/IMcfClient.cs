@@ -6,9 +6,7 @@ using PSE.RestUtility.Core.Mcf;
 using System.Threading.Tasks;
 using PSE.Customer.V1.Clients.Mcf.Models;
 using PSE.Customer.V1.Response;
-using PSE.WebAPI.Core.Service.Enums;
 using System;
-using PSE.Customer.V1.Clients.Account.Models.Response;
 
 namespace PSE.Customer.V1.Clients.Mcf.Interfaces
 {
@@ -194,6 +192,13 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// </remarks>
         void FixAddressToContractAccount(string jwt, long contractAccountId, FixAddressToContractAccountRequest request);
 
+        /// <summary>
+        /// Gets the move in late payments response.
+        /// </summary>
+        /// <param name="contractAccountId">The contract account identifier.</param>
+        /// <param name="reconnectionFlag">if set to <c>true</c> [reconnection flag].</param>
+        /// <param name="jwt">Authorization token</param>
+        /// <returns></returns>
         MoveInLatePaymentsResponse GetMoveInLatePaymentsResponse(long contractAccountId, bool reconnectionFlag, string jwt);
 
         /// <summary>
@@ -202,8 +207,6 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// <param name="businesPartnerequest"></param>
         /// <returns>createbprelationship</returns>
         Task<CreateBusinessPartnerMcfResponse> CreateBusinessPartner(CreateBusinesspartnerMcfRequest businesPartnerequest);
-
-        
 
         /// <summary>
         /// Creates a Customer Interaction Record
@@ -243,10 +246,10 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
 
         /// <summary>
         /// Creates BpRelationship
-        /// /// </summary>
-        /// <param name="jwt"></param>
-        /// <param name="request"></param>
-        /// /// <param name="request"></param>
+        /// </summary>
+        /// <param name="jwt">Authorization token</param>
+        /// <param name="request">Request</param>
+        /// <param name="tenantBpId">BP ID of tenant</param>
         /// <returns></returns>
         bool CreateBpRelationship(string jwt, BpRelationshipRequest request, string tenantBpId);
 
@@ -280,7 +283,6 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// <returns></returns>
         BpRelationshipUpdateResponse UpdateBusinessPartnerRelationship(BpRelationshipUpdateRequest request, string jwt);
 
-
         /// <summary>
         /// Stops the service.
         /// </summary>
@@ -303,6 +305,7 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// <param name="bpId">Business partner ID</param>
         /// <returns></returns>
         Task<McfResponse<McfResponseResults<OwnerAccountsSet>>> GetOwnerAccounts(string bpId);
+
         /// <summary>
         /// delete the business partner relationshipo
         /// </summary>
@@ -310,6 +313,5 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         /// <param name="jwt"></param>
         /// <returns></returns>
         Task<BpRelationshipUpdateResponse> DeleteBusinessPartnerRelationship(BpRelationshipUpdateRequest request, string jwt);
-
     }
 }

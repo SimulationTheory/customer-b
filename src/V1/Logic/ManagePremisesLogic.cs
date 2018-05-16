@@ -14,6 +14,7 @@ namespace PSE.Customer.V1.Logic
     /// <inheritdoc />
     public class ManagePremisesLogic : IManagePremisesLogic
     {
+        // ReSharper disable once NotAccessedField.Local
         private readonly IRequestContextAdapter _requestContext;
         private readonly ILogger<ManagePremisesLogic> _logger;
         private readonly IMcfClient _mcfClient;

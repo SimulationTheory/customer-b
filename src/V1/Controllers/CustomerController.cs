@@ -237,29 +237,29 @@ namespace PSE.Customer.V1.Controllers
         /// <returns></returns>
         [ApiExplorerSettings(IgnoreApi = true)]
         [ProducesResponseType(typeof(bool), 200)]
-       [HttpPost("bpRelationship")]
-       [AllowAnonymous]
-       public async Task<IActionResult> CreateBpRelationship([FromBody] CreateBpRelationshipRequest request)
-      {
-           IActionResult result;
+        [HttpPost("bpRelationship")]
+        [AllowAnonymous]
+        public IActionResult CreateBpRelationship([FromBody] CreateBpRelationshipRequest request)
+        {
+            IActionResult result;
 
-           try
-           {
-               _logger.LogInformation($"CreateBpRealtionship({nameof(request)}: {request.ToJson()})");
+            try
+            {
+                _logger.LogInformation($"CreateBpRealtionship({nameof(request)}: {request.ToJson()})");
 
                 HttpContext.Request.Headers.TryGetValue("Authorization", out StringValues jwt);
                 //Call Logic Class to create bp relationship and returns true or false if successful/not successful
                 var response = _customerLogic.CreateBpRelationshipAsync(request, jwt);
-               result = Ok(response);
-           }
-           catch (Exception e)
-           {
-               _logger.LogError(e, e.Message);
-               result = e.ToActionResult();
-           }
-           return result;
-       }
+                result = Ok(response);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                result = e.ToActionResult();
+            }
 
+            return result;
+        }
 
         /// <summary>
         /// Updates postal mail address for logged in user in MCF and Cassandra.
@@ -277,8 +277,7 @@ namespace PSE.Customer.V1.Controllers
             if (ModelState.IsValid)
             {
                 try
-                {                  
-
+                {
                     if (HttpContext.Request.Headers.TryGetValue("Authorization", out StringValues jwt))
                     {
                         var bpId = GetBpIdFromClaims();
@@ -318,8 +317,8 @@ namespace PSE.Customer.V1.Controllers
         /// <returns>200 if successful, 400 if address is not valid, 500 if exception</returns>
         [ApiExplorerSettings(IgnoreApi = true)]
         [ProducesResponseType(typeof(OkResult), 200)]
-        [HttpPut("UpdateBPRelationship")]     
-        public async Task<IActionResult> UpdateBusinessPartnerRelationship([FromBody] BpRelationshipUpdateRequest request)
+        [HttpPut("UpdateBPRelationship")]
+        public IActionResult UpdateBusinessPartnerRelationship([FromBody] BpRelationshipUpdateRequest request)
         {
             _logger.LogInformation($"UpdateBusinessPartnerRelationship({nameof(request)}: {request.ToJson()})");
 
@@ -487,8 +486,7 @@ namespace PSE.Customer.V1.Controllers
         /// <returns>returns GetCustomerInteractionResponse</returns>
         [ProducesResponseType(typeof(GetCustomerInteractionResponse), 201)]
         [HttpPost("interaction")]
-       
-        public async Task<IActionResult> CreateCustomerInteractionRecord([FromBody] CreateCustomerInteractionRequest createCustomerInteraction)
+        public IActionResult CreateCustomerInteractionRecord([FromBody] CreateCustomerInteractionRequest createCustomerInteraction)
         {
             _logger.LogInformation($"CreateCustomerInteractionRecord({nameof(createCustomerInteraction)}: {createCustomerInteraction.ToJson()}");
             IActionResult result;

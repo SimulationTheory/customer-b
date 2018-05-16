@@ -3,6 +3,9 @@ using PSE.Customer.V1.Response;
 
 namespace PSE.Customer.V1.Logic.Interfaces
 {
+    /// <summary>
+    /// Logic layer for managing accounts with multiple premises and landlords
+    /// </summary>
     public interface IManagePremisesLogic
     {
         /// <summary>
