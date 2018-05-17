@@ -104,8 +104,7 @@ namespace PSE.Customer.V1.Logic.Interfaces
         /// <param name="jwt">The JWT.</param>
         /// <returns></returns>
         Task<GetCustomerInteractionResponse> CreateCustomerInteractionRecord(CreateCustomerInteractionRequest createCustomerInteraction, string jwt);
-
-
+        
         /// <summary>
         /// updates a business partner relationship.
         /// </summary>
@@ -127,6 +126,17 @@ namespace PSE.Customer.V1.Logic.Interfaces
         /// <param name="bpID"></param>
         /// <returns></returns>
         Task<bool> SyncCustomerByBpId(long bpID);
+
+        /// <summary>
+        /// generates Emma Case
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="jwt"></param>
+        /// <returns></returns>
+        GetEmmaCaseResponse CreateEmmaCaseSet(CreateEmmaCaseSetRequest request, string jwt);
+
+
+
 
 
     }

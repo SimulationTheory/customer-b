@@ -551,6 +551,27 @@ namespace PSE.Customer.V1.Logic
             return token;
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="jwt"></param>
+        /// <returns></returns>
+        public GetEmmaCaseResponse CreateEmmaCaseSet(CreateEmmaCaseSetRequest request, string jwt)
+        {
+            var mcfRequest = new EmmaCaseSetRequest()
+            {
+
+            };
+
+            var response = _mcfClient.CreateEmmaCaseSet(jwt, mcfRequest);
+
+            return response;
+        }
+
+
+
         /// <summary>
         /// Creates BpReationship
         /// </summary>

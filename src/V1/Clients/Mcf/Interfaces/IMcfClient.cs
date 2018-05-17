@@ -284,6 +284,16 @@ namespace PSE.Customer.V1.Clients.Mcf.Interfaces
         BpRelationshipUpdateResponse UpdateBusinessPartnerRelationship(BpRelationshipUpdateRequest request, string jwt);
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="jwt"></param>
+        /// <returns></returns>
+       
+        GetEmmaCaseResponse CreateEmmaCaseSet(string jwt, EmmaCaseSetRequest request);
+        
+
+        /// <summary>
         /// Stops the service.
         /// </summary>
         /// <param name="contractItemId">The contract item identifier.</param>

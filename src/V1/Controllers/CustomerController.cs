@@ -230,6 +230,10 @@ namespace PSE.Customer.V1.Controllers
             return result;
         }
 
+
+
+
+
         /// <summary>
         /// Creates the business partner relationship in MCF.
         /// </summary>
@@ -433,7 +437,7 @@ namespace PSE.Customer.V1.Controllers
         /// </summary>
         /// <param name="isStandardOnly"></param>
         /// <returns></returns>
-        [ProducesResponseType(typeof(GetMailingAddressesResponse), 200)]
+        [ProducesResponseType(typeof(GetMailingAddressesResponse), 201)]
         [HttpGet("mailing-address/{isStandardOnly}")]
         public async Task<IActionResult> GetMailingAddressesAsync(bool isStandardOnly)
         {
@@ -477,6 +481,36 @@ namespace PSE.Customer.V1.Controllers
 
             return result;
         }
+
+
+
+        /// <summary>
+        /// <param name="request"></param>
+        /// </summary>
+        [ProducesResponseType(typeof(GetEmmaCaseResponse), 201)]
+        [HttpPost("emma-case")]
+        public IActionResult CreateEmmaCaseSet([FromBody] CreateEmmaCaseSetRequest request)
+        {
+            IActionResult result;
+
+            try
+            {
+                _logger.LogInformation($"CreateEmmaCaseSet({nameof(request)}: {request.ToJson()})");
+
+                HttpContext.Request.Headers.TryGetValue("Authorization", out StringValues jwt);
+                var response =  _customerLogic.CreateEmmaCaseSet(request, jwt);
+                result = Ok(response);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                result = e.ToActionResult();
+            }
+
+
+            return result;
+        }
+
 
         /// <summary>
         /// Creates interaction record for logged in user, valid priority levels are 
